@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SKT UT 프로토타입 - A안 (Effortless Control)</title>
+<style>
+:root {
+  --bg-page: #FFFFFF;
+  --bg-surface: #F5F5F5;
+  --bg-surface-2: #EEEEEE;
+  --bg-surface-3: #E4E4E4;
+  --bg-frame: #D9D9D9;
+
+  --border-default: #E0E0E0;
+  --border-mid: #CCCCCC;
+  --border-strong: #999999;
+
+  --text-primary: #111111;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-disabled: #AAAAAA;
+  --text-on-action: #FFFFFF;
+
+  --action: #3B49DF;
+  --action-soft: #5868E8;
+  --action-pressed: #2934B0;
+  --action-bg-weak: #EEF0FF;
+  --action-bg-softer: #F5F6FF;
+
+  --alert: #C93E3E;
+  --alert-bg-weak: #FCEBEB;
+
+  --ai: var(--action);
+  --ai-bg: var(--action-bg-weak);
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  --fs-title: 20px;
+  --fs-body: 15px;
+  --fs-caption: 12px;
+  --lh-tight: 1.3;
+  --lh-normal: 1.5;
+  --fw-regular: 400;
+  --fw-medium: 600;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --gnb-height: 64px;
+}
+
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background: var(--bg-frame);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+}
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+input { font: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* App Frame + Status Bar */
+.app-frame {
+  min-height: 100vh;
+  background: var(--bg-frame);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0;
+}
+.app-screen {
+  width: 375px;
+  min-height: 812px;
+  max-height: 812px;
+  background: var(--bg-page);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 420px) {
+  .app-frame { padding: 0; }
+  .app-screen { width: 100%; min-height: 100vh; max-height: 100vh; border: 0; }
+}
+
+.status-bar {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 22px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  position: relative;
+  z-index: 1;
+  letter-spacing: -0.2px;
+}
+.status-bar__time { font-variant-numeric: tabular-nums; }
+.status-bar__right { display: flex; align-items: center; gap: 5px; }
+.status-bar__signal { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+.status-bar__signal span { width: 3px; background: var(--text-primary); border-radius: 1px; }
+.status-bar__signal span:nth-child(1) { height: 4px; }
+.status-bar__signal span:nth-child(2) { height: 6px; }
+.status-bar__signal span:nth-child(3) { height: 9px; }
+.status-bar__signal span:nth-child(4) { height: 12px; }
+.status-bar__wifi svg { width: 16px; height: 11px; }
+.status-bar__battery {
+  position: relative;
+  width: 26px;
+  height: 12px;
+  border: 1.2px solid var(--text-primary);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 1px;
+}
+.status-bar__battery::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 3px;
+  bottom: 3px;
+  width: 2px;
+  background: var(--text-primary);
+  border-radius: 0 1px 1px 0;
+}
+.status-bar__battery-fill { width: 80%; height: 100%; background: var(--text-primary); border-radius: 1px; }
+
+/* UT Floating Panel */
+.ut-fab {
+  position: absolute;
+  top: 56px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.3px;
+  opacity: 0.85;
+  transition: all 160ms ease;
+}
+.ut-fab:active { transform: scale(0.92); }
+.ut-fab.hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+.ut-panel {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: #222;
+  color: #fff;
+  z-index: 45;
+  padding: 12px 14px;
+  font-size: var(--fs-caption);
+  transform: translateY(-100%);
+  transition: transform 200ms ease;
+}
+.ut-panel.open { transform: translateY(0); }
+.ut-panel__row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.ut-panel__label {
+  background: var(--action);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: var(--fw-medium);
+  flex-shrink: 0;
+  font-size: 11px;
+  margin-top: 1px;
+}
+.ut-panel__text { flex: 1; line-height: 1.4; }
+.ut-panel__close {
+  color: #fff;
+  width: 24px; height: 24px;
+  background: #444;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.ut-panel__controls { display: flex; gap: 6px; align-items: center; }
+.ut-panel__btn { background: #444; color: #fff; border-radius: 4px; padding: 5px 10px; font-size: 11px; }
+.ut-panel__btn:active { background: #555; }
+.ut-panel__select { background: #444; color: #fff; border: 0; border-radius: 4px; padding: 5px 8px; font-size: 11px; }
+.ut-panel__hint { font-size: 10px; color: #999; margin-left: auto; }
+.ut-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 44;
+  opacity: 0; pointer-events: none;
+  transition: opacity 160ms;
+}
+.ut-backdrop.open { opacity: 1; pointer-events: auto; }
+
+/* Scroll Area */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+.screen { display: none; }
+.screen.screen--active { display: block; }
+
+/* Top Bar */
+.top-bar {
+  padding: 14px 62px 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--bg-page);
+  z-index: 5;
+}
+.top-bar__left { display: flex; align-items: center; gap: 12px; }
+.top-bar__right { display: flex; align-items: center; gap: 6px; }
+.top-bar__icon {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  transition: background 80ms;
+}
+.top-bar__icon:active { background: var(--bg-surface-2); }
+.top-bar__icon svg { width: 18px; height: 18px; }
+
+/* 혜택/관리 토글 */
+.segmented { display: inline-flex; background: transparent; gap: 4px; }
+.segmented__item {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  font-weight: var(--fw-regular);
+  transition: all 80ms;
+}
+.segmented__item--active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+}
+
+/* Page Content - GNB 높이만큼 여백 */
+.page-body { padding: 8px 16px calc(var(--gnb-height) + 20px); }
+.page-headline {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  margin: 12px 0 6px;
+}
+.page-subline {
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin: 24px 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-title__more { font-size: var(--fs-caption); color: var(--text-secondary); font-weight: var(--fw-regular); }
+
+/* Icon circles */
+.icon-circle {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--bg-surface-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.icon-circle svg { width: 16px; height: 16px; }
+.icon-circle--sm { width: 22px; height: 22px; }
+.icon-circle--sm svg { width: 12px; height: 12px; }
+.icon-circle--lg { width: 40px; height: 40px; }
+.icon-circle--lg svg { width: 22px; height: 22px; }
+.icon-circle--action { background: var(--action-bg-softer); color: var(--action); }
+
+/* Tag */
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+}
+.tag--alert { background: var(--alert); color: #fff; }
+.tag--ai { background: var(--action-bg-weak); color: var(--action); }
+.tag--outline { background: transparent; border: 1px solid var(--border-mid); color: var(--text-secondary); }
+
+/* ============================================
+   A안 고유: 2열 타일 그리드
+   ============================================ */
+.tile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.tile {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 80ms;
+  border: 1px solid transparent;
+  position: relative;
+}
+.tile:active { background: var(--bg-surface-2); }
+.tile--wide { grid-column: 1 / 3; }
+.tile--alert-border { border-color: var(--alert); }
+
+.tile__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.tile__label {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+.tile__tag-wrap { flex-shrink: 0; }
+.tile__main {
+  font-size: 22px;
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+}
+.tile__main--alert { color: var(--alert); }
+.tile__sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.tile__visual {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 24px; height: 24px;
+  color: var(--text-tertiary);
+}
+.tile__visual svg { width: 100%; height: 100%; }
+.tile__visual--alert { color: var(--alert); }
+
+/* Wide tile (전체 폭, 미납 등) */
+.tile--wide .tile__head { margin-bottom: 6px; }
+.tile--wide .tile__body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* 흑백 이미지 플레이스홀더 (B안 공통) */
+.img-ph {
+  background: linear-gradient(135deg, #E0E0E0 0%, #C8C8C8 100%);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: var(--fs-caption);
+  flex-shrink: 0;
+}
+.img-ph__label {
+  position: absolute;
+  left: 12px; bottom: 10px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.img-ph--avatar { width: 28px; height: 28px; border-radius: 50%; background: #CCCCCC; }
+
+/* ============================================
+   하단 GNB (A안 고유)
+   ============================================ */
+.bottom-nav {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: var(--gnb-height);
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-default);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  z-index: 10;
+}
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: var(--fw-regular);
+  position: relative;
+  padding-bottom: 6px;
+  transition: color 80ms;
+}
+.bottom-nav__item svg {
+  width: 22px;
+  height: 22px;
+}
+.bottom-nav__item:active { opacity: 0.7; }
+.bottom-nav__item--active {
+  color: var(--action);
+  font-weight: var(--fw-medium);
+}
+
+/* Card (공통) */
+.card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+}
+.card[role="button"] { cursor: pointer; }
+.card[role="button"]:active { background: var(--bg-surface-2); }
+
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.card__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 0;
+}
+.card__label-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Bottom Sheets */
+.sheet-dim {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 42;
+  display: none;
+}
+.sheet-dim.open { display: block; }
+.bottom-sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: var(--bg-page);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  z-index: 43;
+  transform: translateY(100%);
+  transition: transform 240ms ease;
+  max-height: 72%;
+  display: flex;
+  flex-direction: column;
+}
+.bottom-sheet.open { transform: translateY(0); }
+.bottom-sheet--agent { max-height: 82%; height: 82%; }
+.bottom-sheet__handle {
+  width: 40px; height: 4px;
+  background: var(--border-mid);
+  border-radius: 2px;
+  margin: 10px auto;
+  flex-shrink: 0;
+}
+.bottom-sheet__head {
+  padding: 4px 16px 14px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bottom-sheet__head-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: var(--fs-body); font-weight: var(--fw-medium);
+}
+.bottom-sheet__close {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+}
+.bottom-sheet__body { padding: 16px; overflow-y: auto; flex: 1; }
+
+/* Agent chat */
+.agent-chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.agent-input-area {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-default);
+  padding: 10px 14px 14px;
+  background: var(--bg-page);
+}
+.agent-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 6px 6px 14px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-pill);
+}
+.agent-input__field {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+  height: 36px;
+}
+.agent-input__field::placeholder { color: var(--text-tertiary); }
+.agent-input__send {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.agent-input__send:active { transform: scale(0.92); }
+.agent-input__send svg { width: 16px; height: 16px; }
+
+.chat-message {
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  max-width: 85%;
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+}
+.chat-message--ai {
+  background: var(--action-bg-softer);
+  align-self: flex-start;
+  border: 1px solid var(--action-bg-weak);
+}
+.chat-message--user {
+  background: var(--action);
+  color: #fff;
+  align-self: flex-end;
+  margin-left: auto;
+}
+.chat-messages { display: flex; flex-direction: column; }
+.chat-action-wrap {
+  align-self: flex-start;
+  margin: 4px 0 12px;
+  max-width: 85%;
+}
+.quick-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.quick-chip {
+  padding: 8px 14px;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+  background: var(--bg-page);
+  color: var(--text-primary);
+}
+.quick-chip:active { background: var(--bg-surface-2); }
+
+/* Buttons */
+.btn {
+  height: 44px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  border: 1px solid var(--border-default);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn:active { background: var(--bg-surface-2); }
+.btn--primary {
+  background: var(--action);
+  color: var(--text-on-action);
+  border-color: var(--action);
+}
+.btn--primary:active { background: var(--action-pressed); }
+.btn--cta {
+  width: calc(100% - 32px);
+  height: 52px;
+  position: absolute;
+  left: 16px; right: 16px;
+  bottom: calc(var(--gnb-height) + 16px);
+  z-index: 5;
+}
+.btn--block { width: 100%; }
+
+.back-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-primary);
+}
+.back-btn:active { background: var(--bg-surface-2); }
+.back-btn svg { width: 18px; height: 18px; }
+
+/* Scenario Select */
+.scenario-select { padding: 40px 24px; }
+.scenario-select__title { font-size: var(--fs-title); font-weight: var(--fw-medium); margin-bottom: 8px; }
+.scenario-select__subtitle { font-size: var(--fs-body); color: var(--text-secondary); margin-bottom: 32px; }
+.scenario-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 20px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.scenario-card:active { background: var(--bg-surface-2); }
+.scenario-card__num { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 4px; }
+.scenario-card__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 6px; }
+.scenario-card__desc { font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+/* 요금제 상세 */
+.detail-header { padding: 16px; }
+.detail-header__label { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.detail-header__title { font-size: 24px; font-weight: var(--fw-medium); margin-bottom: 10px; }
+.detail-header__price { font-size: var(--fs-body); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.detail-header__price-main { font-size: 22px; font-weight: var(--fw-medium); }
+.detail-header__price-discount { color: var(--action); font-weight: var(--fw-medium); }
+.detail-header__price-sub { color: var(--text-secondary); font-size: var(--fs-caption); margin-top: 4px; display: block; width: 100%; }
+.detail-meta { border-top: 1px solid var(--border-default); padding: 16px; }
+.detail-meta__row { display: flex; justify-content: space-between; padding: 8px 0; font-size: var(--fs-body); }
+.detail-meta__row dt { color: var(--text-secondary); }
+.detail-meta__row dd { color: var(--text-primary); }
+.detail-feature-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  margin: 0 16px 16px;
+}
+.detail-feature-list__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 12px; }
+.detail-feature-list__item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: var(--fs-body); }
+
+/* 요금제 리스트 (쇼핑 탭) */
+.plan-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.plan-card:active { background: var(--bg-surface-2); }
+.plan-card__info { flex: 1; }
+.plan-card__name { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px; }
+.plan-card__meta { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 6px; }
+.plan-card__price { display: flex; align-items: baseline; gap: 6px; }
+.plan-card__price-main { font-size: var(--fs-title); font-weight: var(--fw-medium); }
+.plan-card__price-unit { font-size: var(--fs-caption); color: var(--text-secondary); }
+.plan-card__price-discount { color: var(--action); font-size: var(--fs-caption); font-weight: var(--fw-medium); }
+.plan-card__arrow { color: var(--text-tertiary); flex-shrink: 0; }
+
+/* 납부 수단 */
+.pay-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  background: var(--bg-page);
+  cursor: pointer;
+}
+.pay-option[data-selected="true"] {
+  border-color: var(--action);
+  background: var(--action-bg-softer);
+}
+.pay-option__info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.pay-option__name { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.pay-option__meta { font-size: var(--fs-caption); color: var(--text-secondary); }
+.pay-option__radio {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-mid);
+  position: relative;
+  flex-shrink: 0;
+}
+.pay-option[data-selected="true"] .pay-option__radio { border-color: var(--action); }
+.pay-option[data-selected="true"] .pay-option__radio::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: var(--action);
+  border-radius: 50%;
+}
+
+/* 요금 내역 리스트 */
+.bill-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 4px 16px;
+  margin-bottom: 8px;
+}
+.bill-list__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  font-size: var(--fs-body);
+  border-bottom: 1px solid var(--border-default);
+}
+.bill-list__row:last-child { border-bottom: 0; }
+.bill-list__row--sum {
+  font-weight: var(--fw-medium);
+  border-top: 1px solid var(--border-mid);
+  border-bottom: 0 !important;
+}
+.bill-list__label { color: var(--text-secondary); display: flex; align-items: center; }
+.bill-list__value { font-weight: var(--fw-medium); font-variant-numeric: tabular-nums; }
+.bill-total {
+  background: var(--text-primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+.bill-total__label { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.bill-total__value { font-size: var(--fs-title); font-weight: var(--fw-medium); font-variant-numeric: tabular-nums; }
+
+/* 완료 화면 */
+.done-screen { padding: 80px 24px 24px; text-align: center; }
+.done-screen__check {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--action-bg-softer);
+  color: var(--action);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+}
+.done-screen__check svg { width: 30px; height: 30px; }
+.done-screen__title { font-size: var(--fs-title); font-weight: var(--fw-medium); margin-bottom: 8px; }
+.done-screen__desc { font-size: var(--fs-body); color: var(--text-secondary); margin-bottom: 32px; line-height: var(--lh-normal); }
+.done-summary {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.done-summary__row { display: flex; justify-content: space-between; padding: 6px 0; font-size: var(--fs-body); }
+.done-summary__row dt { color: var(--text-secondary); }
+.done-summary__row dd { color: var(--text-primary); font-weight: var(--fw-medium); }
+
+/* 비교 카드 */
+.compare-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+}
+.compare-card--highlight { border-color: var(--action); background: var(--action-bg-softer); }
+.compare-card__label { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.compare-card--highlight .compare-card__label { color: var(--action); font-weight: var(--fw-medium); }
+.compare-card__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px; }
+.compare-card__price { font-size: var(--fs-title); font-weight: var(--fw-medium); }
+.compare-card__meta { font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px; }
+.compare-arrow { text-align: center; color: var(--text-tertiary); margin: 4px 0; display: flex; align-items: center; justify-content: center; }
+.compare-arrow svg { width: 18px; height: 18px; }
+
+/* 사용량 리스트 */
+.usage-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 12px;
+}
+.usage-list__row {
+  display: flex; justify-content: space-between;
+  padding: 10px 0;
+  font-size: var(--fs-body);
+  border-bottom: 1px solid var(--border-default);
+}
+.usage-list__row:last-child { border-bottom: 0; }
+.usage-list__label { color: var(--text-secondary); display: flex; align-items: center; gap: 8px; }
+.usage-list__value { font-weight: var(--fw-medium); }
+
+/* 혜택 탭 요소들 (B안과 동일) */
+.benefit-hero {
+  margin: 8px 0 16px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #E8E8E8 0%, #C8C8C8 100%);
+  aspect-ratio: 2 / 1;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  color: var(--text-primary);
+}
+.benefit-hero__text { font-size: var(--fs-title); font-weight: var(--fw-medium); line-height: var(--lh-tight); }
+.benefit-hero__sub { font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px; }
+.benefit-hero__content { position: relative; z-index: 2; }
+.benefit-hero__img-decor {
+  position: absolute;
+  right: -10px; top: 10px;
+  width: 55%; height: 80%;
+  background: linear-gradient(to left, rgba(255,255,255,0.5), transparent);
+  border-radius: 50% 0 0 50%;
+}
+
+.chip-row {
+  display: flex; gap: 8px;
+  overflow-x: auto;
+  margin: 0 -16px 20px;
+  padding: 0 16px;
+  scrollbar-width: none;
+}
+.chip-row::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: var(--fs-caption);
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid var(--border-default);
+}
+.chip--active { background: var(--text-primary); color: var(--bg-page); border-color: var(--text-primary); }
+
+.benefit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.benefit-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: pointer;
+}
+.benefit-card:active { background: var(--bg-surface-2); }
+.benefit-card__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #DDDDDD 0%, #BBBBBB 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.benefit-card__img svg { width: 32px; height: 32px; opacity: 0.6; }
+.benefit-card__title { font-size: 13px; font-weight: var(--fw-medium); margin-bottom: 2px; line-height: 1.3; }
+.benefit-card__meta { font-size: 11px; color: var(--text-secondary); }
+.benefit-card__price { font-size: var(--fs-caption); color: var(--text-primary); font-weight: var(--fw-medium); margin-top: 4px; }
+
+.list-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+.list-card:active { background: var(--bg-surface-2); }
+.list-card__thumb {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #DDDDDD 0%, #BBBBBB 100%);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.list-card__thumb svg { width: 22px; height: 22px; opacity: 0.7; }
+.list-card__content { flex: 1; min-width: 0; }
+.list-card__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list-card__meta { font-size: var(--fs-caption); color: var(--text-secondary); }
+.list-card__arrow { color: var(--text-tertiary); flex-shrink: 0; }
+
+.scroll-row {
+  display: flex; gap: 10px;
+  overflow-x: auto;
+  margin: 0 -16px 8px;
+  padding: 0 16px 4px;
+  scrollbar-width: none;
+}
+.scroll-row::-webkit-scrollbar { display: none; }
+.movie-card { flex-shrink: 0; width: 120px; cursor: pointer; }
+.movie-card__poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #707070 0%, #333333 100%);
+  margin-bottom: 8px;
+}
+.movie-card__title { font-size: 13px; font-weight: var(--fw-medium); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.movie-card__meta { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+.promo-banner {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  min-height: 100px;
+}
+.promo-banner__label { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 6px; }
+.promo-banner__title { font-size: var(--fs-body); font-weight: var(--fw-medium); line-height: var(--lh-tight); margin-bottom: 4px; max-width: 60%; }
+.promo-banner__sub { font-size: var(--fs-caption); color: var(--text-secondary); max-width: 60%; }
+.promo-banner__decor {
+  position: absolute;
+  right: -10px; top: 50%;
+  transform: translateY(-50%);
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #CCCCCC 0%, #999999 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+}
+.promo-banner__decor svg { width: 32px; height: 32px; opacity: 0.5; }
+
+/* 검색 탭 전용 */
+.search-bar-wrap { padding: 8px 16px 0; }
+
+/* 쇼핑 홈 카테고리 타일 */
+.shop-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.shop-cat {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: background 80ms;
+  border: 0;
+}
+.shop-cat:active { background: var(--bg-surface-2); }
+.shop-cat__icon {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--bg-page);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-primary);
+}
+.shop-cat__icon svg { width: 22px; height: 22px; }
+.shop-cat__label {
+  font-size: var(--fs-caption);
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+  text-align: center;
+}
+
+/* 단말기 카드 */
+.device-card {
+  flex-shrink: 0;
+  width: 150px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.device-card__img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #DDDDDD 0%, #AAAAAA 100%);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.device-card__img::after {
+  content: '';
+  position: absolute;
+  inset: 15% 25%;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.device-card__name {
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  line-height: 1.3;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.device-card__meta { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; }
+.device-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.device-card__price-main { font-size: 13px; font-weight: var(--fw-medium); }
+.device-card__price-discount { color: var(--action); font-size: 11px; font-weight: var(--fw-medium); }
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-pill);
+  margin-bottom: 16px;
+}
+.search-bar__icon { color: var(--text-secondary); display: flex; }
+.search-bar__icon svg { width: 18px; height: 18px; }
+.search-bar__field {
+  flex: 1; background: transparent; border: 0; outline: 0;
+  font-size: var(--fs-body);
+}
+.search-bar__field::placeholder { color: var(--text-tertiary); }
+.search-bar__agent {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.search-bar__agent svg { width: 14px; height: 14px; }
+
+.search-section {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin: 0 16px 12px;
+}
+.search-section__title { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 10px; }
+.recent-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.recent-chip {
+  padding: 7px 12px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption);
+}
+.recent-chip:active { background: var(--bg-surface-2); }
+
+.agent-hint {
+  background: var(--action-bg-softer);
+  border: 1px solid var(--action-bg-weak);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin: 0 16px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.agent-hint__icon {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.agent-hint__icon svg { width: 18px; height: 18px; }
+.agent-hint__content { flex: 1; }
+.agent-hint__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px; }
+.agent-hint__desc { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 8px; line-height: var(--lh-normal); }
+.agent-hint__chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* 바코드 */
+.barcode-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.barcode-card__label {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.barcode-card__visual {
+  background: repeating-linear-gradient(
+    to right, #111 0, #111 2px,
+    transparent 2px, transparent 4px,
+    #111 4px, #111 5px,
+    transparent 5px, transparent 9px,
+    #111 9px, #111 10px,
+    transparent 10px, transparent 13px
+  );
+  height: 50px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.barcode-card__numbers {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.stack > * + * { margin-top: 8px; }
+
+</style>
+</head>
+<body>
+
+<div class="app-frame">
+  <div class="app-screen">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-bar__time">9:41</div>
+      <div class="status-bar__right">
+        <div class="status-bar__signal"><span></span><span></span><span></span><span></span></div>
+        <div class="status-bar__wifi">
+          <svg viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-3.5-3 1.4 1.4a3 3 0 0 1 4.2 0l1.4-1.4a5 5 0 0 0-7 0zm-2.1-2.1 1.4 1.4a7 7 0 0 1 10.4 0L15.6 4.4a9 9 0 0 0-13.2 0z"/></svg>
+        </div>
+        <div class="status-bar__battery"><div class="status-bar__battery-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- UT Banner (Floating) -->
+    <div class="ut-backdrop" id="utBackdrop" onclick="closeUtPanel()"></div>
+    <div class="ut-panel" id="utPanel">
+      <div class="ut-panel__row">
+        <div class="ut-panel__label">TASK</div>
+        <div class="ut-panel__text" id="utBannerText">시나리오를 선택해주세요.</div>
+        <button class="ut-panel__close" onclick="closeUtPanel()">✕</button>
+      </div>
+      <div class="ut-panel__controls">
+        <button class="ut-panel__btn" onclick="restartScenario(); closeUtPanel();">시나리오 재시작</button>
+        <select class="ut-panel__select" onchange="switchConcept(this.value)">
+          <option value="">컨셉 전환</option>
+          <option value="a.html" selected>A안 (현재)</option>
+          <option value="b.html">B안으로</option>
+          <option value="c.html">C안으로</option>
+        </select>
+        <span class="ut-panel__hint">UT 진행자용</span>
+      </div>
+    </div>
+    <button class="ut-fab" id="utFab" onclick="openUtPanel()" aria-label="Task 보기">UT</button>
+
+    <!-- Scroll Area -->
+    <div class="scroll-area" id="scrollArea">
+
+      <!-- ===== 시나리오 선택 ===== -->
+      <section class="screen screen--active" data-screen="SCENARIO-SELECT">
+        <div class="scenario-select">
+          <div class="scenario-select__title">A안 - Effortless Control</div>
+          <div class="scenario-select__subtitle">수행할 시나리오를 선택하세요</div>
+
+          <div class="scenario-card" onclick="startScenario(1)">
+            <div class="scenario-card__num">시나리오 1</div>
+            <div class="scenario-card__title">요금제 변경</div>
+            <div class="scenario-card__desc">데이터가 매월 부족한 상황. 내 사용량에 맞는 요금제로 변경해보세요.</div>
+          </div>
+
+          <div class="scenario-card" onclick="startScenario(2)">
+            <div class="scenario-card__num">시나리오 2</div>
+            <div class="scenario-card__title">미납 요금 납부</div>
+            <div class="scenario-card__desc">지난 달 요금(3월분 63,200원)을 미납한 상태. 앱에서 납부를 완료하세요.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S1-A-01: MY 홈 (혜택+관리 통합 모듈형) ===== -->
+      <section class="screen" data-screen="S1-A-01">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">MY</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <h1 class="page-headline">안녕하세요 지훈님</h1>
+          <div class="page-subline">오늘도 좋은 하루 되세요 · SILVER</div>
+
+          <!-- 맞춤 혜택 배너 -->
+          <div class="benefit-hero">
+            <div class="benefit-hero__img-decor"></div>
+            <div class="benefit-hero__content">
+              <div class="benefit-hero__text">보유 포인트로<br>무료이용 가능해요</div>
+              <div class="benefit-hero__sub">18,400P 사용 가능 ›</div>
+            </div>
+          </div>
+
+          <!-- 관리 타일 그리드 -->
+          <div class="section-title"><span>📊 내 통신 현황</span></div>
+          <div class="tile-grid">
+            <div class="tile" onclick="goTo('S1-A-02')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">실시간 잔여량<br>20GB 제공</div>
+              </div>
+              <div>
+                <div class="tile__main">62 GB</div>
+                <div class="tile__sub">80% 사용</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 요금 안내서')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">요금 안내서<br>전월 대비 -5,200원</div>
+              </div>
+              <div>
+                <div class="tile__main">63,200원</div>
+                <div class="tile__sub">납부일 4/25</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 결합가족')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">결합가족<br>할인 8,450원</div>
+              </div>
+              <div>
+                <div class="tile__main">4 명</div>
+                <div class="tile__sub">15년 합산</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 약정 할인')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">약정 할인<br>만료 D-84</div>
+              </div>
+              <div>
+                <div class="tile__main">31,419원</div>
+                <div class="tile__sub">자동 할인 중</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 멤버십 & 포인트 -->
+          <div class="section-title"><span>🎫 T멤버십</span></div>
+          <div class="barcode-card">
+            <div class="barcode-card__label">
+              <span>T멤버십 · SILVER</span>
+              <span style="color: var(--action); font-weight: var(--fw-medium);">19:58</span>
+            </div>
+            <div class="barcode-card__visual"></div>
+            <div class="barcode-card__numbers">4561 1506 4932 1506</div>
+          </div>
+
+          <div class="tile-grid">
+            <div class="tile" onclick="alert('(프로토타입) 포인트)')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">T멤버십 포인트<br>누적할인 1,700원</div>
+              </div>
+              <div>
+                <div class="tile__main">18,400원</div>
+                <div class="tile__sub">요금에 사용 가능</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 쿠폰함')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">쿠폰함<br>만료 임박 2장</div>
+              </div>
+              <div>
+                <div class="tile__main">16 장</div>
+                <div class="tile__sub">사용 가능 14장</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 맞춤 혜택 카드 -->
+          <div class="section-title">
+            <span>✨ 지훈님 맞춤 혜택</span>
+            <span class="section-title__more">더보기</span>
+          </div>
+          <div class="benefit-grid">
+            <div class="benefit-card" role="button" onclick="alert('(프로토타입) Disney+')">
+              <div class="benefit-card__img">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M6 18 18 6"/></svg>
+              </div>
+              <div class="benefit-card__title">Disney+ 스트리밍권</div>
+              <div class="benefit-card__price">포인트로 무료</div>
+            </div>
+            <div class="benefit-card" role="button" onclick="alert('(프로토타입) 예스24')">
+              <div class="benefit-card__img">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 10h16"/></svg>
+              </div>
+              <div class="benefit-card__title">예스24 쿠폰팩</div>
+              <div class="benefit-card__price">포인트로 무료</div>
+            </div>
+          </div>
+
+          <!-- 영화 예매 -->
+          <div class="section-title">
+            <span>🎬 영화 예매</span>
+            <span class="section-title__more">전체보기</span>
+          </div>
+          <div class="scroll-row">
+            <div class="movie-card" onclick="alert('(프로토타입) 영화1')">
+              <div class="movie-card__poster"></div>
+              <div class="movie-card__title">왕과 사는 남자</div>
+              <div class="movie-card__meta">VVIP CGV 무료</div>
+            </div>
+            <div class="movie-card" onclick="alert('(프로토타입) 영화2')">
+              <div class="movie-card__poster" style="background: linear-gradient(160deg, #909090 0%, #505050 100%);"></div>
+              <div class="movie-card__title">만약에 우리</div>
+              <div class="movie-card__meta">메가박스 50%</div>
+            </div>
+            <div class="movie-card" onclick="alert('(프로토타입) 영화3')">
+              <div class="movie-card__poster" style="background: linear-gradient(160deg, #606060 0%, #202020 100%);"></div>
+              <div class="movie-card__title">프로젝트 헤일메리</div>
+              <div class="movie-card__meta">CGV 20%</div>
+            </div>
+          </div>
+
+          <!-- 진행 중 이벤트 -->
+          <div class="section-title"><span>🎁 진행 중인 이벤트</span></div>
+          <div class="promo-banner">
+            <div class="promo-banner__label">T Day 혜택</div>
+            <div class="promo-banner__title">CHAT GPT 구독을<br>월 3,900원에</div>
+            <div class="promo-banner__sub">T Day 혜택 만나보기 ›</div>
+            <div class="promo-banner__decor">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 10a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17h0"/></svg>
+            </div>
+          </div>
+
+          <!-- 만료 쿠폰 -->
+          <div class="section-title">
+            <span>🎟 만료 임박 쿠폰</span>
+            <span class="section-title__more">쿠폰함으로</span>
+          </div>
+          <div class="stack">
+            <div class="list-card" role="button">
+              <div class="list-card__thumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4z"/></svg>
+              </div>
+              <div class="list-card__content">
+                <div class="list-card__title">VIPS 50% 할인쿠폰</div>
+                <div class="list-card__meta">D-2 만료</div>
+              </div>
+              <span class="tag tag--alert">D-2</span>
+            </div>
+            <div class="list-card" role="button">
+              <div class="list-card__thumb">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4z"/></svg>
+              </div>
+              <div class="list-card__content">
+                <div class="list-card__title">파리바게트 10% 할인</div>
+                <div class="list-card__meta">D-2 만료</div>
+              </div>
+              <span class="tag tag--alert">D-2</span>
+            </div>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <button style="font-size: var(--fs-caption); color: var(--text-secondary); padding: 6px 14px; border-radius: var(--radius-pill); background: var(--bg-surface);">⚙ MY 홈 편집</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S1-A-02: 나의 상품 현황 (데이터 사용 상세) ===== -->
+      <section class="screen" data-screen="S1-A-02">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <h1 class="page-headline">나의 상품 현황</h1>
+          <div class="page-subline">지훈님의 사용 패턴을 분석했어요</div>
+
+          <div class="compare-card">
+            <div class="compare-card__label">현재 요금제</div>
+            <div class="compare-card__title">T 프리미엄</div>
+            <div class="compare-card__price">월 54,500원</div>
+            <div class="compare-card__meta">데이터 50GB · 매달 데이터 부족</div>
+          </div>
+
+          <div class="compare-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+          </div>
+
+          <div class="compare-card compare-card--highlight" role="button" onclick="goTo('S1-A-04')" style="cursor: pointer;">
+            <div class="compare-card__label">✨ 추천 요금제</div>
+            <div class="compare-card__title">다이렉트 5G 76</div>
+            <div class="compare-card__price">월 48,500원</div>
+            <div class="compare-card__meta">데이터 80GB · 선택약정 반영 시 24,700원</div>
+            <div style="margin-top: 10px; font-size: var(--fs-caption); color: var(--action); font-weight: var(--fw-medium);">자세히 보기 ›</div>
+          </div>
+
+          <div class="section-title"><span>📊 이번 달 데이터 사용 분석</span></div>
+          <div class="usage-list">
+            <div class="usage-list__row">
+              <span class="usage-list__label">이번 달 예상 데이터</span>
+              <span class="usage-list__value">72GB</span>
+            </div>
+            <div class="usage-list__row">
+              <span class="usage-list__label">콘텐츠 / OTT</span>
+              <span class="usage-list__value">31.3GB</span>
+            </div>
+            <div class="usage-list__row">
+              <span class="usage-list__label">SNS</span>
+              <span class="usage-list__value">10GB</span>
+            </div>
+            <div class="usage-list__row">
+              <span class="usage-list__label">웹서핑 / 기타</span>
+              <span class="usage-list__value">30.7GB</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SHOP-HOME-A: 쇼핑 홈 (카테고리 + 단말기 + 요금제 등) ===== -->
+      <section class="screen" data-screen="SHOP-HOME-A">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">쇼핑</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <!-- Hero 배너 -->
+          <div class="benefit-hero">
+            <div class="benefit-hero__img-decor"></div>
+            <div class="benefit-hero__content">
+              <div class="benefit-hero__text">갤럭시 S30<br>사전예약 특가</div>
+              <div class="benefit-hero__sub">~4월 30일 한정</div>
+            </div>
+          </div>
+
+          <!-- 카테고리 진입 (4개 타일) -->
+          <div class="shop-cat-grid">
+            <button class="shop-cat" onclick="alert('(프로토타입) 단말기 카테고리')">
+              <div class="shop-cat__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+              </div>
+              <div class="shop-cat__label">단말기</div>
+            </button>
+            <button class="shop-cat" onclick="goTo('SHOP-PLAN-LIST')">
+              <div class="shop-cat__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="9"/></svg>
+              </div>
+              <div class="shop-cat__label">모바일 요금제</div>
+            </button>
+            <button class="shop-cat" onclick="alert('(프로토타입) 부가서비스')">
+              <div class="shop-cat__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5 2 7-6.5-5-6.5 5 2-7L2 9h7z"/></svg>
+              </div>
+              <div class="shop-cat__label">부가서비스</div>
+            </button>
+            <button class="shop-cat" onclick="alert('(프로토타입) 구독')">
+              <div class="shop-cat__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10l5 3-5 3z" fill="currentColor"/></svg>
+              </div>
+              <div class="shop-cat__label">구독</div>
+            </button>
+            <button class="shop-cat" onclick="alert('(프로토타입) 결합상품')">
+              <div class="shop-cat__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 7h6M9 17h6M6 3h12l-2 4H8zM6 21h12l-2-4H8z"/></svg>
+              </div>
+              <div class="shop-cat__label">결합상품</div>
+            </button>
+            <button class="shop-cat" onclick="alert('(프로토타입) 액세서리')">
+              <div class="shop-cat__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4"/><path d="M12 12h0"/></svg>
+              </div>
+              <div class="shop-cat__label">액세서리</div>
+            </button>
+          </div>
+
+          <!-- 최신 단말기 -->
+          <div class="section-title">
+            <span>📱 최신 단말기</span>
+            <span class="section-title__more">전체보기</span>
+          </div>
+          <div class="scroll-row">
+            <div class="device-card" onclick="alert('(프로토타입) 갤럭시 S30 울트라')">
+              <div class="device-card__img"></div>
+              <div class="device-card__name">갤럭시 S30 울트라</div>
+              <div class="device-card__meta">512GB · 쿼츠 블랙</div>
+              <div class="device-card__price">
+                <span class="device-card__price-main">1,584,000원</span>
+                <span class="device-card__price-discount">NEW</span>
+              </div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) iPhone 20 Pro')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #C8C8C8 0%, #808080 100%);"></div>
+              <div class="device-card__name">iPhone 20 Pro</div>
+              <div class="device-card__meta">256GB · 티타늄</div>
+              <div class="device-card__price">
+                <span class="device-card__price-main">1,356,940원</span>
+              </div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) 갤럭시 S26')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #B8B8B8 0%, #707070 100%);"></div>
+              <div class="device-card__name">갤럭시 S26 256GB</div>
+              <div class="device-card__meta">코발트 바이올렛</div>
+              <div class="device-card__price">
+                <span class="device-card__price-main">754,000원</span>
+                <span class="device-card__price-discount">42%</span>
+              </div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) 갤럭시 Z 폴드 11')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #A0A0A0 0%, #555555 100%);"></div>
+              <div class="device-card__name">갤럭시 Z 폴드 11</div>
+              <div class="device-card__meta">256GB · 블루 쉐도우</div>
+              <div class="device-card__price">
+                <span class="device-card__price-main">1,225,000원</span>
+                <span class="device-card__price-discount">17%</span>
+              </div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) iPhone 20 Air')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #E0E0E0 0%, #A8A8A8 100%);"></div>
+              <div class="device-card__name">iPhone 20 Air</div>
+              <div class="device-card__meta">128GB · 스카이 블루</div>
+              <div class="device-card__price">
+                <span class="device-card__price-main">100,740원</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 인기 요금제 -->
+          <div class="section-title">
+            <span>🔥 인기 요금제</span>
+            <span class="section-title__more" onclick="goTo('SHOP-PLAN-LIST')" style="cursor: pointer;">전체보기</span>
+          </div>
+          <div class="plan-card" onclick="goTo('S1-A-04')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">다이렉트 5G 76</div>
+              <div class="plan-card__meta">데이터 80GB · 선택약정 24,700원</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">48,500원</span>
+                <span class="plan-card__price-unit">/월</span>
+                <span class="plan-card__price-discount">42%</span>
+              </div>
+            </div>
+            <span class="tag tag--ai">추천</span>
+          </div>
+          <div class="plan-card" onclick="alert('(프로토타입) 5GX 프리미엄')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">5GX 프리미엄</div>
+              <div class="plan-card__meta">데이터 무제한 · 선택약정 81,750원</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">109,000원</span>
+                <span class="plan-card__price-unit">/월</span>
+              </div>
+            </div>
+            <span class="plan-card__arrow">›</span>
+          </div>
+
+          <!-- 추천 구독 -->
+          <div class="section-title">
+            <span>📦 인기 구독 상품</span>
+            <span class="section-title__more">전체보기</span>
+          </div>
+          <div class="scroll-row">
+            <div class="device-card" onclick="alert('(프로토타입) TVING')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #E8E8E8 0%, #B0B0B0 100%); aspect-ratio: 1 / 1;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; height: 40px; color: #fff; opacity: 0.7;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10l5 3-5 3z" fill="currentColor"/></svg>
+              </div>
+              <div class="device-card__name">TVING 프리미엄</div>
+              <div class="device-card__meta">월 10,900원</div>
+              <div class="device-card__price">
+                <span class="device-card__price-discount">36%↓</span>
+              </div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) 유튜브')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #D0D0D0 0%, #909090 100%); aspect-ratio: 1 / 1;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; height: 40px; color: #fff; opacity: 0.7;"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M10 9v6l5-3z" fill="currentColor"/></svg>
+              </div>
+              <div class="device-card__name">유튜브 프리미엄</div>
+              <div class="device-card__meta">월 9,900원</div>
+              <div class="device-card__price">
+                <span class="device-card__price-discount">33%↓</span>
+              </div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) Disney+')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #B8B8B8 0%, #787878 100%); aspect-ratio: 1 / 1;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 40px; height: 40px; color: #fff; opacity: 0.7;"><path d="m6 6 12 12M6 18 18 6"/></svg>
+              </div>
+              <div class="device-card__name">Disney+</div>
+              <div class="device-card__meta">월 13,900원</div>
+            </div>
+            <div class="device-card" onclick="alert('(프로토타입) 넷플릭스')">
+              <div class="device-card__img" style="background: linear-gradient(135deg, #A0A0A0 0%, #606060 100%); aspect-ratio: 1 / 1;"></div>
+              <div class="device-card__name">넷플릭스 프리미엄</div>
+              <div class="device-card__meta">월 17,000원</div>
+            </div>
+          </div>
+
+          <!-- T Day 특가 -->
+          <div class="section-title"><span>✨ T Day 특가</span></div>
+          <div class="promo-banner">
+            <div class="promo-banner__label">T Day 혜택</div>
+            <div class="promo-banner__title">CHAT GPT 구독을<br>월 3,900원에</div>
+            <div class="promo-banner__sub">오늘 0 day 혜택 ›</div>
+            <div class="promo-banner__decor">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 10a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17h0"/></svg>
+            </div>
+          </div>
+          <div class="promo-banner">
+            <div class="promo-banner__label">단말기 특가</div>
+            <div class="promo-banner__title">iPhone 17 Pro<br>최대 50만원 할인</div>
+            <div class="promo-banner__sub">재고 소진 시 종료 ›</div>
+            <div class="promo-banner__decor" style="background: linear-gradient(135deg, #BBBBBB 0%, #888888 100%);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+            </div>
+          </div>
+
+          <!-- 결합 상품 -->
+          <div class="section-title"><span>🏠 결합상품</span></div>
+          <div class="card" role="button">
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 4px;">인터넷 + TV + 모바일 결합</div>
+            <div style="font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 8px;">최대 월 30% 할인받기</div>
+            <div style="font-size: var(--fs-caption); color: var(--action);">우리 가족 2명 추가하면 월 21,300원 절약 ›</div>
+          </div>
+
+          <div style="padding: 20px 0; text-align: center; color: var(--text-tertiary); font-size: var(--fs-caption);">
+            모든 상품을 확인했어요 ✓
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SHOP-PLAN-LIST: 모바일 요금제 카테고리 ===== -->
+      <section class="screen" data-screen="SHOP-PLAN-LIST">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">모바일 요금제</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <!-- 필터 칩 -->
+          <div class="chip-row">
+            <button class="chip chip--active">전체</button>
+            <button class="chip">5G</button>
+            <button class="chip">LTE</button>
+            <button class="chip">알뜰폰</button>
+            <button class="chip">청년/시니어</button>
+            <button class="chip">데이터 특화</button>
+          </div>
+
+          <div class="section-title"><span>🎯 재약정 혜택 받는 요금제</span></div>
+
+          <div class="plan-card" onclick="goTo('S1-A-04')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">다이렉트 5G 76</div>
+              <div class="plan-card__meta">데이터 80GB · 선택약정 24,700원</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">48,500원</span>
+                <span class="plan-card__price-unit">/월</span>
+                <span class="plan-card__price-discount">42%</span>
+              </div>
+            </div>
+            <span class="tag tag--ai">추천</span>
+          </div>
+
+          <div class="plan-card" onclick="alert('(프로토타입) 5GX 프리미엄')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">5GX 프리미엄</div>
+              <div class="plan-card__meta">데이터 무제한 · 선택약정 81,750원</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">109,000원</span>
+                <span class="plan-card__price-unit">/월</span>
+              </div>
+            </div>
+            <span class="plan-card__arrow">›</span>
+          </div>
+
+          <div class="plan-card" onclick="alert('(프로토타입) T 프리미엄 에센셜')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">T 프리미엄 에센셜</div>
+              <div class="plan-card__meta">데이터 70GB · 선택약정 32,000원</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">62,000원</span>
+                <span class="plan-card__price-unit">/월</span>
+              </div>
+            </div>
+            <span class="plan-card__arrow">›</span>
+          </div>
+
+          <div class="section-title"><span>💼 전체 요금제</span></div>
+
+          <div class="plan-card" onclick="alert('(프로토타입) 5G 슬림+')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">5G 슬림+</div>
+              <div class="plan-card__meta">데이터 10GB</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">45,000원</span>
+                <span class="plan-card__price-unit">/월</span>
+              </div>
+            </div>
+            <span class="plan-card__arrow">›</span>
+          </div>
+
+          <div class="plan-card" onclick="alert('(프로토타입) T플랜 스페셜')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">T플랜 스페셜</div>
+              <div class="plan-card__meta">데이터 150GB</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">79,000원</span>
+                <span class="plan-card__price-unit">/월</span>
+              </div>
+            </div>
+            <span class="plan-card__arrow">›</span>
+          </div>
+
+          <div class="plan-card" onclick="alert('(프로토타입) 5G 미니')">
+            <div class="plan-card__info">
+              <div class="plan-card__name">5G 미니</div>
+              <div class="plan-card__meta">데이터 5GB</div>
+              <div class="plan-card__price">
+                <span class="plan-card__price-main">35,000원</span>
+                <span class="plan-card__price-unit">/월</span>
+              </div>
+            </div>
+            <span class="plan-card__arrow">›</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S1-A-04: 요금제 상세 ===== -->
+      <section class="screen" data-screen="S1-A-04">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--gnb-height) + 100px);">
+          <div class="detail-header">
+            <div class="detail-header__label"><span class="tag tag--ai">5G 요금제</span> <span class="tag">추천</span></div>
+            <div class="detail-header__title">다이렉트 5G 76</div>
+            <div class="detail-header__price">
+              <span class="detail-header__price-main">월 48,500원</span>
+              <span class="detail-header__price-discount">42%</span>
+            </div>
+            <div class="detail-header__price-sub">선택약정 반영 시 24,700원</div>
+          </div>
+          <dl class="detail-meta">
+            <div class="detail-meta__row"><dt>테더링/공유</dt><dd>80GB</dd></div>
+            <div class="detail-meta__row"><dt>집/이동전화</dt><dd>무제한 + 영상/부가통화 300분</dd></div>
+            <div class="detail-meta__row"><dt>문자메시지</dt><dd>기본제공</dd></div>
+          </dl>
+          <div class="detail-feature-list">
+            <div class="detail-feature-list__title">다이렉트 5G 76 혜택</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 데이터 / 공유 80GB</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 집 / 이동전화 무제한</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 영상 / 부가통화 300분</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 문자 무제한</div>
+          </div>
+        </div>
+        <button class="btn btn--primary btn--cta" onclick="goTo('S1-A-05')">요금제 선택하기</button>
+      </section>
+
+      <!-- ===== S1-A-05: 변경 완료 ===== -->
+      <section class="screen" data-screen="S1-A-05">
+        <div class="top-bar">
+          <div class="top-bar__left"></div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="done-screen">
+          <div class="done-screen__check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          </div>
+          <div class="done-screen__title">요금제 변경이 완료됐어요</div>
+          <div class="done-screen__desc">다음 달 1일부터 새 요금제가 적용돼요</div>
+          <dl class="done-summary">
+            <div class="done-summary__row"><dt>변경 전</dt><dd>T 프리미엄</dd></div>
+            <div class="done-summary__row"><dt>변경 후</dt><dd>다이렉트 5G 76</dd></div>
+            <div class="done-summary__row"><dt>월 요금</dt><dd>48,500원</dd></div>
+            <div class="done-summary__row"><dt>데이터</dt><dd>80GB</dd></div>
+          </dl>
+          <button class="btn btn--block" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
+        </div>
+      </section>
+
+      <!-- ===== S2-A-01: MY 홈 (시나리오 2 - 미납) ===== -->
+      <section class="screen" data-screen="S2-A-01">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">MY</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <h1 class="page-headline">안녕하세요 지훈님</h1>
+          <div class="page-subline">오늘도 좋은 하루 되세요 · SILVER</div>
+
+          <div class="benefit-hero">
+            <div class="benefit-hero__img-decor"></div>
+            <div class="benefit-hero__content">
+              <div class="benefit-hero__text">보유 포인트로<br>무료이용 가능해요</div>
+              <div class="benefit-hero__sub">18,400P 사용 가능 ›</div>
+            </div>
+          </div>
+
+          <div class="section-title"><span>📊 내 통신 현황</span></div>
+          <div class="tile-grid">
+            <div class="tile" onclick="alert('(프로토타입) 실시간 잔여량')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">실시간 잔여량<br>20GB 제공</div>
+              </div>
+              <div>
+                <div class="tile__main">62 GB</div>
+                <div class="tile__sub">80% 사용</div>
+              </div>
+            </div>
+
+            <!-- 요금 안내서 - 미납 표시 -->
+            <div class="tile" onclick="goTo('S2-A-02')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">요금 안내서<br>3월분</div>
+                <div class="tile__tag-wrap"><span class="tag tag--alert">미납</span></div>
+              </div>
+              <div>
+                <div class="tile__main">63,200원</div>
+                <div class="tile__sub">납부 예정일 4/25</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 결합가족')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">결합가족<br>할인 8,450원</div>
+              </div>
+              <div>
+                <div class="tile__main">4 명</div>
+                <div class="tile__sub">15년 합산</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 약정 할인')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">약정 할인<br>만료 D-84</div>
+              </div>
+              <div>
+                <div class="tile__main">31,419원</div>
+                <div class="tile__sub">자동 할인 중</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title"><span>🎫 T멤버십</span></div>
+          <div class="barcode-card">
+            <div class="barcode-card__label">
+              <span>T멤버십 · SILVER</span>
+              <span style="color: var(--action); font-weight: var(--fw-medium);">19:58</span>
+            </div>
+            <div class="barcode-card__visual"></div>
+            <div class="barcode-card__numbers">4561 1506 4932 1506</div>
+          </div>
+
+          <div class="tile-grid">
+            <div class="tile" onclick="alert('(프로토타입) 포인트')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">T멤버십 포인트<br>누적할인 1,700원</div>
+              </div>
+              <div>
+                <div class="tile__main">18,400원</div>
+                <div class="tile__sub">요금에 사용 가능</div>
+              </div>
+            </div>
+
+            <div class="tile" onclick="alert('(프로토타입) 쿠폰함')">
+              <div class="tile__visual">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>
+              </div>
+              <div class="tile__head">
+                <div class="tile__label">쿠폰함<br>만료 임박 2장</div>
+              </div>
+              <div>
+                <div class="tile__main">16 장</div>
+                <div class="tile__sub">사용 가능 14장</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <span>✨ 지훈님 맞춤 혜택</span>
+            <span class="section-title__more">더보기</span>
+          </div>
+          <div class="benefit-grid">
+            <div class="benefit-card" role="button" onclick="alert('(프로토타입) Disney+')">
+              <div class="benefit-card__img">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M6 18 18 6"/></svg>
+              </div>
+              <div class="benefit-card__title">Disney+ 스트리밍권</div>
+              <div class="benefit-card__price">포인트로 무료</div>
+            </div>
+            <div class="benefit-card" role="button" onclick="alert('(프로토타입) 예스24')">
+              <div class="benefit-card__img">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 10h16"/></svg>
+              </div>
+              <div class="benefit-card__title">예스24 쿠폰팩</div>
+              <div class="benefit-card__price">포인트로 무료</div>
+            </div>
+          </div>
+
+          <div class="section-title"><span>🎁 진행 중인 이벤트</span></div>
+          <div class="promo-banner">
+            <div class="promo-banner__label">T Day 혜택</div>
+            <div class="promo-banner__title">CHAT GPT 구독을<br>월 3,900원에</div>
+            <div class="promo-banner__sub">T Day 혜택 만나보기 ›</div>
+            <div class="promo-banner__decor">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 10a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17h0"/></svg>
+            </div>
+          </div>
+
+          <div style="text-align: center; padding: 16px 0;">
+            <button style="font-size: var(--fs-caption); color: var(--text-secondary); padding: 6px 14px; border-radius: var(--radius-pill); background: var(--bg-surface);">⚙ MY 홈 편집</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S2-A-02: 요금 안내서 상세 (동일한 구조, B안과 일관) ===== -->
+      <section class="screen" data-screen="S2-A-02">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--gnb-height) + 100px);">
+          <h1 class="page-headline">3월 요금 안내서</h1>
+          <div class="page-subline">청구 기간 2026.03.01 ~ 03.31</div>
+
+          <div class="card">
+            <div class="card__head">
+              <div class="card__label">
+                <span class="icon-circle icon-circle--action">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+                </span>
+                <span class="card__label-text">3월분 청구 금액</span>
+              </div>
+              <span class="tag tag--alert">미납</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+              <div style="font-size: 22px; font-weight: var(--fw-medium);">63,200 원</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 예정일 4월 25일</div>
+            </div>
+          </div>
+
+          <div class="section-title"><span>📱 통신 서비스 요금</span></div>
+          <div class="bill-list">
+            <div class="bill-list__row"><span class="bill-list__label">이번 달 통신 요금</span><span class="bill-list__value">54,500원</span></div>
+            <div class="bill-list__row"><span class="bill-list__label">통신 요금 할인 <span class="tag" style="margin-left: 4px;">결합</span></span><span class="bill-list__value" style="color: var(--action);">-8,450원</span></div>
+            <div class="bill-list__row"><span class="bill-list__label">약정 할인</span><span class="bill-list__value" style="color: var(--action);">-4,100원</span></div>
+            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">41,950원</span></div>
+          </div>
+
+          <div class="section-title"><span>📲 기기 구입비</span></div>
+          <div class="bill-list">
+            <div class="bill-list__row"><span class="bill-list__label">기기 분할상환금 (8/24회)</span><span class="bill-list__value">16,750원</span></div>
+            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">16,750원</span></div>
+          </div>
+
+          <div class="section-title"><span>📦 기타 요금</span></div>
+          <div class="bill-list">
+            <div class="bill-list__row"><span class="bill-list__label">구독 요금 (TVING)</span><span class="bill-list__value">3,900원</span></div>
+            <div class="bill-list__row"><span class="bill-list__label">콘텐츠 이용료</span><span class="bill-list__value">600원</span></div>
+            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">4,500원</span></div>
+          </div>
+
+          <div class="bill-total">
+            <span class="bill-total__label">총 청구 금액</span>
+            <span class="bill-total__value">63,200원</span>
+          </div>
+
+          <div style="margin-top: 16px; padding: 12px 14px; background: var(--action-bg-softer); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
+            💡 T멤버십 포인트 18,400원으로 일부 납부가 가능해요
+          </div>
+        </div>
+        <button class="btn btn--primary btn--cta" onclick="openPaymentSheet()">납부하기</button>
+      </section>
+
+      <!-- ===== S2-A-03: 납부 완료 ===== -->
+      <section class="screen" data-screen="S2-A-03">
+        <div class="top-bar">
+          <div class="top-bar__left"></div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="done-screen">
+          <div class="done-screen__check">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          </div>
+          <div class="done-screen__title">납부가 완료됐어요</div>
+          <div class="done-screen__desc">영수증은 등록된 이메일로 발송됩니다</div>
+          <dl class="done-summary">
+            <div class="done-summary__row"><dt>납부 금액</dt><dd>63,200원</dd></div>
+            <div class="done-summary__row"><dt>납부 수단</dt><dd id="payMethodSummary">신한카드 (1234)</dd></div>
+            <div class="done-summary__row"><dt>대상</dt><dd>3월 요금</dd></div>
+            <div class="done-summary__row"><dt>처리 일시</dt><dd>방금 전</dd></div>
+          </dl>
+          <button class="btn btn--block" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
+        </div>
+      </section>
+
+      <!-- ===== SEARCH-A: 검색 탭 (AI Agent 대화 겸용) ===== -->
+      <section class="screen" data-screen="SEARCH-A">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">검색</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-bar-wrap">
+          <div class="search-bar">
+            <span class="search-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input type="text" class="search-bar__field" placeholder="키워드나 문장으로 검색해보세요">
+            <button class="search-bar__agent" onclick="openAgentSheet()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="agent-hint" onclick="openAgentSheet()" role="button">
+          <div class="agent-hint__icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+          </div>
+          <div class="agent-hint__content">
+            <div class="agent-hint__title">T Agent에게 물어보기</div>
+            <div class="agent-hint__desc">자연스러운 문장으로 질문해보세요. 지훈님에게 맞춰서 답변해드려요.</div>
+            <div class="agent-hint__chips">
+              <button class="quick-chip" onclick="event.stopPropagation(); openAgentSheet(); setTimeout(()=>askAgent('요금제 바꾸고 싶어'),250);">요금제 바꾸고 싶어</button>
+              <button class="quick-chip" onclick="event.stopPropagation(); openAgentSheet(); setTimeout(()=>askAgent('이번달 요금이 많이 나온 이유가 뭐야?'),250);">이번달 요금이 많이 나온 이유?</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-section">
+          <div class="search-section__title">인기 검색어</div>
+          <div class="recent-chips">
+            <button class="recent-chip">갤럭시 S30 울트라</button>
+            <button class="recent-chip">아이폰 20 사전예약</button>
+            <button class="recent-chip">T 다이렉트 요금제</button>
+            <button class="recent-chip">T Day 혜택</button>
+            <button class="recent-chip">멤버십 등급</button>
+          </div>
+        </div>
+
+        <div class="search-section">
+          <div class="search-section__title">최근 검색어</div>
+          <div class="recent-chips">
+            <button class="recent-chip">다이렉트 5G 76</button>
+            <button class="recent-chip">요금 할인</button>
+            <button class="recent-chip">결합 가족</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Bottom GNB (A안 고유) -->
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="bottom-nav__item bottom-nav__item--active" data-tab="my" onclick="gnbSwitch('my')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 4 L21 12"/><path d="M5 10 V20 H19 V10"/></svg>
+        <span>MY</span>
+      </button>
+      <button class="bottom-nav__item" data-tab="search" onclick="gnbSwitch('search')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <span>검색</span>
+      </button>
+      <button class="bottom-nav__item" data-tab="shop" onclick="gnbSwitch('shop')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+        <span>쇼핑</span>
+      </button>
+    </nav>
+
+    <!-- Agent Bottom Sheet -->
+    <div class="sheet-dim" id="sheetDim" onclick="closeAgentSheet()"></div>
+    <div class="bottom-sheet bottom-sheet--agent" id="agentSheet">
+      <div class="bottom-sheet__handle"></div>
+      <div class="bottom-sheet__head">
+        <div class="bottom-sheet__head-title">
+          <span class="icon-circle icon-circle--action"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg></span>
+          T Agent
+        </div>
+        <button class="bottom-sheet__close" onclick="closeAgentSheet()">✕</button>
+      </div>
+      <div class="agent-chat-area" id="agentChatArea">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-message chat-message--ai">
+            안녕하세요 지훈님, 무엇을 도와드릴까요?
+          </div>
+        </div>
+      </div>
+      <div class="agent-input-area">
+        <div class="quick-chips">
+          <button class="quick-chip" onclick="askAgent('요금제 바꾸고 싶어')">요금제 바꾸고 싶어</button>
+          <button class="quick-chip" onclick="askAgent('미납 요금 낼래')">미납 요금 낼래</button>
+          <button class="quick-chip" onclick="askAgent('데이터 사용량 알려줘')">데이터 사용량 알려줘</button>
+        </div>
+        <div class="agent-input">
+          <input type="text" id="agentInput" class="agent-input__field" placeholder="필요하신게 있다면 말씀해 주세요" onkeydown="handleAgentInputKey(event)">
+          <button class="agent-input__send" onclick="submitAgentInput()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l16-8-7 16-2-7-7-1z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Sheet -->
+    <div class="sheet-dim" id="paymentDim" onclick="closePaymentSheet()"></div>
+    <div class="bottom-sheet" id="paymentSheet">
+      <div class="bottom-sheet__handle"></div>
+      <div class="bottom-sheet__head">
+        <div class="bottom-sheet__head-title">납부 수단 선택</div>
+        <button class="bottom-sheet__close" onclick="closePaymentSheet()">✕</button>
+      </div>
+      <div class="bottom-sheet__body">
+        <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 금액</span>
+          <span style="font-size: var(--fs-title); font-weight: var(--fw-medium);">63,200원</span>
+        </div>
+
+        <div class="pay-option" data-selected="true" onclick="selectPayMethod(this, 'card')">
+          <span class="icon-circle icon-circle--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>
+          </span>
+          <div class="pay-option__info">
+            <div class="pay-option__name">신한카드 (1234)</div>
+            <div class="pay-option__meta">등록된 신용카드</div>
+          </div>
+          <div class="pay-option__radio"></div>
+        </div>
+
+        <div class="pay-option" data-selected="false" onclick="selectPayMethod(this, 'point')">
+          <span class="icon-circle icon-circle--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10l3-3 3 3M9 15h6"/></svg>
+          </span>
+          <div class="pay-option__info">
+            <div class="pay-option__name">T멤버십 포인트</div>
+            <div class="pay-option__meta">보유 18,400원 · 일부 사용 가능</div>
+          </div>
+          <div class="pay-option__radio"></div>
+        </div>
+
+        <div class="pay-option" data-selected="false" onclick="selectPayMethod(this, 'bank')">
+          <span class="icon-circle icon-circle--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-6 9 6M4 10v10h16V10M8 14v4M12 14v4M16 14v4"/></svg>
+          </span>
+          <div class="pay-option__info">
+            <div class="pay-option__name">계좌이체</div>
+            <div class="pay-option__meta">즉시이체 · 은행 선택</div>
+          </div>
+          <div class="pay-option__radio"></div>
+        </div>
+
+        <button class="btn btn--primary btn--block" style="margin-top: 20px; height: 52px;" onclick="completePayment()">63,200원 결제하기</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* State */
+let currentScenario = null;
+let currentScreen = 'SCENARIO-SELECT';
+const navigationHistory = [];
+let currentGnbTab = 'my';
+
+const TASK_TEXTS = {
+  1: '데이터가 매월 부족한 상황입니다. 내 사용량에 맞는 요금제로 바꿔보세요.',
+  2: '지난달 요금(3월분 63,200원)이 미납 상태입니다. 앱에서 납부를 완료해보세요.'
+};
+
+/* Navigation */
+function goTo(screenId, options = {}) {
+  if (!options.noHistory && currentScreen !== screenId && currentScreen !== 'SCENARIO-SELECT') {
+    navigationHistory.push(currentScreen);
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('screen--active'));
+  const target = document.querySelector('[data-screen="' + screenId + '"]');
+  if (target) target.classList.add('screen--active');
+  currentScreen = screenId;
+  document.getElementById('scrollArea').scrollTop = 0;
+  updateGnbVisibility();
+  updateGnbActive();
+}
+
+function goBack() {
+  if (navigationHistory.length > 0) {
+    const prev = navigationHistory.pop();
+    goTo(prev, { noHistory: true });
+  } else {
+    if (currentScenario === 1) goTo('S1-A-01', { noHistory: true });
+    else if (currentScenario === 2) goTo('S2-A-01', { noHistory: true });
+    else goTo('SCENARIO-SELECT', { noHistory: true });
+  }
+}
+
+function startScenario(num) {
+  currentScenario = num;
+  navigationHistory.length = 0;
+  currentGnbTab = 'my';
+  document.getElementById('utBannerText').textContent = TASK_TEXTS[num];
+  // MY 홈부터 시작 (혜택+관리 통합)
+  goTo(num === 1 ? 'S1-A-01' : 'S2-A-01', { noHistory: true });
+}
+
+function restartScenario() {
+  navigationHistory.length = 0;
+  if (currentScenario) startScenario(currentScenario);
+  else {
+    goTo('SCENARIO-SELECT', { noHistory: true });
+    document.getElementById('utBannerText').textContent = '시나리오를 선택해주세요.';
+  }
+}
+
+function switchConcept(target) {
+  if (target && target !== 'a.html') window.location.href = target;
+}
+
+/* UT Floating Panel */
+function openUtPanel() {
+  document.getElementById('utPanel').classList.add('open');
+  document.getElementById('utBackdrop').classList.add('open');
+  document.getElementById('utFab').classList.add('hidden');
+}
+function closeUtPanel() {
+  document.getElementById('utPanel').classList.remove('open');
+  document.getElementById('utBackdrop').classList.remove('open');
+  document.getElementById('utFab').classList.remove('hidden');
+}
+
+/* GNB 전환 */
+function gnbSwitch(tab) {
+  currentGnbTab = tab;
+  navigationHistory.length = 0;
+  if (tab === 'my') {
+    if (currentScenario === 2) goTo('S2-A-01', { noHistory: true });
+    else goTo('S1-A-01', { noHistory: true });
+  } else if (tab === 'search') {
+    goTo('SEARCH-A', { noHistory: true });
+  } else if (tab === 'shop') {
+    goTo('SHOP-HOME-A', { noHistory: true });
+  }
+}
+
+function updateGnbActive() {
+  let tab = 'my';
+  if (currentScreen === 'SEARCH-A') tab = 'search';
+  else if (['SHOP-HOME-A','SHOP-PLAN-LIST','S1-A-04'].includes(currentScreen)) tab = 'shop';
+  else if (['S1-A-01','S1-A-02','S2-A-01'].includes(currentScreen)) tab = 'my';
+  currentGnbTab = tab;
+  document.querySelectorAll('.bottom-nav__item').forEach(el => {
+    el.classList.toggle('bottom-nav__item--active', el.dataset.tab === tab);
+  });
+}
+
+function updateGnbVisibility() {
+  const nav = document.getElementById('bottomNav');
+  const hideOn = ['SCENARIO-SELECT','S1-A-04','S1-A-05','S2-A-02','S2-A-03'];
+  if (hideOn.includes(currentScreen)) {
+    nav.style.display = 'none';
+  } else {
+    nav.style.display = 'grid';
+  }
+}
+
+/* Agent Sheet */
+function openAgentSheet() {
+  document.getElementById('sheetDim').classList.add('open');
+  document.getElementById('agentSheet').classList.add('open');
+}
+function closeAgentSheet() {
+  document.getElementById('sheetDim').classList.remove('open');
+  document.getElementById('agentSheet').classList.remove('open');
+}
+
+function handleAgentInputKey(event) {
+  if (event.key !== 'Enter') return;
+  if (event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  submitAgentInput();
+}
+
+function submitAgentInput() {
+  const field = document.getElementById('agentInput');
+  const text = field.value.trim();
+  if (!text) return;
+  field.value = '';
+  askAgent(text);
+}
+
+function askAgent(question) {
+  const msgArea = document.getElementById('chatMessages');
+  const scrollArea = document.getElementById('agentChatArea');
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message chat-message--user';
+  userMsg.textContent = question;
+  msgArea.appendChild(userMsg);
+  scrollArea.scrollTop = scrollArea.scrollHeight;
+
+  setTimeout(() => {
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'chat-message chat-message--ai';
+    let responseHtml = '';
+    let actionBtn = null;
+    if (question.includes('요금제')) {
+      responseHtml = '현재 사용 패턴을 보니 <strong>다이렉트 5G 76</strong>이 월 6,000원 절약돼요. 데이터도 80GB로 넉넉해져요.';
+      actionBtn = { text: '요금제 자세히 보기', action: () => { closeAgentSheet(); goTo('S1-A-04'); } };
+    } else if (question.includes('미납') || (question.includes('요금') && question.includes('내'))) {
+      responseHtml = '3월 요금 <strong>63,200원</strong>이 납부 대기 중이에요. T포인트 9,000원을 적용하면 54,200원만 내시면 돼요.';
+      actionBtn = { text: '요금 안내서 보기', action: () => { closeAgentSheet(); goTo('S2-A-02'); } };
+    } else if (question.includes('데이터') || question.includes('사용량') || question.includes('많이 나온')) {
+      responseHtml = '이번 달 데이터는 <strong>62GB / 50GB</strong>를 사용 중이에요. 콘텐츠/OTT에 31.3GB를 쓰고 계셔서 이번 달 요금이 조금 늘었어요.';
+    } else {
+      responseHtml = '죄송해요, 아직 준비하지 못한 답변이에요. 아래 추천 질문을 선택해보세요.';
+    }
+    aiMsg.innerHTML = responseHtml;
+    msgArea.appendChild(aiMsg);
+
+    if (actionBtn) {
+      const btnWrap = document.createElement('div');
+      btnWrap.className = 'chat-action-wrap';
+      const btn = document.createElement('button');
+      btn.className = 'btn btn--primary btn--block';
+      btn.textContent = actionBtn.text;
+      btn.onclick = actionBtn.action;
+      btnWrap.appendChild(btn);
+      msgArea.appendChild(btnWrap);
+    }
+    scrollArea.scrollTop = scrollArea.scrollHeight;
+  }, 300);
+}
+
+/* Payment Sheet */
+function openPaymentSheet() {
+  document.getElementById('paymentDim').classList.add('open');
+  document.getElementById('paymentSheet').classList.add('open');
+}
+function closePaymentSheet() {
+  document.getElementById('paymentDim').classList.remove('open');
+  document.getElementById('paymentSheet').classList.remove('open');
+}
+function completePayment() {
+  closePaymentSheet();
+  setTimeout(() => goTo('S2-A-03'), 200);
+}
+
+function selectPayMethod(el, method) {
+  document.querySelectorAll('.pay-option').forEach(o => o.setAttribute('data-selected', 'false'));
+  el.setAttribute('data-selected', 'true');
+  const nameMap = { card: '신한카드 (1234)', point: 'T멤버십 포인트', bank: '계좌이체' };
+  const summary = document.getElementById('payMethodSummary');
+  if (summary) summary.textContent = nameMap[method];
+}
+
+updateGnbVisibility();
+</script>
+
+</body>
+</html>

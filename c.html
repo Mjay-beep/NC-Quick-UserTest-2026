@@ -1,0 +1,2180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SKT UT 프로토타입 - C안 (Effortless Flow)</title>
+<style>
+:root {
+  --bg-page: #FFFFFF;
+  --bg-surface: #F5F5F5;
+  --bg-surface-2: #EEEEEE;
+  --bg-surface-3: #E4E4E4;
+  --bg-frame: #D9D9D9;
+
+  --border-default: #E0E0E0;
+  --border-mid: #CCCCCC;
+  --border-strong: #999999;
+
+  --text-primary: #111111;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-disabled: #AAAAAA;
+  --text-on-action: #FFFFFF;
+
+  --action: #3B49DF;
+  --action-soft: #5868E8;
+  --action-pressed: #2934B0;
+  --action-bg-weak: #EEF0FF;
+  --action-bg-softer: #F5F6FF;
+
+  --alert: #C93E3E;
+  --alert-bg-weak: #FCEBEB;
+
+  --ai: var(--action);
+  --ai-bg: var(--action-bg-weak);
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  --fs-title: 20px;
+  --fs-body: 15px;
+  --fs-caption: 12px;
+  --lh-tight: 1.3;
+  --lh-normal: 1.5;
+  --fw-regular: 400;
+  --fw-medium: 600;
+
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px;
+
+  --radius-sm: 6px; --radius-md: 12px; --radius-lg: 20px; --radius-pill: 999px;
+
+  --chat-bar-height: 72px;
+}
+
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  background: var(--bg-frame);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+}
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
+input { font: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* App Frame + Status Bar */
+.app-frame {
+  min-height: 100vh;
+  background: var(--bg-frame);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0;
+}
+.app-screen {
+  width: 375px;
+  min-height: 812px;
+  max-height: 812px;
+  background: var(--bg-page);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 420px) {
+  .app-frame { padding: 0; }
+  .app-screen { width: 100%; min-height: 100vh; max-height: 100vh; border: 0; }
+}
+
+.status-bar {
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 22px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  position: relative;
+  z-index: 1;
+  letter-spacing: -0.2px;
+}
+.status-bar__time { font-variant-numeric: tabular-nums; }
+.status-bar__right { display: flex; align-items: center; gap: 5px; }
+.status-bar__signal { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+.status-bar__signal span { width: 3px; background: var(--text-primary); border-radius: 1px; }
+.status-bar__signal span:nth-child(1) { height: 4px; }
+.status-bar__signal span:nth-child(2) { height: 6px; }
+.status-bar__signal span:nth-child(3) { height: 9px; }
+.status-bar__signal span:nth-child(4) { height: 12px; }
+.status-bar__wifi svg { width: 16px; height: 11px; }
+.status-bar__battery {
+  position: relative;
+  width: 26px; height: 12px;
+  border: 1.2px solid var(--text-primary);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 1px;
+}
+.status-bar__battery::after {
+  content: '';
+  position: absolute;
+  right: -3px; top: 3px; bottom: 3px;
+  width: 2px;
+  background: var(--text-primary);
+  border-radius: 0 1px 1px 0;
+}
+.status-bar__battery-fill { width: 80%; height: 100%; background: var(--text-primary); border-radius: 1px; }
+
+/* UT Floating Panel */
+.ut-fab {
+  position: absolute;
+  top: 56px; right: 14px;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.3px;
+  opacity: 0.85;
+  transition: all 160ms ease;
+}
+.ut-fab:active { transform: scale(0.92); }
+.ut-fab.hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+.ut-panel {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: #222;
+  color: #fff;
+  z-index: 45;
+  padding: 12px 14px;
+  font-size: var(--fs-caption);
+  transform: translateY(-100%);
+  transition: transform 200ms ease;
+}
+.ut-panel.open { transform: translateY(0); }
+.ut-panel__row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.ut-panel__label {
+  background: var(--action);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: var(--fw-medium);
+  flex-shrink: 0;
+  font-size: 11px;
+  margin-top: 1px;
+}
+.ut-panel__text { flex: 1; line-height: 1.4; }
+.ut-panel__close {
+  color: #fff;
+  width: 24px; height: 24px;
+  background: #444;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.ut-panel__controls { display: flex; gap: 6px; align-items: center; }
+.ut-panel__btn { background: #444; color: #fff; border-radius: 4px; padding: 5px 10px; font-size: 11px; }
+.ut-panel__btn:active { background: #555; }
+.ut-panel__select { background: #444; color: #fff; border: 0; border-radius: 4px; padding: 5px 8px; font-size: 11px; }
+.ut-panel__hint { font-size: 10px; color: #999; margin-left: auto; }
+.ut-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 44;
+  opacity: 0; pointer-events: none;
+  transition: opacity 160ms;
+}
+.ut-backdrop.open { opacity: 1; pointer-events: auto; }
+
+/* Scroll Area */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+.screen { display: none; }
+.screen.screen--active { display: block; }
+
+/* Top Bar */
+.top-bar {
+  padding: 14px 62px 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--bg-page);
+  z-index: 5;
+}
+.top-bar__left { display: flex; align-items: center; gap: 12px; }
+.top-bar__right { display: flex; align-items: center; gap: 6px; }
+.top-bar__icon {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+}
+.top-bar__icon:active { background: var(--bg-surface-2); }
+.top-bar__icon svg { width: 18px; height: 18px; }
+
+/* Page Content */
+.page-body { padding: 8px 16px calc(var(--chat-bar-height) + 20px); }
+.page-headline {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-tight);
+  margin: 12px 0 6px;
+}
+.page-subline {
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin: 24px 0 10px;
+}
+
+/* Icon circles */
+.icon-circle {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--bg-surface-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.icon-circle svg { width: 16px; height: 16px; }
+.icon-circle--sm { width: 22px; height: 22px; }
+.icon-circle--sm svg { width: 12px; height: 12px; }
+.icon-circle--lg { width: 40px; height: 40px; }
+.icon-circle--lg svg { width: 22px; height: 22px; }
+.icon-circle--action { background: var(--action-bg-softer); color: var(--action); }
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+}
+.tag--alert { background: var(--alert); color: #fff; }
+.tag--ai { background: var(--action-bg-weak); color: var(--action); }
+
+/* ============================================
+   C-HOME: Agent 대화 홈 (저밀도, 가로 배치)
+   ============================================ */
+.c-home-content {
+  position: relative;
+  z-index: 1;
+  padding: 8px 0 calc(var(--chat-bar-height) + 20px);
+}
+.c-home-greeting {
+  font-size: 22px;
+  font-weight: var(--fw-medium);
+  color: var(--action);
+  line-height: 1.35;
+  margin: 20px 16px 28px;
+}
+.c-home-greeting em {
+  font-style: normal;
+  color: var(--text-primary);
+}
+
+/* 가로 스크롤 카드 컨테이너 */
+.c-card-row {
+  display: flex;
+  gap: 10px;
+  padding: 4px 16px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+}
+.c-card-row::-webkit-scrollbar { display: none; }
+.c-card-row.dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+.c-card-row.dragging .agent-card {
+  pointer-events: none;
+}
+
+/* 좌측: 작은 카드 2개 세로 스택 (하나의 컬럼) */
+.c-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 220px;
+}
+
+/* 공통 Agent 카드 */
+.agent-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 73, 223, 0.1);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: transform 120ms;
+  position: relative;
+  overflow: hidden;
+}
+.agent-card:active { transform: scale(0.98); }
+
+/* 작은 카드 (스택용) */
+.agent-card--sm {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.agent-card--sm .agent-card__title {
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+.agent-card--sm .agent-card__desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.agent-card--sm .agent-card__visual-sm {
+  align-self: flex-end;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #E0E0E0, #B8B8B8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  margin-top: 8px;
+}
+.agent-card--sm .agent-card__visual-sm svg { width: 20px; height: 20px; }
+
+/* 우측: 큰 세로 카드 (일부 잘려서 보임) */
+.agent-card--lg {
+  flex-shrink: 0;
+  width: 230px;
+  min-height: 310px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+.agent-card--lg .agent-card__visual-lg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #A8B8D8 0%, #6878A8 100%);
+  opacity: 0.5;
+  z-index: 0;
+}
+.agent-card--lg > * {
+  position: relative;
+  z-index: 1;
+}
+.agent-card--lg .agent-card__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.agent-card--lg .agent-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--action);
+  font-weight: var(--fw-medium);
+}
+
+.agent-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--action);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.agent-card__badge-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--action);
+  box-shadow: 0 0 4px rgba(59,73,223,0.6);
+}
+.agent-card__title {
+  font-size: 14px;
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+.agent-card__desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.agent-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--action);
+  font-weight: var(--fw-medium);
+  margin-top: 8px;
+}
+
+.agent-card--alert { border-color: rgba(201, 62, 62, 0.2); }
+.agent-card--alert .agent-card__badge { color: var(--alert); }
+.agent-card--alert .agent-card__badge-dot { background: var(--alert); box-shadow: 0 0 4px rgba(201,62,62,0.6); }
+
+/* ============================================
+   Chat Bar (C안 고유)
+   ============================================ */
+.chat-bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: var(--chat-bar-height);
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-default);
+  z-index: 30;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-bar__home {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--bg-page);
+  border: 1px solid rgba(59, 73, 223, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  transition: all 160ms ease;
+  color: var(--action);
+  font-weight: var(--fw-medium);
+  font-size: 17px;
+}
+.chat-bar__home:active { transform: scale(0.92); }
+.chat-bar__home.hidden { display: none; }
+
+.chat-bar__input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(59, 73, 223, 0.12);
+  border-radius: var(--radius-pill);
+  padding: 0 8px 0 18px;
+  position: relative;
+  z-index: 2;
+  cursor: text;
+  transition: opacity 160ms;
+}
+.chat-bar__input-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-tertiary);
+  font-size: var(--fs-body);
+}
+.chat-bar__input-placeholder svg {
+  width: 14px; height: 14px;
+  color: var(--action);
+}
+.chat-bar__field {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+}
+.chat-bar__field::placeholder { color: var(--text-tertiary); }
+.chat-bar__voice {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  color: var(--action);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.chat-bar__voice svg { width: 16px; height: 16px; }
+.chat-bar__send {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms;
+}
+.chat-bar__send.visible { opacity: 1; pointer-events: auto; }
+.chat-bar__send svg { width: 14px; height: 14px; }
+
+/* 홈 버튼 탭 시 펼쳐지는 4메뉴 */
+.chat-bar__menu {
+  flex: 1;
+  display: none;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+  position: relative;
+  z-index: 2;
+}
+.chat-bar__menu.visible { display: flex; }
+.menu-btn {
+  flex: 1;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(59, 73, 223, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-caption);
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+  transition: all 120ms;
+}
+.menu-btn:active { transform: scale(0.96); background: var(--action-bg-softer); }
+.menu-btn--active { background: var(--action); color: #fff; border-color: var(--action); }
+
+.chat-bar__ai-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  transition: transform 80ms;
+}
+.chat-bar__ai-btn.visible { display: flex; }
+.chat-bar__ai-btn:active { transform: scale(0.92); }
+.chat-bar__ai-btn svg { width: 20px; height: 20px; }
+.chat-bar__ai-btn::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,73,223,0.3) 0%, transparent 70%);
+  z-index: -1;
+  animation: glowPulseC 2.5s ease-in-out infinite;
+}
+@keyframes glowPulseC {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.12); }
+}
+
+/* ============================================
+   Chat Conversation Screens
+   ============================================ */
+.chat-screen {
+  background: var(--bg-page);
+  min-height: 100%;
+}
+.chat-screen .page-body {
+  padding: 8px 16px calc(var(--chat-bar-height) + 20px);
+}
+.chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.chat-bubble {
+  max-width: 88%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+}
+.chat-bubble--user {
+  background: var(--action);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble--ai {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(59, 73, 223, 0.1);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.chat-bubble strong { font-weight: var(--fw-medium); }
+
+.chat-card {
+  max-width: 88%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(59, 73, 223, 0.12);
+  border-radius: 16px;
+  padding: 14px 16px;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.chat-card__label {
+  font-size: 11px;
+  color: var(--action);
+  font-weight: var(--fw-medium);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.chat-card__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin-bottom: 2px;
+}
+.chat-card__meta {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.chat-card__highlight {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+  margin-bottom: 2px;
+}
+.chat-card__sub {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+.chat-card__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.chat-card__btn {
+  flex: 1;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+}
+.chat-card__btn--primary {
+  background: var(--action);
+  color: #fff;
+}
+.chat-card__btn--primary:active { background: var(--action-pressed); }
+.chat-card__btn--outline {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+.chat-card__btn--outline:active { background: var(--bg-surface); }
+
+.chat-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+  align-self: flex-start;
+}
+.chat-inline-chip {
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(59, 73, 223, 0.15);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  color: var(--action);
+  transition: background 80ms;
+}
+.chat-inline-chip:active { background: var(--action-bg-softer); }
+
+/* ============================================
+   일반 페이지 요소 (터치 탐색 경로용)
+   ============================================ */
+.card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+  border: 1px solid transparent;
+}
+.card[role="button"] { cursor: pointer; }
+.card[role="button"]:active { background: var(--bg-surface-2); }
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.card__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  flex: 1;
+  min-width: 0;
+}
+
+.list-row {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+.list-row:active { background: var(--bg-surface-2); }
+.list-row__info { flex: 1; min-width: 0; }
+.list-row__label {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.list-row__value { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.list-row__arrow { color: var(--text-tertiary); }
+
+/* 요금제 상세 */
+.detail-header { padding: 16px; }
+.detail-header__label { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.detail-header__title { font-size: 24px; font-weight: var(--fw-medium); margin-bottom: 10px; }
+.detail-header__price { font-size: var(--fs-body); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.detail-header__price-main { font-size: 22px; font-weight: var(--fw-medium); }
+.detail-header__price-discount { color: var(--action); font-weight: var(--fw-medium); }
+.detail-header__price-sub { color: var(--text-secondary); font-size: var(--fs-caption); margin-top: 4px; display: block; width: 100%; }
+.detail-meta { border-top: 1px solid var(--border-default); padding: 16px; }
+.detail-meta__row { display: flex; justify-content: space-between; padding: 8px 0; font-size: var(--fs-body); }
+.detail-meta__row dt { color: var(--text-secondary); }
+.detail-meta__row dd { color: var(--text-primary); }
+.detail-feature-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  margin: 0 16px 16px;
+}
+.detail-feature-list__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 12px; }
+.detail-feature-list__item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: var(--fs-body); }
+
+/* Buttons */
+.btn {
+  height: 44px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  border: 1px solid var(--border-default);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn:active { background: var(--bg-surface-2); }
+.btn--primary {
+  background: var(--action);
+  color: var(--text-on-action);
+  border-color: var(--action);
+}
+.btn--primary:active { background: var(--action-pressed); }
+.btn--cta {
+  width: calc(100% - 32px);
+  height: 52px;
+  position: absolute;
+  left: 16px; right: 16px;
+  bottom: calc(var(--chat-bar-height) + 16px);
+  z-index: 5;
+}
+.btn--block { width: 100%; }
+
+.back-btn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-primary);
+}
+.back-btn:active { background: var(--bg-surface-2); }
+.back-btn svg { width: 18px; height: 18px; }
+
+/* Scenario Select */
+.scenario-select { padding: 40px 24px; }
+.scenario-select__title { font-size: var(--fs-title); font-weight: var(--fw-medium); margin-bottom: 8px; }
+.scenario-select__subtitle { font-size: var(--fs-body); color: var(--text-secondary); margin-bottom: 32px; }
+.scenario-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 20px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.scenario-card:active { background: var(--bg-surface-2); }
+.scenario-card__num { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 4px; }
+.scenario-card__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 6px; }
+.scenario-card__desc { font-size: var(--fs-caption); color: var(--text-secondary); line-height: var(--lh-normal); }
+
+/* 납부 수단 */
+.pay-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  background: var(--bg-page);
+  cursor: pointer;
+}
+.pay-option[data-selected="true"] {
+  border-color: var(--action);
+  background: var(--action-bg-softer);
+}
+.pay-option__info { flex: 1; }
+.pay-option__name { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.pay-option__meta { font-size: var(--fs-caption); color: var(--text-secondary); }
+.pay-option__radio {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-mid);
+  position: relative;
+  flex-shrink: 0;
+}
+.pay-option[data-selected="true"] .pay-option__radio { border-color: var(--action); }
+.pay-option[data-selected="true"] .pay-option__radio::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: var(--action);
+  border-radius: 50%;
+}
+
+/* 요금 내역 */
+.bill-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 4px 16px;
+  margin-bottom: 8px;
+}
+.bill-list__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  font-size: var(--fs-body);
+  border-bottom: 1px solid var(--border-default);
+}
+.bill-list__row:last-child { border-bottom: 0; }
+.bill-list__row--sum {
+  font-weight: var(--fw-medium);
+  border-top: 1px solid var(--border-mid);
+  border-bottom: 0 !important;
+}
+.bill-list__label { color: var(--text-secondary); display: flex; align-items: center; }
+.bill-list__value { font-weight: var(--fw-medium); font-variant-numeric: tabular-nums; }
+.bill-total {
+  background: var(--text-primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+.bill-total__label { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.bill-total__value { font-size: var(--fs-title); font-weight: var(--fw-medium); font-variant-numeric: tabular-nums; }
+
+/* Bottom Sheet */
+.sheet-dim {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 42;
+  display: none;
+}
+.sheet-dim.open { display: block; }
+.bottom-sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  background: var(--bg-page);
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  z-index: 43;
+  transform: translateY(100%);
+  transition: transform 240ms ease;
+  max-height: 72%;
+  display: flex;
+  flex-direction: column;
+}
+.bottom-sheet.open { transform: translateY(0); }
+.bottom-sheet__handle {
+  width: 40px; height: 4px;
+  background: var(--border-mid);
+  border-radius: 2px;
+  margin: 10px auto;
+  flex-shrink: 0;
+}
+.bottom-sheet__head {
+  padding: 4px 16px 14px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bottom-sheet__head-title { font-size: var(--fs-body); font-weight: var(--fw-medium); }
+.bottom-sheet__close {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary);
+}
+.bottom-sheet__body { padding: 16px; overflow-y: auto; flex: 1; }
+
+/* 완료 화면 (Agent 말풍선 스타일) */
+.done-chat {
+  padding: 40px 16px calc(var(--chat-bar-height) + 20px);
+  min-height: 100%;
+}
+.done-check-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.done-check-inline svg { width: 12px; height: 12px; }
+
+/* 사용량 / 비교 */
+.compare-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 18px 16px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+}
+.compare-card--highlight { border-color: var(--action); background: var(--action-bg-softer); }
+.compare-card__label { font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 6px; }
+.compare-card--highlight .compare-card__label { color: var(--action); font-weight: var(--fw-medium); }
+.compare-card__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px; }
+.compare-card__price { font-size: var(--fs-title); font-weight: var(--fw-medium); }
+.compare-card__meta { font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px; }
+
+/* Empty state */
+.empty-hint {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: var(--fs-caption);
+  line-height: 1.6;
+}
+
+</style>
+</head>
+<body>
+
+<div class="app-frame">
+  <div class="app-screen">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-bar__time">9:41</div>
+      <div class="status-bar__right">
+        <div class="status-bar__signal"><span></span><span></span><span></span><span></span></div>
+        <div class="status-bar__wifi">
+          <svg viewBox="0 0 16 11" fill="currentColor"><path d="M8 9.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-3.5-3 1.4 1.4a3 3 0 0 1 4.2 0l1.4-1.4a5 5 0 0 0-7 0zm-2.1-2.1 1.4 1.4a7 7 0 0 1 10.4 0L15.6 4.4a9 9 0 0 0-13.2 0z"/></svg>
+        </div>
+        <div class="status-bar__battery"><div class="status-bar__battery-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- UT Banner -->
+    <div class="ut-backdrop" id="utBackdrop" onclick="closeUtPanel()"></div>
+    <div class="ut-panel" id="utPanel">
+      <div class="ut-panel__row">
+        <div class="ut-panel__label">TASK</div>
+        <div class="ut-panel__text" id="utBannerText">시나리오를 선택해주세요.</div>
+        <button class="ut-panel__close" onclick="closeUtPanel()">✕</button>
+      </div>
+      <div class="ut-panel__controls">
+        <button class="ut-panel__btn" onclick="restartScenario(); closeUtPanel();">시나리오 재시작</button>
+        <select class="ut-panel__select" onchange="switchConcept(this.value)">
+          <option value="">컨셉 전환</option>
+          <option value="a.html">A안으로</option>
+          <option value="b.html">B안으로</option>
+          <option value="c.html" selected>C안 (현재)</option>
+        </select>
+        <span class="ut-panel__hint">UT 진행자용</span>
+      </div>
+    </div>
+    <button class="ut-fab" id="utFab" onclick="openUtPanel()" aria-label="Task 보기">UT</button>
+
+    <!-- Scroll Area -->
+    <div class="scroll-area" id="scrollArea">
+
+      <!-- ===== 시나리오 선택 ===== -->
+      <section class="screen screen--active" data-screen="SCENARIO-SELECT">
+        <div class="scenario-select">
+          <div class="scenario-select__title">C안 - Effortless Flow</div>
+          <div class="scenario-select__subtitle">수행할 시나리오를 선택하세요</div>
+
+          <div class="scenario-card" onclick="startScenario(1)">
+            <div class="scenario-card__num">시나리오 1</div>
+            <div class="scenario-card__title">요금제 변경</div>
+            <div class="scenario-card__desc">데이터가 매월 부족한 상황. 내 사용량에 맞는 요금제로 변경해보세요.</div>
+          </div>
+
+          <div class="scenario-card" onclick="startScenario(2)">
+            <div class="scenario-card__num">시나리오 2</div>
+            <div class="scenario-card__title">미납 요금 납부</div>
+            <div class="scenario-card__desc">지난 달 요금(3월분 63,200원)을 미납한 상태. 앱에서 납부를 완료하세요.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== C-HOME: Agent 대화 홈 (시나리오 1) ===== -->
+      <section class="screen" data-screen="C-HOME-S1">
+
+        <div class="top-bar">
+          <div class="top-bar__left"></div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h12M4 12h10M4 18h8"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-home-content">
+          <div class="c-home-greeting">
+            지훈님, 필요한 것만<br>
+            <em>모아봤어요</em>
+          </div>
+
+          <!-- 가로 스크롤 카드 영역 -->
+          <div class="c-card-row">
+            <!-- 좌측: 작은 카드 2개 스택 -->
+            <div class="c-card-stack">
+              <!-- 핵심 카드: 데이터 부족 (시나리오 1 유도) -->
+              <div class="agent-card agent-card--sm" onclick="goTo('S1-C-CHAT'); setTimeout(()=>autoAsk('요금제 바꾸고 싶어'), 200);">
+                <div>
+                  <div class="agent-card__badge">
+                    <span class="agent-card__badge-dot"></span>
+                    <span>T Agent</span>
+                  </div>
+                  <div class="agent-card__title">이번 달 데이터가<br>부족할 것 같아요</div>
+                  <div class="agent-card__desc">요금제 추천 받기 ›</div>
+                </div>
+                <div class="agent-card__visual-sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" opacity="0.3"/><path d="M12 3 A9 9 0 0 1 19 17" stroke-linecap="round"/></svg>
+                </div>
+              </div>
+              <!-- 보조 카드 -->
+              <div class="agent-card agent-card--sm" onclick="alert('(프로토타입) 자녀 데이터 선물')">
+                <div>
+                  <div class="agent-card__badge">
+                    <span class="agent-card__badge-dot"></span>
+                    <span>할 일</span>
+                  </div>
+                  <div class="agent-card__title">자녀가 데이터 선물<br>요청을 보냈어요</div>
+                  <div class="agent-card__desc">0.3GB · 지금 선물하기</div>
+                </div>
+                <div class="agent-card__visual-sm" style="background: linear-gradient(135deg, #D8BEC0, #B88890);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #fff;"><path d="M20 12v8H4v-8M2 8h20v4H2zM12 8V4M8 8a2 2 0 0 1-2-2 2 2 0 0 1 2-2c2 0 4 2 4 4M16 8a2 2 0 0 0 2-2 2 2 0 0 0-2-2c-2 0-4 2-4 4"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- 우측: 큰 세로 카드 (일부 잘려 보여서 가로 스크롤 유도) -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 영화 예매')">
+              <div class="agent-card__visual-lg"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>추천</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">지난달에 이어,<br>이번 달 무료 영화<br>'날씨의 아이' 어때요?</div>
+                <div class="agent-card__cta">
+                  <span>영화 예매하기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 더 있는 카드 -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 투썸플레이스 30% 할인')" style="width: 200px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #C0B8A8 0%, #807868 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>혜택</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">'투썸플레이스<br>30% 할인'<br>지인과 나눠 쓸 수 있어요</div>
+                <div class="agent-card__cta">
+                  <span>나누기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 추가 카드 3 -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 유튜브 프리미엄 공유')" style="width: 200px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #B0B8C0 0%, #708090 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>이어서 하기</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">'유튜브 프리미엄'<br>공유를 이어서<br>진행하세요</div>
+                <div class="agent-card__cta">
+                  <span>자녀에게 공유</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 추가 카드 4 -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) T Day 혜택')" style="width: 200px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A0B0A0 0%, #506050 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>T Day</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">오늘만 CHAT GPT<br>월 3,900원에<br>구독할 수 있어요</div>
+                <div class="agent-card__cta">
+                  <span>혜택 보기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 추천 질문 힌트 -->
+          <!-- 추천 질문 영역 제거됨 -->
+        </div>
+      </section>
+
+      <!-- ===== C-HOME-S2: Agent 대화 홈 (시나리오 2 - 미납) ===== -->
+      <section class="screen" data-screen="C-HOME-S2">
+
+        <div class="top-bar">
+          <div class="top-bar__left"></div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h12M4 12h10M4 18h8"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-home-content">
+          <div class="c-home-greeting">
+            지훈님, 필요한 것만<br>
+            <em>모아봤어요</em>
+          </div>
+
+          <div class="c-card-row">
+            <!-- 좌측: 작은 카드 2개 스택 -->
+            <div class="c-card-stack">
+              <!-- 미납 카드 -->
+              <div class="agent-card agent-card--sm" onclick="goTo('S2-C-BILL')">
+                <div>
+                  <div class="agent-card__badge">
+                    <span class="agent-card__badge-dot"></span>
+                    <span>T Agent</span>
+                  </div>
+                  <div class="agent-card__title">3월 요금 납부가<br>남아있어요</div>
+                  <div class="agent-card__desc">T포인트로 할인 가능 ›</div>
+                </div>
+                <div class="agent-card__visual-sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+                </div>
+              </div>
+              <!-- 보조 카드 -->
+              <div class="agent-card agent-card--sm" onclick="alert('(프로토타입) 자녀 데이터 선물')">
+                <div>
+                  <div class="agent-card__badge">
+                    <span class="agent-card__badge-dot"></span>
+                    <span>할 일</span>
+                  </div>
+                  <div class="agent-card__title">자녀가 데이터 선물<br>요청을 보냈어요</div>
+                  <div class="agent-card__desc">0.3GB · 지금 선물하기</div>
+                </div>
+                <div class="agent-card__visual-sm" style="background: linear-gradient(135deg, #D8BEC0, #B88890);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #fff;"><path d="M20 12v8H4v-8M2 8h20v4H2zM12 8V4"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- 우측: 큰 카드 -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) VIPS 쿠폰')">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A89090 0%, #604040 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>만료 임박</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">다가오는 남편분 생일에<br>VIPS 50% 쿠폰<br>받으세요</div>
+                <div class="agent-card__cta">
+                  <span>혜택 자세히 보기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 유튜브 프리미엄 공유')" style="width: 200px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #B0B8C0 0%, #708090 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>이어서 하기</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">'유튜브 프리미엄'<br>이용권 공유를<br>이어서 진행하세요</div>
+                <div class="agent-card__cta">
+                  <span>공유하기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 추가 카드 3 -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) T Day 혜택')" style="width: 200px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A0B0A0 0%, #506050 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>T Day</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">오늘만 CHAT GPT<br>월 3,900원에<br>구독할 수 있어요</div>
+                <div class="agent-card__cta">
+                  <span>혜택 보기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 추가 카드 4 -->
+            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 투썸플레이스 30% 할인')" style="width: 200px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #C0B8A8 0%, #807868 100%);"></div>
+              <div>
+                <div class="agent-card__badge">
+                  <span class="agent-card__badge-dot"></span>
+                  <span>혜택</span>
+                </div>
+              </div>
+              <div>
+                <div class="agent-card__title">'투썸플레이스<br>30% 할인'<br>지인과 나눠 쓸 수 있어요</div>
+                <div class="agent-card__cta">
+                  <span>나누기</span>
+                  <span>›</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 추천 질문 영역 제거됨 -->
+        </div>
+      </section>
+
+      <!-- ===== S1-C-CHAT: 대화 스레드 (요금제) ===== -->
+      <section class="screen chat-screen" data-screen="S1-C-CHAT">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="chat-thread" id="s1ChatThread">
+            <!-- 동적으로 채움 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S2-C-CHAT: 대화 스레드 (미납) ===== -->
+      <section class="screen chat-screen" data-screen="S2-C-CHAT">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="chat-thread" id="s2ChatThread"></div>
+        </div>
+      </section>
+
+      <!-- ===== C-MANAGE: 관리 페이지 (터치 탐색 경로) ===== -->
+      <section class="screen" data-screen="C-MANAGE">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">관리</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="section-title">📊 내 통신 현황</div>
+
+          <div class="list-row" onclick="goTo('S1-C-DETAIL')">
+            <div class="icon-circle icon-circle--lg icon-circle--action">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">실시간 잔여량 · 20GB 제공</div>
+              <div class="list-row__value">62 GB 사용 중</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+
+          <div class="list-row" onclick="currentScenario === 2 ? goTo('S2-C-BILL') : alert('(프로토타입) 요금 안내서')">
+            <div class="icon-circle icon-circle--lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">요금 안내서 · 3월분</div>
+              <div class="list-row__value">63,200 원</div>
+            </div>
+            <span id="manageBillTag">
+              <span class="list-row__arrow">›</span>
+            </span>
+          </div>
+
+          <div class="list-row" onclick="alert('(프로토타입) 결합가족')">
+            <div class="icon-circle icon-circle--lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">결합가족 · 할인 8,450원</div>
+              <div class="list-row__value">4 명</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+
+          <div class="list-row" onclick="alert('(프로토타입) 약정')">
+            <div class="icon-circle icon-circle--lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">약정 할인 · 만료 D-84</div>
+              <div class="list-row__value">31,419 원</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+
+          <div class="list-row" onclick="goTo('S1-C-DETAIL')">
+            <div class="icon-circle icon-circle--lg icon-circle--action">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="9"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">요금제 변경</div>
+              <div class="list-row__value">추천 요금제 둘러보기</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+
+          <div class="section-title">🎫 T멤버십</div>
+
+          <div class="list-row" onclick="alert('(프로토타입) 포인트')">
+            <div class="icon-circle icon-circle--lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">T멤버십 포인트 · SILVER</div>
+              <div class="list-row__value">18,400 원</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+
+          <div class="list-row" onclick="alert('(프로토타입) 쿠폰함')">
+            <div class="icon-circle icon-circle--lg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>
+            </div>
+            <div class="list-row__info">
+              <div class="list-row__label">쿠폰함 · 만료 임박 2장</div>
+              <div class="list-row__value">16 장</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== C-BENEFIT: 혜택 페이지 (간소화) ===== -->
+      <section class="screen" data-screen="C-BENEFIT">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">혜택</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="empty-hint">
+            이 프로토타입에서는 혜택 페이지가 간소화되어 있어요.<br>
+            뒤로 돌아가 Agent와 대화하거나 관리 페이지를 살펴보세요.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== C-SHOP: 쇼핑 페이지 (간소화) ===== -->
+      <section class="screen" data-screen="C-SHOP">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">쇼핑</div>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="section-title">🎯 재약정 혜택 받는 요금제</div>
+
+          <div class="list-row" onclick="goTo('S1-C-DETAIL')">
+            <div class="list-row__info">
+              <div style="font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px;">다이렉트 5G 76</div>
+              <div class="list-row__label">데이터 80GB · 월 48,500원</div>
+            </div>
+            <span class="tag tag--ai">추천</span>
+          </div>
+
+          <div class="list-row" onclick="alert('(프로토타입) 5GX 프리미엄')">
+            <div class="list-row__info">
+              <div style="font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px;">5GX 프리미엄</div>
+              <div class="list-row__label">데이터 무제한 · 월 109,000원</div>
+            </div>
+            <span class="list-row__arrow">›</span>
+          </div>
+
+          <div class="empty-hint" style="padding: 40px 24px;">
+            이 프로토타입에서는 쇼핑 카테고리가 간소화되어 있어요.<br>
+            Agent와 대화하면 맞춤 추천을 받으실 수 있어요.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S1-C-DETAIL: 요금제 상세 ===== -->
+      <section class="screen" data-screen="S1-C-DETAIL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 80px);">
+          <div class="detail-header">
+            <div class="detail-header__label"><span class="tag tag--ai">5G 요금제</span> <span class="tag">추천</span></div>
+            <div class="detail-header__title">다이렉트 5G 76</div>
+            <div class="detail-header__price">
+              <span class="detail-header__price-main">월 48,500원</span>
+              <span class="detail-header__price-discount">42%</span>
+            </div>
+            <div class="detail-header__price-sub">선택약정 반영 시 24,700원</div>
+          </div>
+          <dl class="detail-meta">
+            <div class="detail-meta__row"><dt>테더링/공유</dt><dd>80GB</dd></div>
+            <div class="detail-meta__row"><dt>집/이동전화</dt><dd>무제한 + 영상/부가통화 300분</dd></div>
+            <div class="detail-meta__row"><dt>문자메시지</dt><dd>기본제공</dd></div>
+          </dl>
+          <div class="detail-feature-list">
+            <div class="detail-feature-list__title">다이렉트 5G 76 혜택</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 데이터 / 공유 80GB</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 집 / 이동전화 무제한</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 영상 / 부가통화 300분</div>
+            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 문자 무제한</div>
+          </div>
+        </div>
+        <button class="btn btn--primary btn--cta" onclick="goTo('S1-C-DONE')">요금제 선택하기</button>
+      </section>
+
+      <!-- ===== S1-C-DONE: 변경 완료 (Agent 말풍선) ===== -->
+      <section class="screen chat-screen" data-screen="S1-C-DONE">
+        <div class="top-bar">
+          <div class="top-bar__left"></div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="done-chat">
+          <div class="chat-thread">
+            <div class="chat-bubble chat-bubble--ai">
+              <span class="done-check-inline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              </span>
+              <strong>요금제 변경을 완료했어요</strong>
+            </div>
+            <div class="chat-card">
+              <div class="chat-card__label">변경 내역</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 4px;">변경 전</div>
+              <div style="font-size: var(--fs-body); margin-bottom: 10px;">T 프리미엄 · 월 54,500원</div>
+              <div style="font-size: var(--fs-caption); color: var(--action); font-weight: var(--fw-medium); margin-bottom: 4px;">변경 후</div>
+              <div class="chat-card__highlight">다이렉트 5G 76</div>
+              <div class="chat-card__sub">월 48,500원 · 데이터 80GB</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary); padding-top: 10px; border-top: 1px solid var(--border-default);">다음 달 1일부터 적용돼요</div>
+            </div>
+            <div class="chat-bubble chat-bubble--ai">
+              더 도와드릴 게 있을까요?
+            </div>
+            <div class="chat-inline-actions">
+              <button class="chat-inline-chip" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
+              <button class="chat-inline-chip" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1');">홈으로</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== S2-C-BILL: 요금 안내서 상세 ===== -->
+      <section class="screen" data-screen="S2-C-BILL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 80px);">
+          <h1 class="page-headline">3월 요금 안내서</h1>
+          <div class="page-subline">청구 기간 2026.03.01 ~ 03.31</div>
+
+          <div class="card">
+            <div class="card__head">
+              <div class="card__label">
+                <span class="icon-circle icon-circle--action">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+                </span>
+                <span>3월분 청구 금액</span>
+              </div>
+              <span class="tag tag--alert">미납</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px;">
+              <div style="font-size: 22px; font-weight: var(--fw-medium);">63,200 원</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 예정일 4월 25일</div>
+            </div>
+          </div>
+
+          <div class="section-title">📱 통신 서비스 요금</div>
+          <div class="bill-list">
+            <div class="bill-list__row"><span class="bill-list__label">이번 달 통신 요금</span><span class="bill-list__value">54,500원</span></div>
+            <div class="bill-list__row"><span class="bill-list__label">통신 요금 할인 <span class="tag" style="margin-left: 4px;">결합</span></span><span class="bill-list__value" style="color: var(--action);">-8,450원</span></div>
+            <div class="bill-list__row"><span class="bill-list__label">약정 할인</span><span class="bill-list__value" style="color: var(--action);">-4,100원</span></div>
+            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">41,950원</span></div>
+          </div>
+
+          <div class="section-title">📲 기기 구입비</div>
+          <div class="bill-list">
+            <div class="bill-list__row"><span class="bill-list__label">기기 분할상환금 (8/24회)</span><span class="bill-list__value">16,750원</span></div>
+            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">16,750원</span></div>
+          </div>
+
+          <div class="section-title">📦 기타 요금</div>
+          <div class="bill-list">
+            <div class="bill-list__row"><span class="bill-list__label">구독 요금 (TVING)</span><span class="bill-list__value">3,900원</span></div>
+            <div class="bill-list__row"><span class="bill-list__label">콘텐츠 이용료</span><span class="bill-list__value">600원</span></div>
+            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">4,500원</span></div>
+          </div>
+
+          <div class="bill-total">
+            <span class="bill-total__label">총 청구 금액</span>
+            <span class="bill-total__value">63,200원</span>
+          </div>
+
+          <div style="margin-top: 16px; padding: 12px 14px; background: var(--action-bg-softer); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
+            💡 T멤버십 포인트 18,400원으로 일부 납부가 가능해요
+          </div>
+        </div>
+        <button class="btn btn--primary btn--cta" onclick="openPaymentSheet()">납부하기</button>
+      </section>
+
+      <!-- ===== S2-C-DONE: 납부 완료 (Agent 말풍선) ===== -->
+      <section class="screen chat-screen" data-screen="S2-C-DONE">
+        <div class="top-bar">
+          <div class="top-bar__left"></div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="done-chat">
+          <div class="chat-thread">
+            <div class="chat-bubble chat-bubble--ai">
+              <span class="done-check-inline">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              </span>
+              <strong>납부가 완료됐어요</strong>
+            </div>
+            <div class="chat-card">
+              <div class="chat-card__label">납부 내역</div>
+              <div class="chat-card__highlight">63,200 원</div>
+              <div class="chat-card__sub">3월 요금 · 방금 전</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary); padding-top: 10px; border-top: 1px solid var(--border-default);">납부 수단: <span id="payMethodSummary">신한카드 (1234)</span></div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px;">영수증은 등록된 이메일로 발송됩니다</div>
+            </div>
+            <div class="chat-bubble chat-bubble--ai">
+              더 도와드릴 게 있을까요?
+            </div>
+            <div class="chat-inline-actions">
+              <button class="chat-inline-chip" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
+              <button class="chat-inline-chip" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1');">홈으로</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ============================================
+         Chat Bar (C안 고유)
+         ============================================ -->
+    <div class="chat-bar" id="chatBar">
+      <!-- 홈 버튼 (기본 상태) -->
+      <button class="chat-bar__home" id="chatBarHome" onclick="expandMenu()">T</button>
+
+      <!-- 입력 필드 (기본 상태) -->
+      <div class="chat-bar__input" id="chatBarInput">
+        <input type="text" id="chatBarField" class="chat-bar__field" placeholder="필요하신게 있다면 말씀해 주세요" onkeydown="handleChatBarKey(event)" oninput="onChatBarInput(this.value)">
+        <button class="chat-bar__voice" aria-label="음성 입력">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v4M4 8v4M20 8v4M8 6v8M16 6v8M12 12v4"/></svg>
+        </button>
+        <button class="chat-bar__send" id="chatBarSend" onclick="submitChatBar()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l16-8-7 16-2-7-7-1z"/></svg>
+        </button>
+      </div>
+
+      <!-- 4메뉴 (홈 버튼 탭 후 펼침) -->
+      <div class="chat-bar__menu" id="chatBarMenu">
+        <button class="menu-btn" data-menu="home" onclick="selectMenu('home')">홈</button>
+        <button class="menu-btn" data-menu="shop" onclick="selectMenu('shop')">쇼핑</button>
+        <button class="menu-btn" data-menu="benefit" onclick="selectMenu('benefit')">혜택</button>
+        <button class="menu-btn" data-menu="manage" onclick="selectMenu('manage')">관리</button>
+      </div>
+
+      <!-- AI 버튼 (메뉴 펼침 상태에서 표시) -->
+      <button class="chat-bar__ai-btn" id="chatBarAi" onclick="collapseMenu()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+      </button>
+    </div>
+
+    <!-- Payment Sheet -->
+    <div class="sheet-dim" id="paymentDim" onclick="closePaymentSheet()"></div>
+    <div class="bottom-sheet" id="paymentSheet">
+      <div class="bottom-sheet__handle"></div>
+      <div class="bottom-sheet__head">
+        <div class="bottom-sheet__head-title">납부 수단 선택</div>
+        <button class="bottom-sheet__close" onclick="closePaymentSheet()">✕</button>
+      </div>
+      <div class="bottom-sheet__body">
+        <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 금액</span>
+          <span style="font-size: var(--fs-title); font-weight: var(--fw-medium);">63,200원</span>
+        </div>
+
+        <div class="pay-option" data-selected="true" onclick="selectPayMethod(this, 'card')">
+          <span class="icon-circle icon-circle--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>
+          </span>
+          <div class="pay-option__info">
+            <div class="pay-option__name">신한카드 (1234)</div>
+            <div class="pay-option__meta">등록된 신용카드</div>
+          </div>
+          <div class="pay-option__radio"></div>
+        </div>
+
+        <div class="pay-option" data-selected="false" onclick="selectPayMethod(this, 'point')">
+          <span class="icon-circle icon-circle--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10l3-3 3 3M9 15h6"/></svg>
+          </span>
+          <div class="pay-option__info">
+            <div class="pay-option__name">T멤버십 포인트</div>
+            <div class="pay-option__meta">보유 18,400원 · 일부 사용 가능</div>
+          </div>
+          <div class="pay-option__radio"></div>
+        </div>
+
+        <div class="pay-option" data-selected="false" onclick="selectPayMethod(this, 'bank')">
+          <span class="icon-circle icon-circle--lg">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-6 9 6M4 10v10h16V10M8 14v4M12 14v4M16 14v4"/></svg>
+          </span>
+          <div class="pay-option__info">
+            <div class="pay-option__name">계좌이체</div>
+            <div class="pay-option__meta">즉시이체 · 은행 선택</div>
+          </div>
+          <div class="pay-option__radio"></div>
+        </div>
+
+        <button class="btn btn--primary btn--block" style="margin-top: 20px; height: 52px;" onclick="completePayment()">63,200원 결제하기</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* State */
+let currentScenario = null;
+let currentScreen = 'SCENARIO-SELECT';
+const navigationHistory = [];
+let menuExpanded = false;
+
+const TASK_TEXTS = {
+  1: '데이터가 매월 부족한 상황입니다. 내 사용량에 맞는 요금제로 바꿔보세요.',
+  2: '지난달 요금(3월분 63,200원)이 미납 상태입니다. 앱에서 납부를 완료해보세요.'
+};
+
+/* Navigation */
+function goTo(screenId, options = {}) {
+  if (!options.noHistory && currentScreen !== screenId && currentScreen !== 'SCENARIO-SELECT') {
+    navigationHistory.push(currentScreen);
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('screen--active'));
+  const target = document.querySelector('[data-screen="' + screenId + '"]');
+  if (target) target.classList.add('screen--active');
+  currentScreen = screenId;
+  document.getElementById('scrollArea').scrollTop = 0;
+  updateChatBarVisibility();
+  // 메뉴는 닫힘 상태로
+  if (menuExpanded) collapseMenu();
+}
+
+function goBack() {
+  if (navigationHistory.length > 0) {
+    const prev = navigationHistory.pop();
+    goTo(prev, { noHistory: true });
+  } else {
+    if (currentScenario === 2) goTo('C-HOME-S2', { noHistory: true });
+    else if (currentScenario === 1) goTo('C-HOME-S1', { noHistory: true });
+    else goTo('SCENARIO-SELECT', { noHistory: true });
+  }
+}
+
+function startScenario(num) {
+  currentScenario = num;
+  navigationHistory.length = 0;
+  document.getElementById('utBannerText').textContent = TASK_TEXTS[num];
+  // 시나리오 2에서는 미납 상태 태그 표시
+  const manageBillTag = document.getElementById('manageBillTag');
+  if (manageBillTag) {
+    manageBillTag.innerHTML = num === 2 ?
+      '<span class="tag tag--alert">미납</span>' :
+      '<span class="list-row__arrow">›</span>';
+  }
+  // 홈 진입
+  goTo(num === 1 ? 'C-HOME-S1' : 'C-HOME-S2', { noHistory: true });
+  // 대화 스레드 초기화
+  resetChatThreads();
+}
+
+function restartScenario() {
+  navigationHistory.length = 0;
+  if (currentScenario) startScenario(currentScenario);
+  else {
+    goTo('SCENARIO-SELECT', { noHistory: true });
+    document.getElementById('utBannerText').textContent = '시나리오를 선택해주세요.';
+  }
+}
+
+function switchConcept(target) {
+  if (target && target !== 'c.html') window.location.href = target;
+}
+
+/* UT Panel */
+function openUtPanel() {
+  document.getElementById('utPanel').classList.add('open');
+  document.getElementById('utBackdrop').classList.add('open');
+  document.getElementById('utFab').classList.add('hidden');
+}
+function closeUtPanel() {
+  document.getElementById('utPanel').classList.remove('open');
+  document.getElementById('utBackdrop').classList.remove('open');
+  document.getElementById('utFab').classList.remove('hidden');
+}
+
+/* Chat Bar 제어 */
+function updateChatBarVisibility() {
+  const bar = document.getElementById('chatBar');
+  // 시나리오 선택에서만 숨김
+  const hideOn = ['SCENARIO-SELECT', 'S1-C-DONE', 'S2-C-DONE'];
+  bar.style.display = hideOn.includes(currentScreen) ? 'none' : 'flex';
+}
+
+function expandMenu() {
+  menuExpanded = true;
+  document.getElementById('chatBarHome').classList.add('hidden');
+  document.getElementById('chatBarInput').style.display = 'none';
+  document.getElementById('chatBarMenu').classList.add('visible');
+  document.getElementById('chatBarAi').classList.add('visible');
+  // 현재 화면에 해당하는 메뉴 active 처리
+  updateActiveMenuBtn();
+}
+
+function collapseMenu() {
+  menuExpanded = false;
+  document.getElementById('chatBarHome').classList.remove('hidden');
+  document.getElementById('chatBarInput').style.display = 'flex';
+  document.getElementById('chatBarMenu').classList.remove('visible');
+  document.getElementById('chatBarAi').classList.remove('visible');
+}
+
+function updateActiveMenuBtn() {
+  const map = {
+    'C-HOME-S1': 'home',
+    'C-HOME-S2': 'home',
+    'C-SHOP': 'shop',
+    'C-BENEFIT': 'benefit',
+    'C-MANAGE': 'manage'
+  };
+  const active = map[currentScreen] || null;
+  document.querySelectorAll('.menu-btn').forEach(btn => {
+    btn.classList.toggle('menu-btn--active', btn.dataset.menu === active);
+  });
+}
+
+function selectMenu(menu) {
+  collapseMenu();
+  if (menu === 'home') {
+    goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1');
+  } else if (menu === 'shop') {
+    goTo('C-SHOP');
+  } else if (menu === 'benefit') {
+    goTo('C-BENEFIT');
+  } else if (menu === 'manage') {
+    goTo('C-MANAGE');
+  }
+}
+
+/* Chat Bar Input */
+function onChatBarInput(val) {
+  const send = document.getElementById('chatBarSend');
+  if (val && val.trim()) send.classList.add('visible');
+  else send.classList.remove('visible');
+}
+
+function handleChatBarKey(event) {
+  if (event.key !== 'Enter') return;
+  if (event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  submitChatBar();
+}
+
+function submitChatBar() {
+  const field = document.getElementById('chatBarField');
+  const text = field.value.trim();
+  if (!text) return;
+  field.value = '';
+  onChatBarInput('');
+  // 질문 내용에 따라 적절한 대화 화면으로 이동
+  if (text.includes('미납') || (text.includes('요금') && text.includes('내'))) {
+    goTo('S2-C-CHAT');
+    setTimeout(() => autoAsk(text), 200);
+  } else {
+    goTo('S1-C-CHAT');
+    setTimeout(() => autoAsk(text), 200);
+  }
+}
+
+/* 대화 스레드 로직 */
+function resetChatThreads() {
+  document.getElementById('s1ChatThread').innerHTML = '';
+  document.getElementById('s2ChatThread').innerHTML = '';
+}
+
+function autoAsk(question) {
+  // 현재 화면에 따라 어느 스레드에 추가할지 결정
+  const threadId = currentScreen === 'S2-C-CHAT' ? 's2ChatThread' : 's1ChatThread';
+  askInThread(threadId, question);
+}
+
+function askInThread(threadId, question) {
+  const thread = document.getElementById(threadId);
+  const scrollArea = document.getElementById('scrollArea');
+
+  // 사용자 말풍선
+  const userBubble = document.createElement('div');
+  userBubble.className = 'chat-bubble chat-bubble--user';
+  userBubble.textContent = question;
+  thread.appendChild(userBubble);
+  scrollArea.scrollTop = scrollArea.scrollHeight;
+
+  setTimeout(() => {
+    renderAiResponse(thread, question);
+    scrollArea.scrollTop = scrollArea.scrollHeight;
+  }, 400);
+}
+
+function renderAiResponse(thread, question) {
+  if (question.includes('요금제')) {
+    // AI 응답
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-bubble chat-bubble--ai';
+    aiBubble.innerHTML = '이번 달 데이터가 62GB나 쓰고 계세요. 사용 패턴을 보니 <strong>다이렉트 5G 76</strong>이 월 6,000원 절약되고 데이터도 넉넉해요.';
+    thread.appendChild(aiBubble);
+
+    // 카드
+    const card = document.createElement('div');
+    card.className = 'chat-card';
+    card.innerHTML = `
+      <div class="chat-card__label">추천 요금제</div>
+      <div class="chat-card__title">다이렉트 5G 76</div>
+      <div class="chat-card__meta">데이터 80GB · 선택약정 반영 시 24,700원</div>
+      <div class="chat-card__highlight">월 48,500원</div>
+      <div class="chat-card__sub">현재 대비 매달 6,000원 절약</div>
+      <div class="chat-card__actions">
+        <button class="chat-card__btn chat-card__btn--outline" onclick="goTo('S1-C-DETAIL')">자세히 보기</button>
+        <button class="chat-card__btn chat-card__btn--primary" onclick="goTo('S1-C-DONE')">바로 변경</button>
+      </div>
+    `;
+    thread.appendChild(card);
+  } else if (question.includes('미납') || (question.includes('요금') && question.includes('내'))) {
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-bubble chat-bubble--ai';
+    aiBubble.innerHTML = '3월 요금 <strong>63,200원</strong>이 납부 대기 중이에요. T포인트 9,000원을 적용하면 54,200원만 내시면 돼요.';
+    thread.appendChild(aiBubble);
+
+    const card = document.createElement('div');
+    card.className = 'chat-card';
+    card.innerHTML = `
+      <div class="chat-card__label">미납 요금</div>
+      <div class="chat-card__title">3월분 청구 금액</div>
+      <div class="chat-card__meta">납부 예정일 4월 25일</div>
+      <div class="chat-card__highlight">63,200 원</div>
+      <div class="chat-card__sub">T포인트 적용 시 54,200원</div>
+      <div class="chat-card__actions">
+        <button class="chat-card__btn chat-card__btn--outline" onclick="goTo('S2-C-BILL')">내역 보기</button>
+        <button class="chat-card__btn chat-card__btn--primary" onclick="openPaymentSheet()">바로 납부</button>
+      </div>
+    `;
+    thread.appendChild(card);
+  } else if (question.includes('데이터') || question.includes('사용량') || question.includes('많이 나왔')) {
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-bubble chat-bubble--ai';
+    aiBubble.innerHTML = '이번 달 데이터는 <strong>62GB / 50GB</strong>를 사용 중이에요. 콘텐츠/OTT에 31.3GB를 쓰고 계셔서 이번 달 요금이 조금 늘었어요.';
+    thread.appendChild(aiBubble);
+
+    // 사용량 카드
+    const card = document.createElement('div');
+    card.className = 'chat-card';
+    card.innerHTML = `
+      <div class="chat-card__label">데이터 사용 현황</div>
+      <div class="chat-card__highlight">62 GB</div>
+      <div class="chat-card__sub">기본 50GB 대비 124% 사용</div>
+      <div style="padding-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption); color: var(--text-secondary);">
+        <div style="display: flex; justify-content: space-between;"><span>콘텐츠 / OTT</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">31.3GB</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>SNS</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">10GB</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>웹서핑 / 기타</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">20.7GB</span></div>
+      </div>
+    `;
+    thread.appendChild(card);
+
+    // 추가 액션 칩
+    const chips = document.createElement('div');
+    chips.className = 'chat-inline-actions';
+    chips.innerHTML = `
+      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 바꾸고 싶어</button>
+    `;
+    thread.appendChild(chips);
+  } else {
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'chat-bubble chat-bubble--ai';
+    aiBubble.textContent = '죄송해요, 아직 준비하지 못한 답변이에요. 아래에서 다른 질문을 선택해보세요.';
+    thread.appendChild(aiBubble);
+
+    const chips = document.createElement('div');
+    chips.className = 'chat-inline-actions';
+    chips.innerHTML = `
+      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 바꾸고 싶어</button>
+      <button class="chat-inline-chip" onclick="autoAsk('미납 요금 낼래')">미납 요금 낼래</button>
+      <button class="chat-inline-chip" onclick="autoAsk('데이터 사용량 알려줘')">데이터 사용량 알려줘</button>
+    `;
+    thread.appendChild(chips);
+  }
+}
+
+/* Payment Sheet */
+function openPaymentSheet() {
+  document.getElementById('paymentDim').classList.add('open');
+  document.getElementById('paymentSheet').classList.add('open');
+}
+function closePaymentSheet() {
+  document.getElementById('paymentDim').classList.remove('open');
+  document.getElementById('paymentSheet').classList.remove('open');
+}
+function completePayment() {
+  closePaymentSheet();
+  setTimeout(() => goTo('S2-C-DONE'), 200);
+}
+
+function selectPayMethod(el, method) {
+  document.querySelectorAll('.pay-option').forEach(o => o.setAttribute('data-selected', 'false'));
+  el.setAttribute('data-selected', 'true');
+  const nameMap = { card: '신한카드 (1234)', point: 'T멤버십 포인트', bank: '계좌이체' };
+  const summary = document.getElementById('payMethodSummary');
+  if (summary) summary.textContent = nameMap[method];
+}
+
+/* PC 마우스 드래그 스크롤 (가로 스크롤 카드 영역) */
+function enableDragScroll() {
+  document.querySelectorAll('.c-card-row').forEach(row => {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+    let hasMoved = false;
+
+    row.addEventListener('mousedown', (e) => {
+      isDown = true;
+      hasMoved = false;
+      row.classList.add('dragging');
+      startX = e.pageX - row.offsetLeft;
+      scrollLeft = row.scrollLeft;
+    });
+
+    row.addEventListener('mouseleave', () => {
+      if (isDown) {
+        isDown = false;
+        row.classList.remove('dragging');
+      }
+    });
+
+    row.addEventListener('mouseup', () => {
+      isDown = false;
+      setTimeout(() => row.classList.remove('dragging'), 10);
+    });
+
+    row.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - row.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      if (Math.abs(walk) > 3) hasMoved = true;
+      row.scrollLeft = scrollLeft - walk;
+    });
+
+    row.addEventListener('click', (e) => {
+      if (hasMoved) {
+        e.stopPropagation();
+        e.preventDefault();
+        hasMoved = false;
+      }
+    }, true);
+  });
+}
+
+enableDragScroll();
+updateChatBarVisibility();
+</script>
+
+</body>
+</html>
