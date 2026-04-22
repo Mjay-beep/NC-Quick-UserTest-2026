@@ -28,8 +28,8 @@
   --action-bg-weak: #EEF0FF;
   --action-bg-softer: #F5F6FF;
 
-  --alert: #C93E3E;
-  --alert-bg-weak: #FCEBEB;
+  --alert: #111111;  /* 무채색화 — alert 컬러 미사용 */
+  --alert-bg-weak: #EEEEEE;  /* 무채색화 */
 
   --ai: var(--action);
   --ai-bg: var(--action-bg-weak);
@@ -225,6 +225,480 @@ a { color: inherit; text-decoration: none; }
 .screen { display: none; }
 .screen.screen--active { display: block; }
 
+/* 하단 고정 CTA를 가지는 화면용 구조 */
+.screen.screen--with-fixed-cta.screen--active {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  inset: 0 0 var(--gnb-height) 0;
+}
+.page-body--scrollable {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fixed-cta-bar {
+  flex-shrink: 0;
+  padding: 12px 16px 16px;
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ============================================
+   요금 합계 표 (요금 안내서)
+   ============================================ */
+.bill-summary-table {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.bill-summary-table__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-default);
+  font-size: var(--fs-body);
+}
+.bill-summary-table__row:last-child { border-bottom: 0; }
+.bill-summary-table__label { color: var(--text-primary); }
+.bill-summary-table__value { font-weight: var(--fw-medium); color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.bill-summary-table__row--total {
+  background: var(--bg-surface-2);
+  border-top: 2px solid var(--text-primary);
+}
+.bill-summary-table__row--total .bill-summary-table__label,
+.bill-summary-table__row--total .bill-summary-table__value {
+  font-weight: var(--fw-medium);
+  font-size: 16px;
+}
+
+/* ============================================
+   확인 모달 (요금제 변경 등)
+   ============================================ */
+.modal-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms;
+}
+.modal-dim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: calc(100% - 40px);
+  max-width: 335px;
+  background: var(--bg-page);
+  border-radius: 14px;
+  padding: 24px 20px 16px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms, transform 160ms;
+}
+.modal.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.modal__title {
+  font-size: 17px;
+  font-weight: var(--fw-medium);
+  text-align: center;
+  margin-bottom: 16px;
+  line-height: 1.35;
+}
+.modal__body {
+  margin-bottom: 20px;
+}
+.modal__summary {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.modal__summary-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 6px 0;
+  gap: 12px;
+  line-height: 1.45;
+}
+.modal__summary-row dt {
+  flex-shrink: 0;
+  width: 70px;
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  padding-top: 1px;
+}
+.modal__summary-row dd {
+  flex: 1;
+  font-size: var(--fs-body);
+}
+.modal__summary-row dd strong {
+  font-weight: var(--fw-medium);
+}
+.modal__notice {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+}
+.modal__actions {
+  display: flex;
+  gap: 8px;
+}
+.modal__savings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  background: var(--bg-surface-2);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--text-primary);
+}
+.modal__savings-label {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+}
+.modal__savings-value {
+  font-size: 17px;
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+}
+.modal__notice strong {
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+}
+
+/* ============================================
+   전체 메뉴 드로어
+   ============================================ */
+.drawer-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 80;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms;
+}
+.drawer-dim.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.drawer {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 82%;
+  max-width: 300px;
+  background: var(--bg-page);
+  z-index: 90;
+  transform: translateX(100%);
+  transition: transform 220ms ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.12);
+}
+.drawer.open { transform: translateX(0); }
+.drawer__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+.drawer__title {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+}
+.drawer__close {
+  background: none;
+  border: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 16px 24px;
+}
+.drawer__section-title {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.3px;
+  padding: 4px 4px 8px;
+  text-transform: uppercase;
+}
+.drawer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.drawer__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 80ms;
+}
+.drawer__item:active { background: var(--bg-surface); }
+.drawer__item-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+.drawer__item-icon svg { width: 18px; height: 18px; }
+.drawer__item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.drawer__item-title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.drawer__item-sub {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.drawer__item-arrow {
+  color: var(--text-tertiary);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   검색 결과 대화형 UI
+   ============================================ */
+.search-bar-wrap--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg-page);
+}
+.search-bar__clear {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+.search-bar--footer {
+  background: var(--bg-surface);
+}
+
+.search-result-menu-title {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+.search-menu-list {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.search-menu-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 14px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-default);
+  gap: 2px 10px;
+}
+.search-menu-item:last-child { border-bottom: 0; }
+.search-menu-item:active { background: var(--bg-surface-2); }
+.search-menu-item__title {
+  flex: 1;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.search-menu-item__sub {
+  width: 100%;
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  margin-top: 2px;
+  order: 3;
+}
+.search-menu-item__arrow {
+  color: var(--text-tertiary);
+  font-size: 18px;
+  margin-left: auto;
+}
+
+.search-result-chat {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 4px;
+}
+.search-result-chat__badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.3px;
+  margin-bottom: 14px;
+}
+.search-result-chat__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.chat-bubble {
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  margin-bottom: 8px;
+  max-width: 92%;
+}
+.chat-bubble--ai {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+}
+.chat-bubble strong { font-weight: var(--fw-medium); }
+
+.chat-cta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.chat-cta {
+  background: var(--bg-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  cursor: pointer;
+  gap: 2px 10px;
+  position: relative;
+}
+.chat-cta:active { background: var(--bg-surface-2); }
+.chat-cta__title {
+  flex: 1;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.chat-cta__sub {
+  width: 100%;
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  order: 3;
+  margin-top: 2px;
+}
+.chat-cta__arrow {
+  color: var(--text-tertiary);
+  font-size: 18px;
+  margin-left: auto;
+}
+
+.chat-soft-suggest {
+  background: var(--bg-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-top: 8px;
+  cursor: pointer;
+  position: relative;
+}
+.chat-soft-suggest:active { background: var(--bg-surface-2); }
+.chat-soft-suggest__label {
+  display: inline-block;
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface-2);
+  letter-spacing: 0.3px;
+  margin-bottom: 8px;
+}
+.chat-soft-suggest__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin-bottom: 4px;
+}
+.chat-soft-suggest__sub {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.chat-soft-suggest__link {
+  font-size: var(--fs-caption);
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+}
+
 /* Top Bar */
 .top-bar {
   padding: 14px 62px 8px 16px;
@@ -314,7 +788,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg-surface-2);
   color: var(--text-secondary);
 }
-.tag--alert { background: var(--alert); color: #fff; }
+.tag--alert { background: var(--text-primary); color: #fff; }
 .tag--ai { background: var(--action-bg-weak); color: var(--action); }
 .tag--outline { background: transparent; border: 1px solid var(--border-mid); color: var(--text-secondary); }
 
@@ -342,7 +816,7 @@ a { color: inherit; text-decoration: none; }
 }
 .tile:active { background: var(--bg-surface-2); }
 .tile--wide { grid-column: 1 / 3; }
-.tile--alert-border { border-color: var(--alert); }
+.tile--alert-border { border-color: var(--text-primary); }
 
 .tile__head {
   display: flex;
@@ -362,7 +836,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: var(--fw-medium);
   line-height: var(--lh-tight);
 }
-.tile__main--alert { color: var(--alert); }
+.tile__main--alert { color: var(--text-primary); }
 .tile__sub {
   font-size: 11px;
   color: var(--text-secondary);
@@ -375,7 +849,7 @@ a { color: inherit; text-decoration: none; }
   color: var(--text-tertiary);
 }
 .tile__visual svg { width: 100%; height: 100%; }
-.tile__visual--alert { color: var(--alert); }
+.tile__visual--alert { color: var(--text-secondary); }
 
 /* Wide tile (전체 폭, 미납 등) */
 .tile--wide .tile__head { margin-bottom: 6px; }
@@ -682,6 +1156,89 @@ a { color: inherit; text-decoration: none; }
 .detail-feature-list__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 12px; }
 .detail-feature-list__item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: var(--fs-body); }
 
+/* ============================================
+   비교 테이블 (요금제 상세 - 현재 vs 변경 후)
+   ============================================ */
+.compare-table {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.compare-table__header {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.1fr;
+  background: var(--bg-surface-2);
+  padding: 12px 0;
+}
+.compare-table__header .compare-table__cell {
+  padding: 4px 10px;
+  text-align: center;
+  font-size: var(--fs-caption);
+  border-right: none;
+}
+.compare-table__row {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.1fr;
+  border-top: 1px solid var(--border-default);
+  min-height: 52px;
+  align-items: center;
+}
+.compare-table__cell {
+  padding: 10px 8px;
+  font-size: var(--fs-body);
+  text-align: center;
+  line-height: 1.35;
+}
+.compare-table__cell--label {
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  font-size: var(--fs-caption);
+  text-align: left;
+  padding-left: 14px;
+  background: var(--bg-surface);
+}
+.compare-table__cell--recommend {
+  background: var(--bg-page);
+  border-left: 2px solid var(--text-primary);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.compare-table__col-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+  margin-bottom: 2px;
+  font-weight: var(--fw-regular);
+}
+.compare-table__col-sub {
+  font-size: var(--fs-caption);
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+  line-height: 1.25;
+}
+.compare-table__header .compare-table__cell--recommend .compare-table__col-label,
+.compare-table__header .compare-table__cell--recommend .compare-table__col-sub {
+  color: var(--text-primary);
+}
+.compare-table__row--highlight .compare-table__cell--recommend {
+  background: var(--bg-surface-2);
+  font-size: 16px;
+}
+.compare-table__row--highlight .compare-table__cell--recommend strong {
+  font-size: 17px;
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+}
+.compare-table__row--total {
+  background: var(--bg-surface);
+  border-top: 2px solid var(--border-default);
+}
+.compare-table__row--total .compare-table__cell {
+  padding: 14px 8px;
+  font-weight: var(--fw-medium);
+}
+
 /* 요금제 리스트 (쇼핑 탭) */
 .plan-card {
   background: var(--bg-surface);
@@ -705,6 +1262,110 @@ a { color: inherit; text-decoration: none; }
 .plan-card__arrow { color: var(--text-tertiary); flex-shrink: 0; }
 
 /* 납부 수단 */
+.pay-amount-box {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pay-amount-box__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-body);
+}
+.pay-amount-box__row--discount {
+  color: var(--text-secondary);
+  font-size: var(--fs-caption);
+}
+.pay-amount-box__row--total {
+  padding-top: 10px;
+  border-top: 1px solid var(--border-default);
+  margin-top: 4px;
+}
+.pay-amount-box__row--total .pay-amount-box__label {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+}
+.pay-amount-box__row--total .pay-amount-box__value {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+
+.pay-point-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  background: var(--bg-page);
+  cursor: pointer;
+}
+.pay-point-check__checkbox {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.pay-point-check__checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  margin: 0;
+}
+.pay-point-check__box-visual {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-page);
+  pointer-events: none;
+  transition: all 80ms;
+}
+.pay-point-check__checkbox input:checked + .pay-point-check__box-visual {
+  background: var(--action);
+  border-color: var(--action);
+}
+.pay-point-check__checkbox input:checked + .pay-point-check__box-visual::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+.pay-point-check__info {
+  flex: 1;
+}
+.pay-point-check__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  margin-bottom: 2px;
+}
+.pay-point-check__meta {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+}
+
+.pay-section-title {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
 .pay-option {
   display: flex;
   align-items: center;
@@ -975,6 +1636,101 @@ a { color: inherit; text-decoration: none; }
 /* 검색 탭 전용 */
 .search-bar-wrap { padding: 8px 16px 0; }
 
+/* ============================================
+   홈 제안 카드 (2단계 - 대화 유도형)
+   ============================================ */
+.pcard {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 80ms;
+  border: 1px solid transparent;
+  position: relative;
+}
+.pcard:active { background: var(--bg-surface-2); }
+.pcard--alert { border-color: var(--border-mid); background: var(--bg-surface-2); }
+.pcard__eyebrow {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+}
+.pcard__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 1.4;
+  margin-bottom: 4px;
+  padding-right: 60px;
+}
+.pcard__title strong { font-weight: var(--fw-medium); color: var(--text-primary); }
+.pcard__sub {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+  padding-right: 60px;
+}
+.pcard__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-caption);
+  color: var(--text-primary);
+  font-weight: var(--fw-medium);
+}
+.pcard__visual {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bg-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+.pcard__visual svg { width: 22px; height: 22px; }
+.pcard--alert .pcard__visual { background: var(--bg-page); color: var(--text-primary); }
+
+/* 바코드 포함 카드 */
+.pcard--with-barcode { padding-bottom: 12px; }
+.pcard__barcode {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-default);
+}
+.pcard__barcode-visual {
+  background: repeating-linear-gradient(
+    to right, #111 0, #111 2px,
+    transparent 2px, transparent 4px,
+    #111 4px, #111 5px,
+    transparent 5px, transparent 9px,
+    #111 9px, #111 10px,
+    transparent 10px, transparent 13px
+  );
+  height: 36px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.pcard__barcode-numbers {
+  font-size: 11px;
+  color: var(--text-secondary);
+  letter-spacing: 1.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.legacy-section-divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: 28px -16px 20px;
+}
+
 /* 쇼핑 홈 카테고리 타일 */
 .shop-cat-grid {
   display: grid;
@@ -1218,8 +1974,52 @@ a { color: inherit; text-decoration: none; }
           <div class="scenario-card" onclick="startScenario(2)">
             <div class="scenario-card__num">시나리오 2</div>
             <div class="scenario-card__title">미납 요금 납부</div>
-            <div class="scenario-card__desc">지난 달 요금(3월분 63,200원)을 미납한 상태. 앱에서 납부를 완료하세요.</div>
+            <div class="scenario-card__desc">지난 달 요금(3월분 87,290원)을 미납한 상태. 앱에서 납부를 완료하세요.</div>
           </div>
+        </div>
+      </section>
+
+      <!-- ===== MINI-LANDING: 추가 진입점용 공용 랜딩 ===== -->
+      <section class="screen" data-screen="MINI-LANDING">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div style="padding: 24px 0 16px;">
+            <div id="miniLandingEyebrow" style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.3px; text-transform: uppercase;">카테고리</div>
+            <h1 class="page-headline" id="miniLandingTitle">제목</h1>
+            <div class="page-subline" id="miniLandingDesc">설명</div>
+          </div>
+
+          <!-- Preview 영역 (아이콘 + 간단 정보) -->
+          <div style="padding: 40px 20px; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <div id="miniLandingIcon" style="width: 72px; height: 72px; border-radius: 50%; background: var(--bg-page); display: flex; align-items: center; justify-content: center; color: var(--text-primary);">
+              <!-- 동적 아이콘 삽입 -->
+            </div>
+            <div id="miniLandingHighlight" style="font-size: 17px; font-weight: var(--fw-medium); color: var(--text-primary); text-align: center; line-height: 1.4;">
+              미리보기
+            </div>
+            <div id="miniLandingSub" style="font-size: var(--fs-caption); color: var(--text-secondary); text-align: center; line-height: 1.5; max-width: 260px;">
+              세부 정보가 여기에 표시됩니다
+            </div>
+          </div>
+
+          <!-- 안내 -->
+          <div style="padding: 14px 16px; background: var(--bg-surface); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+            💡 이 기능은 UT 테스트용 프로토타입입니다. 뒤의 시나리오는 구현되지 않았어요.
+          </div>
+
+          <!-- CTA -->
+          <button class="btn btn--primary btn--block" onclick="goBack()" style="height: 48px;">이전으로 돌아가기</button>
         </div>
       </section>
 
@@ -1230,57 +2030,139 @@ a { color: inherit; text-decoration: none; }
             <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">MY</div>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
-            </div>
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
         </div>
         <div class="page-body">
           <h1 class="page-headline">안녕하세요 지훈님</h1>
-          <div class="page-subline">오늘도 좋은 하루 되세요 · SILVER</div>
+          <div class="page-subline">오늘도 좋은 하루 되세요 · GOLD</div>
 
-          <!-- 맞춤 혜택 배너 -->
-          <div class="benefit-hero">
-            <div class="benefit-hero__img-decor"></div>
-            <div class="benefit-hero__content">
-              <div class="benefit-hero__text">보유 포인트로<br>무료이용 가능해요</div>
-              <div class="benefit-hero__sub">18,400P 사용 가능 ›</div>
+          <!-- 1. 데이터 현황 -->
+          <div class="pcard pcard--alert" onclick="goTo('S1-A-02')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
+            </div>
+            <div class="pcard__eyebrow">남은 데이터</div>
+            <div class="pcard__title">이번 달 데이터가 부족할 것 같아요<br><strong>남은 76GB / 96GB</strong></div>
+            <div class="pcard__sub">지금 속도면 5일 뒤 데이터가 소진돼요. 이후 10일은 1Mbps로 사용 가능해요</div>
+            <div class="pcard__cta"><span>데이터 사용량 살펴보기</span><span>›</span></div>
+          </div>
+
+          <!-- 2. 요금 내역 (미납) -->
+          <div class="pcard pcard--alert" onclick="goTo('S2-A-02')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            </div>
+            <div class="pcard__eyebrow">요금 안내</div>
+            <div class="pcard__title">3월 요금 미납이 있어요<br><strong>87,290원</strong></div>
+            <div class="pcard__cta"><span>지금 납부하기</span><span>›</span></div>
+          </div>
+
+          <!-- 3. 요금제 추천 -->
+          <div class="pcard" onclick="goTo('S1-A-04')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10l5 3-5 3z" fill="currentColor"/></svg>
+            </div>
+            <div class="pcard__eyebrow">요금제</div>
+            <div class="pcard__title">넷플릭스, 요금제에 포함해서<br>더 저렴하게 이용해보세요</div>
+            <div class="pcard__sub">변경 시 데이터 무제한 + 넷플릭스 포함, 총 요금은 오히려 줄어들어요</div>
+            <div class="pcard__cta"><span>요금제 비교하기</span><span>›</span></div>
+          </div>
+
+          <!-- 4. 단말기 -->
+          <div class="pcard" onclick="openMiniLanding('device')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+            </div>
+            <div class="pcard__eyebrow">단말기</div>
+            <div class="pcard__title">매장에서 보신 갤럭시 S26 울트라<br>지금 확인해보세요</div>
+            <div class="pcard__cta"><span>대리점 상담 정보 불러오기</span><span>›</span></div>
+          </div>
+
+          <!-- 5. 쇼핑 (장바구니) -->
+          <div class="pcard" onclick="openMiniLanding('cart')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+            </div>
+            <div class="pcard__eyebrow">쇼핑</div>
+            <div class="pcard__title">담아두신 '배달의민족 쿠폰팩 &amp; T우주패스'<br>오늘부터 사용해볼까요?</div>
+            <div class="pcard__cta"><span>장바구니 이동하기</span><span>›</span></div>
+          </div>
+
+          <!-- 6. 그룹 (데이터 선물 요청) -->
+          <div class="pcard" onclick="alert('(프로토타입) 데이터 선물')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v8H4v-8M2 8h20v4H2zM12 8V4M8 8a2 2 0 0 1-2-2 2 2 0 0 1 2-2c2 0 4 2 4 4M16 8a2 2 0 0 0 2-2 2 2 0 0 0-2-2c-2 0-4 2-4 4"/></svg>
+            </div>
+            <div class="pcard__eyebrow">그룹</div>
+            <div class="pcard__title">동생님이 데이터 선물 <strong>1GB</strong>를 요청했어요</div>
+            <div class="pcard__sub">다만 지훈님의 4월 데이터도 부족할 수 있어요</div>
+            <div class="pcard__cta"><span>데이터 선물 보내기 (1GB)</span><span>›</span></div>
+          </div>
+
+          <!-- 7. 혜택 (영화 예매) -->
+          <div class="pcard" onclick="openMiniLanding('movieSalmok')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 2v3M17 2v3M3 10h18"/></svg>
+            </div>
+            <div class="pcard__eyebrow">지훈님과 비슷한 고객님들은 지금,</div>
+            <div class="pcard__title">영화 '살목지' 예매가<br>빠르게 늘고 있어요</div>
+            <div class="pcard__cta"><span>무료 예매하기</span><span>›</span></div>
+          </div>
+
+          <!-- 8. 쿠폰 (바코드 포함) -->
+          <div class="pcard pcard--with-barcode" onclick="alert('(프로토타입) 파리바게트 쿠폰')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4z"/></svg>
+            </div>
+            <div class="pcard__eyebrow">쿠폰</div>
+            <div class="pcard__title">출근길에 자주 이용하셨던<br>파리바게트 쿠폰이에요</div>
+            <div class="pcard__cta"><span>바코드 열기</span><span>›</span></div>
+            <div class="pcard__barcode">
+              <div class="pcard__barcode-visual"></div>
+              <div class="pcard__barcode-numbers">4561 1506 4932 1506 · GOLD</div>
             </div>
           </div>
 
-          <!-- 관리 타일 그리드 -->
+          <!-- 9. 쇼핑 (컬러링) -->
+          <div class="pcard" onclick="alert('(프로토타입) 컬러링 변경')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div class="pcard__eyebrow">오늘의 추천</div>
+            <div class="pcard__title">AKMU '소문의 낙원'으로<br>컬러링 변경 어떠세요?</div>
+            <div class="pcard__cta"><span>컬러링 변경하기</span><span>›</span></div>
+          </div>
+
+          <!-- 10. 이벤트 (숲캉스) -->
+          <div class="pcard" onclick="alert('(프로토타입) 숲캉스 응모')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 22v-4M4 12H2M22 12h-2M7 7l-2-2M17 7l2-2M7 17l-2 2M17 17l2 2"/><circle cx="12" cy="12" r="5"/></svg>
+            </div>
+            <div class="pcard__eyebrow">10년 이상 장기고객님</div>
+            <div class="pcard__title">T 장기고객 프로그램<br>숲캉스 데이에 초대합니다!</div>
+            <div class="pcard__sub">숲속 힐링 피크닉으로 추억을 만들어요</div>
+            <div class="pcard__cta"><span>응모하러 가기</span><span>›</span></div>
+          </div>
+
+          <!-- 11. 이벤트 (T우주 윌라) -->
+          <div class="pcard" onclick="alert('(프로토타입) T우주 윌라')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 8h16M8 4v16"/></svg>
+            </div>
+            <div class="pcard__eyebrow">읽고 싶던 모든 책이 무제한</div>
+            <div class="pcard__title">T우주 윌라 구독하고<br>메가MGC 커피 1잔 받기</div>
+            <div class="pcard__cta"><span>보러가기</span><span>›</span></div>
+          </div>
+
+          <div class="legacy-section-divider"></div>
+
+          <!-- 기존 섹션들 (하단 배치) -->
           <div class="section-title"><span>📊 내 통신 현황</span></div>
           <div class="tile-grid">
-            <div class="tile" onclick="goTo('S1-A-02')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">실시간 잔여량<br>20GB 제공</div>
-              </div>
-              <div>
-                <div class="tile__main">62 GB</div>
-                <div class="tile__sub">80% 사용</div>
-              </div>
-            </div>
-
-            <div class="tile" onclick="alert('(프로토타입) 요금 안내서')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">요금 안내서<br>전월 대비 -5,200원</div>
-              </div>
-              <div>
-                <div class="tile__main">63,200원</div>
-                <div class="tile__sub">납부일 4/25</div>
-              </div>
-            </div>
-
-            <div class="tile" onclick="alert('(프로토타입) 결합가족')">
+            <div class="tile" onclick="openMiniLanding('familyCombine')">
               <div class="tile__visual">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
               </div>
@@ -1292,7 +2174,6 @@ a { color: inherit; text-decoration: none; }
                 <div class="tile__sub">15년 합산</div>
               </div>
             </div>
-
             <div class="tile" onclick="alert('(프로토타입) 약정 할인')">
               <div class="tile__visual">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
@@ -1305,21 +2186,7 @@ a { color: inherit; text-decoration: none; }
                 <div class="tile__sub">자동 할인 중</div>
               </div>
             </div>
-          </div>
-
-          <!-- 멤버십 & 포인트 -->
-          <div class="section-title"><span>🎫 T멤버십</span></div>
-          <div class="barcode-card">
-            <div class="barcode-card__label">
-              <span>T멤버십 · SILVER</span>
-              <span style="color: var(--action); font-weight: var(--fw-medium);">19:58</span>
-            </div>
-            <div class="barcode-card__visual"></div>
-            <div class="barcode-card__numbers">4561 1506 4932 1506</div>
-          </div>
-
-          <div class="tile-grid">
-            <div class="tile" onclick="alert('(프로토타입) 포인트)')">
+            <div class="tile" onclick="alert('(프로토타입) 포인트')">
               <div class="tile__visual">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
               </div>
@@ -1331,7 +2198,6 @@ a { color: inherit; text-decoration: none; }
                 <div class="tile__sub">요금에 사용 가능</div>
               </div>
             </div>
-
             <div class="tile" onclick="alert('(프로토타입) 쿠폰함')">
               <div class="tile__visual">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>
@@ -1346,91 +2212,7 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
 
-          <!-- 맞춤 혜택 카드 -->
-          <div class="section-title">
-            <span>✨ 지훈님 맞춤 혜택</span>
-            <span class="section-title__more">더보기</span>
-          </div>
-          <div class="benefit-grid">
-            <div class="benefit-card" role="button" onclick="alert('(프로토타입) Disney+')">
-              <div class="benefit-card__img">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M6 18 18 6"/></svg>
-              </div>
-              <div class="benefit-card__title">Disney+ 스트리밍권</div>
-              <div class="benefit-card__price">포인트로 무료</div>
-            </div>
-            <div class="benefit-card" role="button" onclick="alert('(프로토타입) 예스24')">
-              <div class="benefit-card__img">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 10h16"/></svg>
-              </div>
-              <div class="benefit-card__title">예스24 쿠폰팩</div>
-              <div class="benefit-card__price">포인트로 무료</div>
-            </div>
-          </div>
-
-          <!-- 영화 예매 -->
-          <div class="section-title">
-            <span>🎬 영화 예매</span>
-            <span class="section-title__more">전체보기</span>
-          </div>
-          <div class="scroll-row">
-            <div class="movie-card" onclick="alert('(프로토타입) 영화1')">
-              <div class="movie-card__poster"></div>
-              <div class="movie-card__title">왕과 사는 남자</div>
-              <div class="movie-card__meta">VVIP CGV 무료</div>
-            </div>
-            <div class="movie-card" onclick="alert('(프로토타입) 영화2')">
-              <div class="movie-card__poster" style="background: linear-gradient(160deg, #909090 0%, #505050 100%);"></div>
-              <div class="movie-card__title">만약에 우리</div>
-              <div class="movie-card__meta">메가박스 50%</div>
-            </div>
-            <div class="movie-card" onclick="alert('(프로토타입) 영화3')">
-              <div class="movie-card__poster" style="background: linear-gradient(160deg, #606060 0%, #202020 100%);"></div>
-              <div class="movie-card__title">프로젝트 헤일메리</div>
-              <div class="movie-card__meta">CGV 20%</div>
-            </div>
-          </div>
-
-          <!-- 진행 중 이벤트 -->
-          <div class="section-title"><span>🎁 진행 중인 이벤트</span></div>
-          <div class="promo-banner">
-            <div class="promo-banner__label">T Day 혜택</div>
-            <div class="promo-banner__title">CHAT GPT 구독을<br>월 3,900원에</div>
-            <div class="promo-banner__sub">T Day 혜택 만나보기 ›</div>
-            <div class="promo-banner__decor">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 10a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17h0"/></svg>
-            </div>
-          </div>
-
-          <!-- 만료 쿠폰 -->
-          <div class="section-title">
-            <span>🎟 만료 임박 쿠폰</span>
-            <span class="section-title__more">쿠폰함으로</span>
-          </div>
-          <div class="stack">
-            <div class="list-card" role="button">
-              <div class="list-card__thumb">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4z"/></svg>
-              </div>
-              <div class="list-card__content">
-                <div class="list-card__title">VIPS 50% 할인쿠폰</div>
-                <div class="list-card__meta">D-2 만료</div>
-              </div>
-              <span class="tag tag--alert">D-2</span>
-            </div>
-            <div class="list-card" role="button">
-              <div class="list-card__thumb">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4z"/></svg>
-              </div>
-              <div class="list-card__content">
-                <div class="list-card__title">파리바게트 10% 할인</div>
-                <div class="list-card__meta">D-2 만료</div>
-              </div>
-              <span class="tag tag--alert">D-2</span>
-            </div>
-          </div>
-
-          <div style="text-align: center; padding: 16px 0;">
+          <div style="text-align: center; padding: 24px 0 8px;">
             <button style="font-size: var(--fs-caption); color: var(--text-secondary); padding: 6px 14px; border-radius: var(--radius-pill); background: var(--bg-surface);">⚙ MY 홈 편집</button>
           </div>
         </div>
@@ -1445,52 +2227,93 @@ a { color: inherit; text-decoration: none; }
             </button>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
         </div>
         <div class="page-body">
-          <h1 class="page-headline">나의 상품 현황</h1>
-          <div class="page-subline">지훈님의 사용 패턴을 분석했어요</div>
+          <h1 class="page-headline">나의 데이터 사용 현황</h1>
+          <div class="page-subline">지훈님의 데이터 사용을 분석했어요</div>
 
-          <div class="compare-card">
-            <div class="compare-card__label">현재 요금제</div>
-            <div class="compare-card__title">T 프리미엄</div>
-            <div class="compare-card__price">월 54,500원</div>
-            <div class="compare-card__meta">데이터 50GB · 매달 데이터 부족</div>
+          <!-- 1. 남은 데이터 강조 -->
+          <div style="margin: 8px 0 20px; padding: 24px 20px; background: var(--bg-surface); border-radius: var(--radius-md);">
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 10px;">남은 데이터</div>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px;">
+              <span style="font-size: 40px; font-weight: var(--fw-medium); line-height: 1; color: var(--text-primary);">76</span>
+              <span style="font-size: 20px; font-weight: var(--fw-medium); color: var(--text-primary);">GB</span>
+              <span style="font-size: var(--fs-body); color: var(--text-secondary); margin-left: 4px;">/ 96GB</span>
+            </div>
+            <!-- 프로그레스 바 -->
+            <div style="background: var(--bg-page); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 14px;">
+              <div style="background: var(--text-primary); height: 100%; width: 80%;"></div>
+            </div>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
+              지금 속도로 데이터 사용 시,<br>
+              <strong style="color: var(--text-primary);">5일 뒤 소진될 예정이에요</strong>
+            </div>
           </div>
 
-          <div class="compare-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-          </div>
-
-          <div class="compare-card compare-card--highlight" role="button" onclick="goTo('S1-A-04')" style="cursor: pointer;">
-            <div class="compare-card__label">✨ 추천 요금제</div>
-            <div class="compare-card__title">다이렉트 5G 76</div>
-            <div class="compare-card__price">월 48,500원</div>
-            <div class="compare-card__meta">데이터 80GB · 선택약정 반영 시 24,700원</div>
-            <div style="margin-top: 10px; font-size: var(--fs-caption); color: var(--action); font-weight: var(--fw-medium);">자세히 보기 ›</div>
-          </div>
-
-          <div class="section-title"><span>📊 이번 달 데이터 사용 분석</span></div>
+          <!-- 2. 데이터 사용 상세 분석 -->
+          <div class="section-title"><span>📊 어디에 얼마나 쓰셨나요?</span></div>
           <div class="usage-list">
             <div class="usage-list__row">
-              <span class="usage-list__label">이번 달 예상 데이터</span>
-              <span class="usage-list__value">72GB</span>
+              <span class="usage-list__label">넷플릭스 / OTT</span>
+              <span class="usage-list__value">52 GB</span>
             </div>
-            <div class="usage-list__row">
-              <span class="usage-list__label">콘텐츠 / OTT</span>
-              <span class="usage-list__value">31.3GB</span>
+            <div style="padding: 0 16px 8px;">
+              <div style="background: var(--bg-surface-2); height: 4px; border-radius: 2px; overflow: hidden;">
+                <div style="background: var(--text-primary); height: 100%; width: 68%;"></div>
+              </div>
             </div>
             <div class="usage-list__row">
               <span class="usage-list__label">SNS</span>
-              <span class="usage-list__value">10GB</span>
+              <span class="usage-list__value">14 GB</span>
+            </div>
+            <div style="padding: 0 16px 8px;">
+              <div style="background: var(--bg-surface-2); height: 4px; border-radius: 2px; overflow: hidden;">
+                <div style="background: var(--text-primary); height: 100%; width: 18%;"></div>
+              </div>
             </div>
             <div class="usage-list__row">
               <span class="usage-list__label">웹서핑 / 기타</span>
-              <span class="usage-list__value">30.7GB</span>
+              <span class="usage-list__value">10 GB</span>
             </div>
+            <div style="padding: 0 16px 8px;">
+              <div style="background: var(--bg-surface-2); height: 4px; border-radius: 2px; overflow: hidden;">
+                <div style="background: var(--text-primary); height: 100%; width: 13%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. 맥락 안내 -->
+          <div style="margin: 24px 0; padding: 18px 18px; background: var(--bg-surface); border-radius: var(--radius-md); line-height: 1.6;">
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 8px;">💭 사용 패턴 인사이트</div>
+            <div style="font-size: var(--fs-body); color: var(--text-primary);">
+              지훈님은 <strong>지난 3개월 동안 매달 데이터를 모두 사용</strong>하고,
+              데이터 소진 이후엔 <strong>1Mbps 속도</strong>로 사용해왔어요.
+            </div>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 10px; line-height: 1.6;">
+              넷플릭스를 즐겨보시는데, 1Mbps 속도에선 480p 화질로 낮아지고 로딩 지연이 생겨 불편하셨을 것 같아요.
+            </div>
+          </div>
+
+          <!-- 4. 추천 요금제 (온건한 톤) -->
+          <div class="section-title"><span>💡 지훈님께 이런 요금제도 있어요</span></div>
+          <div class="compare-card compare-card--highlight" role="button" onclick="goTo('S1-A-04')" style="cursor: pointer; margin-bottom: 12px;">
+            <div class="compare-card__label">추천 요금제</div>
+            <div class="compare-card__title">0 청년 다이렉트 69(넷플릭스)</div>
+            <div class="compare-card__meta" style="margin-top: 6px;">데이터 무제한 · 넷플릭스 포함</div>
+            <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; padding-top: 10px; border-top: 1px solid var(--border-default);">
+              <span style="font-size: var(--fs-caption); color: var(--text-secondary);">현재 대비</span>
+              <span style="font-size: var(--fs-body); font-weight: var(--fw-medium);">총 4,000원 절약</span>
+            </div>
+          </div>
+
+          <!-- CTA 2개 -->
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 16px;">
+            <button class="btn btn--primary" style="width: 100%;" onclick="goTo('S1-A-04')">자세히 보기</button>
+            <button style="background: none; border: none; font-size: var(--fs-caption); color: var(--text-secondary); padding: 10px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;" onclick="goTo('SHOP-PLAN-LIST')">다른 요금제 둘러보기</button>
           </div>
         </div>
       </section>
@@ -1618,12 +2441,11 @@ a { color: inherit; text-decoration: none; }
           </div>
           <div class="plan-card" onclick="goTo('S1-A-04')">
             <div class="plan-card__info">
-              <div class="plan-card__name">다이렉트 5G 76</div>
-              <div class="plan-card__meta">데이터 80GB · 선택약정 24,700원</div>
+              <div class="plan-card__name">0 청년 다이렉트 69(넷플릭스)</div>
+              <div class="plan-card__meta">데이터 무제한 · 넷플릭스 포함</div>
               <div class="plan-card__price">
-                <span class="plan-card__price-main">48,500원</span>
+                <span class="plan-card__price-main">69,000원</span>
                 <span class="plan-card__price-unit">/월</span>
-                <span class="plan-card__price-discount">42%</span>
               </div>
             </div>
             <span class="tag tag--ai">추천</span>
@@ -1743,12 +2565,11 @@ a { color: inherit; text-decoration: none; }
 
           <div class="plan-card" onclick="goTo('S1-A-04')">
             <div class="plan-card__info">
-              <div class="plan-card__name">다이렉트 5G 76</div>
-              <div class="plan-card__meta">데이터 80GB · 선택약정 24,700원</div>
+              <div class="plan-card__name">0 청년 다이렉트 69(넷플릭스)</div>
+              <div class="plan-card__meta">데이터 무제한 · 넷플릭스 포함</div>
               <div class="plan-card__price">
-                <span class="plan-card__price-main">48,500원</span>
+                <span class="plan-card__price-main">69,000원</span>
                 <span class="plan-card__price-unit">/월</span>
-                <span class="plan-card__price-discount">42%</span>
               </div>
             </div>
             <span class="tag tag--ai">추천</span>
@@ -1766,9 +2587,9 @@ a { color: inherit; text-decoration: none; }
             <span class="plan-card__arrow">›</span>
           </div>
 
-          <div class="plan-card" onclick="alert('(프로토타입) T 프리미엄 에센셜')">
+          <div class="plan-card" onclick="alert('(프로토타입) 5GX 프리미엄 에센셜')">
             <div class="plan-card__info">
-              <div class="plan-card__name">T 프리미엄 에센셜</div>
+              <div class="plan-card__name">5GX 프리미엄 에센셜</div>
               <div class="plan-card__meta">데이터 70GB · 선택약정 32,000원</div>
               <div class="plan-card__price">
                 <span class="plan-card__price-main">62,000원</span>
@@ -1819,7 +2640,7 @@ a { color: inherit; text-decoration: none; }
       </section>
 
       <!-- ===== S1-A-04: 요금제 상세 ===== -->
-      <section class="screen" data-screen="S1-A-04">
+      <section class="screen screen--with-fixed-cta" data-screen="S1-A-04">
         <div class="top-bar">
           <div class="top-bar__left">
             <button class="back-btn" onclick="goBack()">
@@ -1832,30 +2653,103 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--gnb-height) + 100px);">
+        <div class="page-body page-body--scrollable">
+          <!-- 추천 요금제 헤더 -->
           <div class="detail-header">
-            <div class="detail-header__label"><span class="tag tag--ai">5G 요금제</span> <span class="tag">추천</span></div>
-            <div class="detail-header__title">다이렉트 5G 76</div>
+            <div class="detail-header__label"><span class="tag tag--ai">✨ 지훈님 맞춤 추천</span></div>
+            <div class="detail-header__title">0 청년 다이렉트 69(넷플릭스)</div>
             <div class="detail-header__price">
-              <span class="detail-header__price-main">월 48,500원</span>
-              <span class="detail-header__price-discount">42%</span>
+              <span class="detail-header__price-main">월 69,000원</span>
             </div>
-            <div class="detail-header__price-sub">선택약정 반영 시 24,700원</div>
+            <div class="detail-header__price-sub">현재 요금제 대비 총 <strong style="color: var(--text-primary);">4,000원 절약</strong></div>
           </div>
-          <dl class="detail-meta">
-            <div class="detail-meta__row"><dt>테더링/공유</dt><dd>80GB</dd></div>
-            <div class="detail-meta__row"><dt>집/이동전화</dt><dd>무제한 + 영상/부가통화 300분</dd></div>
-            <div class="detail-meta__row"><dt>문자메시지</dt><dd>기본제공</dd></div>
-          </dl>
-          <div class="detail-feature-list">
-            <div class="detail-feature-list__title">다이렉트 5G 76 혜택</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 데이터 / 공유 80GB</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 집 / 이동전화 무제한</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 영상 / 부가통화 300분</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 문자 무제한</div>
+
+          <!-- 데이터 무제한 강조 배너 -->
+          <div style="margin: 8px 0 20px; padding: 22px 18px; background: var(--text-primary); color: #fff; border-radius: var(--radius-md); display: flex; align-items: center; gap: 16px;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 28px; height: 28px;"><path d="M12 2L2 12l10 10 10-10z" opacity="0.7"/><path d="M8 12h8M12 8v8"/></svg>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.75; margin-bottom: 4px; letter-spacing: 0.3px;">DATA</div>
+              <div style="font-size: 22px; font-weight: var(--fw-medium); line-height: 1.2; margin-bottom: 2px;">무제한</div>
+              <div style="font-size: var(--fs-caption); opacity: 0.85;">속도 제한 없이 마음껏 사용</div>
+            </div>
+          </div>
+
+          <!-- 현재 → 추천 비교 테이블 (세로 축) -->
+          <div class="section-title"><span>📊 현재 요금제와 비교</span></div>
+          <div class="compare-table">
+            <!-- 헤더 -->
+            <div class="compare-table__header">
+              <div class="compare-table__cell compare-table__cell--label"></div>
+              <div class="compare-table__cell compare-table__cell--current">
+                <div class="compare-table__col-label">현재</div>
+                <div class="compare-table__col-sub">0 청년 59<br>60GB업</div>
+              </div>
+              <div class="compare-table__cell compare-table__cell--recommend">
+                <div class="compare-table__col-label">변경 후</div>
+                <div class="compare-table__col-sub">0 청년 다이렉트 69<br>(넷플릭스)</div>
+              </div>
+            </div>
+
+            <!-- 월 요금 -->
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">월 요금</div>
+              <div class="compare-table__cell">66,000원</div>
+              <div class="compare-table__cell compare-table__cell--recommend">69,000원</div>
+            </div>
+
+            <!-- 데이터 (강조) -->
+            <div class="compare-table__row compare-table__row--highlight">
+              <div class="compare-table__cell compare-table__cell--label">데이터</div>
+              <div class="compare-table__cell">96GB</div>
+              <div class="compare-table__cell compare-table__cell--recommend"><strong>무제한</strong></div>
+            </div>
+
+            <!-- 넷플릭스 (강조) -->
+            <div class="compare-table__row compare-table__row--highlight">
+              <div class="compare-table__cell compare-table__cell--label">넷플릭스</div>
+              <div class="compare-table__cell">별도 결제<br><span style="font-size: 11px; color: var(--text-secondary);">월 7,000원</span></div>
+              <div class="compare-table__cell compare-table__cell--recommend"><strong>포함</strong><br><span style="font-size: 11px; color: var(--text-secondary);">광고형 스탠다드</span></div>
+            </div>
+
+            <!-- 멤버십 -->
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">멤버십</div>
+              <div class="compare-table__cell">일반 등급</div>
+              <div class="compare-table__cell compare-table__cell--recommend">VIP<br><span style="font-size: 11px; color: var(--text-secondary);">혜택 공유 가능</span></div>
+            </div>
+
+            <!-- 공유 데이터 -->
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">공유 데이터</div>
+              <div class="compare-table__cell">36GB</div>
+              <div class="compare-table__cell compare-table__cell--recommend">100GB</div>
+            </div>
+
+            <!-- 스마트기기 -->
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">스마트기기</div>
+              <div class="compare-table__cell">-</div>
+              <div class="compare-table__cell compare-table__cell--recommend">2회선 무료</div>
+            </div>
+
+            <!-- 총 실 부담 -->
+            <div class="compare-table__row compare-table__row--total">
+              <div class="compare-table__cell compare-table__cell--label">실 월 부담</div>
+              <div class="compare-table__cell">73,000원<br><span style="font-size: 11px; color: var(--text-secondary);">+ 넷플릭스</span></div>
+              <div class="compare-table__cell compare-table__cell--recommend">69,000원<br><span style="font-size: 11px; color: var(--text-secondary);"><strong>4,000원 절약</strong></span></div>
+            </div>
+          </div>
+
+          <!-- 비고정 하단 링크: 다른 요금제 보기 -->
+          <div style="display: flex; justify-content: center; margin: 24px 0 8px;">
+            <button style="background: none; border: none; font-size: var(--fs-caption); color: var(--text-secondary); padding: 10px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;" onclick="goTo('SHOP-PLAN-LIST')">다른 요금제 보기</button>
           </div>
         </div>
-        <button class="btn btn--primary btn--cta" onclick="goTo('S1-A-05')">요금제 선택하기</button>
+        <div class="fixed-cta-bar">
+          <button class="btn btn--primary" style="width: 100%;" onclick="openPlanChangeConfirm()">이 요금제로 바로 변경하기</button>
+        </div>
       </section>
 
       <!-- ===== S1-A-05: 변경 완료 ===== -->
@@ -1863,7 +2757,7 @@ a { color: inherit; text-decoration: none; }
         <div class="top-bar">
           <div class="top-bar__left"></div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1875,176 +2769,17 @@ a { color: inherit; text-decoration: none; }
           <div class="done-screen__title">요금제 변경이 완료됐어요</div>
           <div class="done-screen__desc">다음 달 1일부터 새 요금제가 적용돼요</div>
           <dl class="done-summary">
-            <div class="done-summary__row"><dt>변경 전</dt><dd>T 프리미엄</dd></div>
-            <div class="done-summary__row"><dt>변경 후</dt><dd>다이렉트 5G 76</dd></div>
-            <div class="done-summary__row"><dt>월 요금</dt><dd>48,500원</dd></div>
-            <div class="done-summary__row"><dt>데이터</dt><dd>80GB</dd></div>
+            <div class="done-summary__row"><dt>변경 전</dt><dd>0 청년 59 60GB업</dd></div>
+            <div class="done-summary__row"><dt>변경 후</dt><dd>0 청년 다이렉트 69(넷플릭스)</dd></div>
+            <div class="done-summary__row"><dt>월 요금</dt><dd>69,000원</dd></div>
+            <div class="done-summary__row"><dt>데이터</dt><dd>무제한</dd></div>
           </dl>
           <button class="btn btn--block" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
         </div>
       </section>
 
-      <!-- ===== S2-A-01: MY 홈 (시나리오 2 - 미납) ===== -->
-      <section class="screen" data-screen="S2-A-01">
-        <div class="top-bar">
-          <div class="top-bar__left">
-            <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">MY</div>
-          </div>
-          <div class="top-bar__right">
-            <div class="top-bar__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
-            </div>
-            <div class="top-bar__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="page-body">
-          <h1 class="page-headline">안녕하세요 지훈님</h1>
-          <div class="page-subline">오늘도 좋은 하루 되세요 · SILVER</div>
-
-          <div class="benefit-hero">
-            <div class="benefit-hero__img-decor"></div>
-            <div class="benefit-hero__content">
-              <div class="benefit-hero__text">보유 포인트로<br>무료이용 가능해요</div>
-              <div class="benefit-hero__sub">18,400P 사용 가능 ›</div>
-            </div>
-          </div>
-
-          <div class="section-title"><span>📊 내 통신 현황</span></div>
-          <div class="tile-grid">
-            <div class="tile" onclick="alert('(프로토타입) 실시간 잔여량')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">실시간 잔여량<br>20GB 제공</div>
-              </div>
-              <div>
-                <div class="tile__main">62 GB</div>
-                <div class="tile__sub">80% 사용</div>
-              </div>
-            </div>
-
-            <!-- 요금 안내서 - 미납 표시 -->
-            <div class="tile" onclick="goTo('S2-A-02')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">요금 안내서<br>3월분</div>
-                <div class="tile__tag-wrap"><span class="tag tag--alert">미납</span></div>
-              </div>
-              <div>
-                <div class="tile__main">63,200원</div>
-                <div class="tile__sub">납부 예정일 4/25</div>
-              </div>
-            </div>
-
-            <div class="tile" onclick="alert('(프로토타입) 결합가족')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">결합가족<br>할인 8,450원</div>
-              </div>
-              <div>
-                <div class="tile__main">4 명</div>
-                <div class="tile__sub">15년 합산</div>
-              </div>
-            </div>
-
-            <div class="tile" onclick="alert('(프로토타입) 약정 할인')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">약정 할인<br>만료 D-84</div>
-              </div>
-              <div>
-                <div class="tile__main">31,419원</div>
-                <div class="tile__sub">자동 할인 중</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-title"><span>🎫 T멤버십</span></div>
-          <div class="barcode-card">
-            <div class="barcode-card__label">
-              <span>T멤버십 · SILVER</span>
-              <span style="color: var(--action); font-weight: var(--fw-medium);">19:58</span>
-            </div>
-            <div class="barcode-card__visual"></div>
-            <div class="barcode-card__numbers">4561 1506 4932 1506</div>
-          </div>
-
-          <div class="tile-grid">
-            <div class="tile" onclick="alert('(프로토타입) 포인트')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">T멤버십 포인트<br>누적할인 1,700원</div>
-              </div>
-              <div>
-                <div class="tile__main">18,400원</div>
-                <div class="tile__sub">요금에 사용 가능</div>
-              </div>
-            </div>
-
-            <div class="tile" onclick="alert('(프로토타입) 쿠폰함')">
-              <div class="tile__visual">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>
-              </div>
-              <div class="tile__head">
-                <div class="tile__label">쿠폰함<br>만료 임박 2장</div>
-              </div>
-              <div>
-                <div class="tile__main">16 장</div>
-                <div class="tile__sub">사용 가능 14장</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-title">
-            <span>✨ 지훈님 맞춤 혜택</span>
-            <span class="section-title__more">더보기</span>
-          </div>
-          <div class="benefit-grid">
-            <div class="benefit-card" role="button" onclick="alert('(프로토타입) Disney+')">
-              <div class="benefit-card__img">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M6 18 18 6"/></svg>
-              </div>
-              <div class="benefit-card__title">Disney+ 스트리밍권</div>
-              <div class="benefit-card__price">포인트로 무료</div>
-            </div>
-            <div class="benefit-card" role="button" onclick="alert('(프로토타입) 예스24')">
-              <div class="benefit-card__img">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 10h16"/></svg>
-              </div>
-              <div class="benefit-card__title">예스24 쿠폰팩</div>
-              <div class="benefit-card__price">포인트로 무료</div>
-            </div>
-          </div>
-
-          <div class="section-title"><span>🎁 진행 중인 이벤트</span></div>
-          <div class="promo-banner">
-            <div class="promo-banner__label">T Day 혜택</div>
-            <div class="promo-banner__title">CHAT GPT 구독을<br>월 3,900원에</div>
-            <div class="promo-banner__sub">T Day 혜택 만나보기 ›</div>
-            <div class="promo-banner__decor">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 10a3 3 0 0 1 6 0c0 2-3 2-3 4M12 17h0"/></svg>
-            </div>
-          </div>
-
-          <div style="text-align: center; padding: 16px 0;">
-            <button style="font-size: var(--fs-caption); color: var(--text-secondary); padding: 6px 14px; border-radius: var(--radius-pill); background: var(--bg-surface);">⚙ MY 홈 편집</button>
-          </div>
-        </div>
-      </section>
-
       <!-- ===== S2-A-02: 요금 안내서 상세 (동일한 구조, B안과 일관) ===== -->
-      <section class="screen" data-screen="S2-A-02">
+      <section class="screen screen--with-fixed-cta" data-screen="S2-A-02">
         <div class="top-bar">
           <div class="top-bar__left">
             <button class="back-btn" onclick="goBack()">
@@ -2052,12 +2787,12 @@ a { color: inherit; text-decoration: none; }
             </button>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--gnb-height) + 100px);">
+        <div class="page-body page-body--scrollable">
           <h1 class="page-headline">3월 요금 안내서</h1>
           <div class="page-subline">청구 기간 2026.03.01 ~ 03.31</div>
 
@@ -2072,42 +2807,61 @@ a { color: inherit; text-decoration: none; }
               <span class="tag tag--alert">미납</span>
             </div>
             <div style="display: flex; align-items: baseline; gap: 8px;">
-              <div style="font-size: 22px; font-weight: var(--fw-medium);">63,200 원</div>
-              <div style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 예정일 4월 25일</div>
+              <div style="font-size: 22px; font-weight: var(--fw-medium);">87,290 원</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 예정일 4월 1일 (20일 경과)</div>
             </div>
           </div>
 
-          <div class="section-title"><span>📱 통신 서비스 요금</span></div>
-          <div class="bill-list">
-            <div class="bill-list__row"><span class="bill-list__label">이번 달 통신 요금</span><span class="bill-list__value">54,500원</span></div>
-            <div class="bill-list__row"><span class="bill-list__label">통신 요금 할인 <span class="tag" style="margin-left: 4px;">결합</span></span><span class="bill-list__value" style="color: var(--action);">-8,450원</span></div>
-            <div class="bill-list__row"><span class="bill-list__label">약정 할인</span><span class="bill-list__value" style="color: var(--action);">-4,100원</span></div>
-            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">41,950원</span></div>
+          <!-- T포인트 적용 강조 CTA (최상단 배치) -->
+          <div class="pcard" style="margin-top: 12px; cursor: pointer;" onclick="goTo('POINT-DETAIL')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 9h6a2 2 0 0 1 0 4H8"/></svg>
+            </div>
+            <div class="pcard__eyebrow">T멤버십 포인트</div>
+            <div class="pcard__title">지훈님 포인트 <strong>18,400원</strong>으로<br>요금을 <strong>9,000원 할인</strong>받을 수 있어요</div>
+            <div class="pcard__sub">적용 시 78,290원만 납부하시면 돼요</div>
+            <div class="pcard__cta"><span>포인트 적용하고 납부하기</span><span>›</span></div>
           </div>
 
-          <div class="section-title"><span>📲 기기 구입비</span></div>
-          <div class="bill-list">
-            <div class="bill-list__row"><span class="bill-list__label">기기 분할상환금 (8/24회)</span><span class="bill-list__value">16,750원</span></div>
-            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">16,750원</span></div>
+          <!-- 요금 합계 표 (4개 항목 → 단일 테이블) -->
+          <div class="section-title"><span>💰 요금 상세 내역</span></div>
+          <div class="bill-summary-table">
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">통신 서비스 요금</span>
+              <span class="bill-summary-table__value">66,000원</span>
+            </div>
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">부가 서비스 요금</span>
+              <span class="bill-summary-table__value">9,100원</span>
+            </div>
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">결제 대행 요금</span>
+              <span class="bill-summary-table__value">7,000원</span>
+            </div>
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">기기 구입비</span>
+              <span class="bill-summary-table__value">5,190원</span>
+            </div>
+            <div class="bill-summary-table__row bill-summary-table__row--total">
+              <span class="bill-summary-table__label">총 합계</span>
+              <span class="bill-summary-table__value">87,290원</span>
+            </div>
           </div>
 
-          <div class="section-title"><span>📦 기타 요금</span></div>
-          <div class="bill-list">
-            <div class="bill-list__row"><span class="bill-list__label">구독 요금 (TVING)</span><span class="bill-list__value">3,900원</span></div>
-            <div class="bill-list__row"><span class="bill-list__label">콘텐츠 이용료</span><span class="bill-list__value">600원</span></div>
-            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">4,500원</span></div>
-          </div>
-
-          <div class="bill-total">
-            <span class="bill-total__label">총 청구 금액</span>
-            <span class="bill-total__value">63,200원</span>
-          </div>
-
-          <div style="margin-top: 16px; padding: 12px 14px; background: var(--action-bg-softer); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
-            💡 T멤버십 포인트 18,400원으로 일부 납부가 가능해요
+          <!-- 요금제 변경 제안 배너 (장기적 관점) -->
+          <div class="pcard" style="margin-top: 16px;" onclick="goTo('SEARCH-RESULT-PLAN')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+            </div>
+            <div class="pcard__eyebrow">요금 절약 제안</div>
+            <div class="pcard__title">매달 요금이 부담되시나요?<br><strong>넷플릭스 포함 요금제</strong>로 장기적으로 절약돼요</div>
+            <div class="pcard__sub">넷플릭스 결제 대행 7,000원 → 요금제 포함 / 총 4,000원 절약</div>
+            <div class="pcard__cta"><span>요금제 비교하기</span><span>›</span></div>
           </div>
         </div>
-        <button class="btn btn--primary btn--cta" onclick="openPaymentSheet()">납부하기</button>
+        <div class="fixed-cta-bar">
+          <button class="btn btn--primary" style="width: 100%;" onclick="openPaymentSheet()">지금 바로 납부하기</button>
+        </div>
       </section>
 
       <!-- ===== S2-A-03: 납부 완료 ===== -->
@@ -2115,7 +2869,7 @@ a { color: inherit; text-decoration: none; }
         <div class="top-bar">
           <div class="top-bar__left"></div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -2127,7 +2881,7 @@ a { color: inherit; text-decoration: none; }
           <div class="done-screen__title">납부가 완료됐어요</div>
           <div class="done-screen__desc">영수증은 등록된 이메일로 발송됩니다</div>
           <dl class="done-summary">
-            <div class="done-summary__row"><dt>납부 금액</dt><dd>63,200원</dd></div>
+            <div class="done-summary__row"><dt>납부 금액</dt><dd id="paidAmountSummary">87,290원</dd></div>
             <div class="done-summary__row"><dt>납부 수단</dt><dd id="payMethodSummary">신한카드 (1234)</dd></div>
             <div class="done-summary__row"><dt>대상</dt><dd>3월 요금</dd></div>
             <div class="done-summary__row"><dt>처리 일시</dt><dd>방금 전</dd></div>
@@ -2143,7 +2897,7 @@ a { color: inherit; text-decoration: none; }
             <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">검색</div>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -2154,14 +2908,14 @@ a { color: inherit; text-decoration: none; }
             <span class="search-bar__icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
             </span>
-            <input type="text" class="search-bar__field" placeholder="키워드나 문장으로 검색해보세요">
+            <input type="text" class="search-bar__field" id="searchAInput" placeholder="키워드나 문장으로 검색해보세요" onkeydown="handleSearchEnter(event)">
             <button class="search-bar__agent" onclick="openAgentSheet()">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
             </button>
           </div>
         </div>
 
-        <div class="agent-hint" onclick="openAgentSheet()" role="button">
+        <div class="agent-hint" role="button">
           <div class="agent-hint__icon">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
           </div>
@@ -2169,8 +2923,10 @@ a { color: inherit; text-decoration: none; }
             <div class="agent-hint__title">T Agent에게 물어보기</div>
             <div class="agent-hint__desc">자연스러운 문장으로 질문해보세요. 지훈님에게 맞춰서 답변해드려요.</div>
             <div class="agent-hint__chips">
-              <button class="quick-chip" onclick="event.stopPropagation(); openAgentSheet(); setTimeout(()=>askAgent('요금제 바꾸고 싶어'),250);">요금제 바꾸고 싶어</button>
-              <button class="quick-chip" onclick="event.stopPropagation(); openAgentSheet(); setTimeout(()=>askAgent('이번달 요금이 많이 나온 이유가 뭐야?'),250);">이번달 요금이 많이 나온 이유?</button>
+              <button class="quick-chip" onclick="goTo('SEARCH-RESULT-BILL')">미납 요금 낼래</button>
+              <button class="quick-chip" onclick="goTo('SEARCH-RESULT-PLAN')">요금제 바꾸고 싶어</button>
+              <button class="quick-chip" onclick="goTo('SEARCH-RESULT-DATA')">데이터가 매달 부족해</button>
+              <button class="quick-chip" onclick="goTo('SEARCH-RESULT-BILL')">이번달 요금 많이 나온 이유?</button>
             </div>
           </div>
         </div>
@@ -2178,21 +2934,471 @@ a { color: inherit; text-decoration: none; }
         <div class="search-section">
           <div class="search-section__title">인기 검색어</div>
           <div class="recent-chips">
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-DATA')">데이터</button>
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-PLAN')">요금제</button>
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-BILL')">미납</button>
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-BILL')">요금</button>
             <button class="recent-chip">갤럭시 S30 울트라</button>
-            <button class="recent-chip">아이폰 20 사전예약</button>
-            <button class="recent-chip">T 다이렉트 요금제</button>
             <button class="recent-chip">T Day 혜택</button>
-            <button class="recent-chip">멤버십 등급</button>
           </div>
         </div>
 
         <div class="search-section">
           <div class="search-section__title">최근 검색어</div>
           <div class="recent-chips">
-            <button class="recent-chip">다이렉트 5G 76</button>
-            <button class="recent-chip">요금 할인</button>
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-PLAN')">0 청년 다이렉트 69(넷플릭스)</button>
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-DATA')">데이터 부족</button>
+            <button class="recent-chip" onclick="goTo('SEARCH-RESULT-BILL')">3월 요금</button>
             <button class="recent-chip">결합 가족</button>
           </div>
+        </div>
+      </section>
+
+      <!-- ===== SEARCH-RESULT-PLAN: 요금제 검색 결과 ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="SEARCH-RESULT-PLAN">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-bar-wrap search-bar-wrap--sticky">
+          <div class="search-bar">
+            <span class="search-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input type="text" class="search-bar__field" value="요금제" readonly>
+            <button class="search-bar__clear" onclick="goTo('SEARCH-A')">✕</button>
+          </div>
+        </div>
+
+        <div class="page-body page-body--scrollable" style="padding: 8px 16px calc(var(--gnb-height) + 20px);">
+          <!-- [1] 추천 메뉴 리스트 (상단) -->
+          <div class="search-result-menu-title">📋 관련 메뉴</div>
+          <div class="search-menu-list">
+            <div class="search-menu-item" role="button" onclick="goTo('CURRENT-PLAN-DETAIL')">
+              <div class="search-menu-item__title">현재 내 요금제 확인</div>
+              <div class="search-menu-item__sub">0 청년 59 60GB업 · 사용 중</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="goTo('SHOP-PLAN-LIST')">
+              <div class="search-menu-item__title">전체 요금제 둘러보기</div>
+              <div class="search-menu-item__sub">5G, LTE, 청년, 시니어 등</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 결합 상품')">
+              <div class="search-menu-item__title">결합 상품으로 할인받기</div>
+              <div class="search-menu-item__sub">인터넷 · TV 결합 혜택</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 요금제 추천 Q&A')">
+              <div class="search-menu-item__title">맞춤 요금제 찾기</div>
+              <div class="search-menu-item__sub">간단한 질문으로 추천받기</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+          </div>
+
+          <!-- [2] 지훈님 상황 분석 대화 -->
+          <div class="search-result-chat">
+            <div class="search-result-chat__badge">
+              <span class="search-result-chat__badge-dot"></span>
+              <span>T Agent가 분석했어요</span>
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              지훈님, <strong>요금제</strong>를 찾고 계시는군요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              현재 사용 중인 요금제는 <strong>0 청년 59 60GB업</strong>이에요. 월 66,000원에 데이터 96GB를 제공해요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              최근 3개월 사용 패턴을 보면, 매달 데이터를 모두 소진하고 넷플릭스를 따로 결제 대행(월 7,000원)으로 이용하고 계세요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              이런 사용 패턴이라면 지금 요금제가 잘 맞는지 한 번 점검해볼 만해요.
+            </div>
+
+            <!-- 대화 중 CTA 2개 -->
+            <div class="chat-cta-group">
+              <button class="chat-cta" onclick="goTo('CURRENT-PLAN-DETAIL')">
+                <div class="chat-cta__title">내 요금제 자세히 보기</div>
+                <div class="chat-cta__sub">현재 구성과 사용량 확인</div>
+                <span class="chat-cta__arrow">›</span>
+              </button>
+              <button class="chat-cta" onclick="alert('(프로토타입) 전체 요금제 비교')">
+                <div class="chat-cta__title">요금제 비교표로 보기</div>
+                <div class="chat-cta__sub">데이터 / 가격 기준 정렬</div>
+                <span class="chat-cta__arrow">›</span>
+              </button>
+            </div>
+
+            <!-- [3] 하단 부드러운 추천 -->
+            <div class="chat-bubble chat-bubble--ai" style="margin-top: 20px;">
+              참고로, 지훈님의 사용 패턴에 맞는 요금제가 있어요. 부담 없이 살펴보셔도 좋을 것 같아요.
+            </div>
+            <div class="chat-soft-suggest" role="button" onclick="goTo('S1-A-04')">
+              <div class="chat-soft-suggest__label">참고용</div>
+              <div class="chat-soft-suggest__title">0 청년 다이렉트 69(넷플릭스)</div>
+              <div class="chat-soft-suggest__sub">데이터 무제한 · 넷플릭스 포함 · 총 4,000원 절약</div>
+              <div class="chat-soft-suggest__link">자세히 보기 ›</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===== SEARCH-RESULT-DATA: 데이터 검색 결과 ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="SEARCH-RESULT-DATA">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- 검색창 sticky -->
+        <div class="search-bar-wrap search-bar-wrap--sticky">
+          <div class="search-bar">
+            <span class="search-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input type="text" class="search-bar__field" value="데이터" readonly>
+            <button class="search-bar__clear" onclick="goTo('SEARCH-A')">✕</button>
+          </div>
+        </div>
+
+        <div class="page-body page-body--scrollable" style="padding: 8px 16px calc(var(--gnb-height) + 20px);">
+          <!-- [1] 추천 메뉴 리스트 (상단) -->
+          <div class="search-result-menu-title">📋 관련 메뉴</div>
+          <div class="search-menu-list">
+            <div class="search-menu-item" role="button" onclick="goTo('S1-A-02')">
+              <div class="search-menu-item__title">내 데이터 사용 상세</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 데이터 충전')">
+              <div class="search-menu-item__title">데이터 충전</div>
+              <div class="search-menu-item__sub">1GB · 3,300원부터</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 데이터 선물')">
+              <div class="search-menu-item__title">데이터 선물하기</div>
+              <div class="search-menu-item__sub">결합가족에게 나눠주기</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 가족 데이터 공유')">
+              <div class="search-menu-item__title">T 가족모아데이터</div>
+              <div class="search-menu-item__sub">가족과 데이터 공유</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+          </div>
+
+          <!-- [2] 지훈님 상황 분석 대화 -->
+          <div class="search-result-chat">
+            <div class="search-result-chat__badge">
+              <span class="search-result-chat__badge-dot"></span>
+              <span>T Agent가 분석했어요</span>
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              지훈님, <strong>데이터</strong>에 대해 찾고 계시군요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              이번 달 지훈님은 <strong>76GB / 96GB</strong>를 쓰고 계세요.
+              이 속도라면 <strong>5일 뒤에 데이터가 모두 소진</strong>될 것 같아요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              소진 이후에는 <strong>1Mbps 속도</strong>로 제한돼요. 이 속도에서는 넷플릭스가 480p 화질로 낮아지고 로딩 지연이 생길 수 있어요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              지난 3개월 동안 매달 데이터를 모두 사용하고 계셔서 지훈님의 불편함이 계속되고 있는 것 같아요.
+            </div>
+
+            <!-- 대화 중 CTA 2개 (즉시 해결 수단) -->
+            <div class="chat-cta-group">
+              <button class="chat-cta" onclick="alert('(프로토타입) 데이터 충전')">
+                <div class="chat-cta__title">이번 달만 데이터 충전</div>
+                <div class="chat-cta__sub">1GB · 3,300원부터</div>
+                <span class="chat-cta__arrow">›</span>
+              </button>
+              <button class="chat-cta" onclick="goTo('S1-A-02')">
+                <div class="chat-cta__title">내 데이터 사용 상세 보기</div>
+                <div class="chat-cta__sub">어디에 얼마나 썼는지 확인</div>
+                <span class="chat-cta__arrow">›</span>
+              </button>
+            </div>
+
+            <!-- [3] 하단 부드러운 요금제 제안 -->
+            <div class="chat-bubble chat-bubble--ai" style="margin-top: 20px;">
+              매달 이런 상황이 반복된다면, 장기적으로는 요금제를 점검해보시는 것도 도움이 될 수 있어요.
+            </div>
+            <div class="chat-soft-suggest" role="button" onclick="goTo('S1-A-04')">
+              <div class="chat-soft-suggest__label">참고용</div>
+              <div class="chat-soft-suggest__title">데이터 무제한 요금제</div>
+              <div class="chat-soft-suggest__sub">0 청년 다이렉트 69 · 넷플릭스 포함 · 총 4,000원 절약</div>
+              <div class="chat-soft-suggest__link">자세히 보기 ›</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 하단 고정 입력창 -->
+      </section>
+
+      <!-- ===== SEARCH-RESULT-BILL: 미납/요금 검색 결과 ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="SEARCH-RESULT-BILL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-bar-wrap search-bar-wrap--sticky">
+          <div class="search-bar">
+            <span class="search-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            </span>
+            <input type="text" class="search-bar__field" value="미납" readonly>
+            <button class="search-bar__clear" onclick="goTo('SEARCH-A')">✕</button>
+          </div>
+        </div>
+
+        <div class="page-body page-body--scrollable" style="padding: 8px 16px calc(var(--gnb-height) + 20px);">
+          <!-- [1] 관련 메뉴 -->
+          <div class="search-result-menu-title">📋 관련 메뉴</div>
+          <div class="search-menu-list">
+            <div class="search-menu-item" role="button" onclick="goTo('S2-A-02')">
+              <div class="search-menu-item__title">3월 요금 안내서 보기</div>
+              <div class="search-menu-item__sub">미납 87,290원 · 상세 내역 확인</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="goTo('POINT-DETAIL')">
+              <div class="search-menu-item__title">T포인트로 요금 납부</div>
+              <div class="search-menu-item__sub">18,400원 사용 가능</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 자동납부 설정')">
+              <div class="search-menu-item__title">자동납부 설정</div>
+              <div class="search-menu-item__sub">매월 자동 결제로 편하게</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 이전 청구서 내역)')">
+              <div class="search-menu-item__title">이전 청구서 내역</div>
+              <div class="search-menu-item__sub">최근 12개월 요금 변동 확인</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+          </div>
+
+          <!-- [2] 지훈님 상황 분석 대화 -->
+          <div class="search-result-chat">
+            <div class="search-result-chat__badge">
+              <span class="search-result-chat__badge-dot"></span>
+              <span>T Agent가 분석했어요</span>
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              지훈님, <strong>미납 요금</strong>에 대해 찾고 계시군요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              현재 <strong>3월분 87,290원</strong>이 미납 상태예요. 납부 예정일이었던 <strong>4월 1일</strong>을 이미 20일 경과했어요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              요금 구성은 통신 서비스 66,000원, 부가 서비스 9,100원, 결제 대행(넷플릭스) 7,000원, 기기 구입비 5,190원이에요.
+            </div>
+
+            <div class="chat-bubble chat-bubble--ai">
+              보유하신 <strong>T멤버십 포인트 18,400원</strong>을 요금에 적용하면 실제 납부할 금액은 <strong>78,290원</strong>으로 줄어들어요.
+            </div>
+
+            <!-- 대화 중 CTA 2개 (즉시 해결) -->
+            <div class="chat-cta-group">
+              <button class="chat-cta" onclick="goTo('S2-A-02')">
+                <div class="chat-cta__title">요금 안내서 자세히 보기</div>
+                <div class="chat-cta__sub">상세 내역 확인 후 납부</div>
+                <span class="chat-cta__arrow">›</span>
+              </button>
+              <button class="chat-cta" onclick="goTo('POINT-DETAIL')">
+                <div class="chat-cta__title">T포인트로 할인 적용</div>
+                <div class="chat-cta__sub">18,400원 → 78,290원만 납부</div>
+                <span class="chat-cta__arrow">›</span>
+              </button>
+            </div>
+
+            <!-- [3] 하단 부드러운 요금제 제안 (장기 관점) -->
+            <div class="chat-bubble chat-bubble--ai" style="margin-top: 20px;">
+              참고로, 매달 넷플릭스 결제 대행 7,000원이 별도로 부과되고 있는데, 요금제에 넷플릭스가 포함된 플랜을 쓰시면 장기적으로 부담이 줄어들 수 있어요.
+            </div>
+            <div class="chat-soft-suggest" role="button" onclick="goTo('S1-A-04')">
+              <div class="chat-soft-suggest__label">참고용</div>
+              <div class="chat-soft-suggest__title">넷플릭스 포함 요금제</div>
+              <div class="chat-soft-suggest__sub">0 청년 다이렉트 69 · 총 4,000원 절약</div>
+              <div class="chat-soft-suggest__link">자세히 보기 ›</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== POINT-DETAIL: T포인트 상세 (요금 납부용) ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="POINT-DETAIL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-body page-body--scrollable">
+          <h1 class="page-headline">T멤버십 포인트</h1>
+          <div class="page-subline">지훈님 · GOLD</div>
+
+          <!-- 포인트 잔액 강조 -->
+          <div style="margin: 8px 0 20px; padding: 28px 20px; background: var(--bg-surface); border-radius: var(--radius-md); text-align: center;">
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 6px;">사용 가능 포인트</div>
+            <div style="display: flex; align-items: baseline; gap: 6px; justify-content: center; margin-bottom: 8px;">
+              <span style="font-size: 38px; font-weight: var(--fw-medium); line-height: 1;">18,400</span>
+              <span style="font-size: 18px; font-weight: var(--fw-medium);">P</span>
+            </div>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary);">누적 할인 1,700원</div>
+          </div>
+
+          <!-- 적용 시뮬레이션 카드 -->
+          <div class="section-title"><span>💡 이번 달 요금에 적용하면</span></div>
+          <div class="card" style="padding: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--border-default);">
+              <span style="font-size: var(--fs-body); color: var(--text-secondary);">3월 청구 금액</span>
+              <span style="font-size: var(--fs-body);">87,290원</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-default);">
+              <span style="font-size: var(--fs-body); color: var(--text-secondary);">포인트 적용 (최대 9,000원)</span>
+              <span style="font-size: var(--fs-body);">- 9,000원</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 14px;">
+              <span style="font-size: var(--fs-body); font-weight: var(--fw-medium);">실제 납부 금액</span>
+              <span style="font-size: 22px; font-weight: var(--fw-medium);">78,290원</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; padding: 12px 14px; background: var(--bg-surface); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.55;">
+            💡 T멤버십 포인트는 1회 결제 시 최대 9,000원까지 사용 가능해요.
+          </div>
+
+          <!-- 포인트 적립처 안내 -->
+          <div class="section-title" style="margin-top: 24px;"><span>✨ 포인트 적립처</span></div>
+          <div class="search-menu-list">
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) T데이 혜택)')">
+              <div class="search-menu-item__title">T데이 참여</div>
+              <div class="search-menu-item__sub">매월 첫째 주 금요일 적립</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+            <div class="search-menu-item" role="button" onclick="alert('(프로토타입) 포인트 히스토리')">
+              <div class="search-menu-item__title">포인트 히스토리</div>
+              <div class="search-menu-item__sub">최근 12개월 적립/사용 내역</div>
+              <span class="search-menu-item__arrow">›</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fixed-cta-bar">
+          <button class="btn btn--primary" style="width: 100%;" onclick="goTo('S2-A-02')">요금 안내서로 이동</button>
+        </div>
+      </section>
+
+      <!-- ===== CURRENT-PLAN-DETAIL: 현재 요금제 상세 ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="CURRENT-PLAN-DETAIL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-body page-body--scrollable">
+          <div class="detail-header">
+            <div class="detail-header__label"><span class="tag">현재 요금제</span></div>
+            <div class="detail-header__title">0 청년 59 60GB업</div>
+            <div class="detail-header__price">
+              <span class="detail-header__price-main">월 66,000원</span>
+            </div>
+            <div class="detail-header__price-sub">사용 중 · 2024년 6월부터</div>
+          </div>
+
+          <dl class="detail-meta">
+            <div class="detail-meta__row"><dt>데이터</dt><dd>96GB</dd></div>
+            <div class="detail-meta__row"><dt>집/이동전화</dt><dd>무제한 + 부가통화 200분</dd></div>
+            <div class="detail-meta__row"><dt>문자메시지</dt><dd>기본제공</dd></div>
+            <div class="detail-meta__row"><dt>만 34세 이하</dt><dd>청년 전용 요금제</dd></div>
+          </dl>
+
+          <!-- 이번 달 데이터 사용 현황 -->
+          <div class="section-title" style="margin-top: 20px;"><span>📊 이번 달 데이터 사용</span></div>
+          <div class="card" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+              <span style="font-size: var(--fs-caption); color: var(--text-secondary);">76GB 사용</span>
+              <span style="font-size: var(--fs-caption); color: var(--text-secondary);">96GB 중</span>
+            </div>
+            <div style="background: var(--bg-surface-2); height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 12px;">
+              <div style="background: var(--text-primary); height: 100%; width: 80%;"></div>
+            </div>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
+              80% 사용 · 5일 뒤 데이터 소진 예정<br>
+              이후 10일간 1Mbps 속도로 사용 가능
+            </div>
+          </div>
+
+          <!-- 변경 유도 배너 -->
+          <div class="pcard" style="margin-top: 16px;" onclick="goTo('S1-A-04')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+            </div>
+            <div class="pcard__eyebrow">✨ 더 맞는 요금제</div>
+            <div class="pcard__title">데이터 무제한 + 넷플릭스 포함으로<br><strong>총 4,000원 절약</strong> 가능해요</div>
+            <div class="pcard__cta"><span>추천 요금제 자세히 보기</span><span>›</span></div>
+          </div>
+        </div>
+
+        <div class="fixed-cta-bar">
+          <button class="btn" style="width: 100%;" onclick="goTo('SHOP-PLAN-LIST')">다른 요금제 보기</button>
         </div>
       </section>
 
@@ -2256,10 +3462,36 @@ a { color: inherit; text-decoration: none; }
         <button class="bottom-sheet__close" onclick="closePaymentSheet()">✕</button>
       </div>
       <div class="bottom-sheet__body">
-        <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 금액</span>
-          <span style="font-size: var(--fs-title); font-weight: var(--fw-medium);">63,200원</span>
+        <!-- 납부 금액 요약 (동적) -->
+        <div class="pay-amount-box" id="payAmountBox">
+          <div class="pay-amount-box__row">
+            <span class="pay-amount-box__label">청구 금액</span>
+            <span class="pay-amount-box__value">87,290원</span>
+          </div>
+          <div class="pay-amount-box__row pay-amount-box__row--discount" id="payPointRow" style="display: none;">
+            <span class="pay-amount-box__label">T포인트 할인</span>
+            <span class="pay-amount-box__value">- 9,000원</span>
+          </div>
+          <div class="pay-amount-box__row pay-amount-box__row--total">
+            <span class="pay-amount-box__label">최종 납부 금액</span>
+            <span class="pay-amount-box__value" id="payFinalAmount">87,290원</span>
+          </div>
         </div>
+
+        <!-- T포인트 추가 적용 체크박스 -->
+        <label class="pay-point-check" id="payPointCheck">
+          <div class="pay-point-check__checkbox">
+            <input type="checkbox" id="payPointToggle" onchange="togglePointApply(this.checked)">
+            <span class="pay-point-check__box-visual"></span>
+          </div>
+          <div class="pay-point-check__info">
+            <div class="pay-point-check__title">T멤버십 포인트 추가 적용</div>
+            <div class="pay-point-check__meta">최대 9,000원 할인 · 보유 18,400P</div>
+          </div>
+        </label>
+
+        <!-- 결제 수단 -->
+        <div class="pay-section-title">결제 수단</div>
 
         <div class="pay-option" data-selected="true" onclick="selectPayMethod(this, 'card')">
           <span class="icon-circle icon-circle--lg">
@@ -2268,17 +3500,6 @@ a { color: inherit; text-decoration: none; }
           <div class="pay-option__info">
             <div class="pay-option__name">신한카드 (1234)</div>
             <div class="pay-option__meta">등록된 신용카드</div>
-          </div>
-          <div class="pay-option__radio"></div>
-        </div>
-
-        <div class="pay-option" data-selected="false" onclick="selectPayMethod(this, 'point')">
-          <span class="icon-circle icon-circle--lg">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10l3-3 3 3M9 15h6"/></svg>
-          </span>
-          <div class="pay-option__info">
-            <div class="pay-option__name">T멤버십 포인트</div>
-            <div class="pay-option__meta">보유 18,400원 · 일부 사용 가능</div>
           </div>
           <div class="pay-option__radio"></div>
         </div>
@@ -2294,7 +3515,152 @@ a { color: inherit; text-decoration: none; }
           <div class="pay-option__radio"></div>
         </div>
 
-        <button class="btn btn--primary btn--block" style="margin-top: 20px; height: 52px;" onclick="completePayment()">63,200원 결제하기</button>
+        <button class="btn btn--primary btn--block" style="margin-top: 20px; height: 52px;" onclick="completePayment()" id="payCtaBtn">87,290원 결제하기</button>
+      </div>
+    </div>
+
+    <!-- 전체 메뉴 드로어 -->
+    <div class="drawer-dim" id="menuDrawerDim" onclick="closeMenuDrawer()"></div>
+    <aside class="drawer" id="menuDrawer">
+      <div class="drawer__head">
+        <div class="drawer__title">전체 메뉴</div>
+        <button class="drawer__close" onclick="closeMenuDrawer()">✕</button>
+      </div>
+      <div class="drawer__body">
+        <div class="drawer__section-title">MY</div>
+        <nav class="drawer__list">
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('CURRENT-PLAN-DETAIL');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 요금제</span>
+              <span class="drawer__item-sub">0 청년 59 60GB업</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('S1-A-02');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 데이터</span>
+              <span class="drawer__item-sub">76 GB / 96 GB · 5일 뒤 소진</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('S2-A-02');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 요금</span>
+              <span class="drawer__item-sub">3월 미납 87,290원</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('POINT-DETAIL');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 9h6a2 2 0 0 1 0 4H8"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 T포인트</span>
+              <span class="drawer__item-sub">18,400 P</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+        </nav>
+
+        <div class="drawer__section-title" style="margin-top: 16px;">쇼핑</div>
+        <nav class="drawer__list">
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('SHOP-PLAN-LIST');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">요금제</span>
+              <span class="drawer__item-sub">5G · LTE · 청년 요금제</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) 부가서비스');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.65 1.65 0 0 0-1.8-.3 1.65 1.65 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.65 1.65 0 0 0-1-1.5 1.65 1.65 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.65 1.65 0 0 0 .3-1.8 1.65 1.65 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.65 1.65 0 0 0 1.5-1 1.65 1.65 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.65 1.65 0 0 0 1.8.3h0a1.65 1.65 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.65 1.65 0 0 0 1 1.5h0a1.65 1.65 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.65 1.65 0 0 0-.3 1.8v0a1.65 1.65 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.65 1.65 0 0 0-1.5 1z"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">부가서비스</span>
+              <span class="drawer__item-sub">벨소리, 보험, 클라우드 등</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) 인터넷');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l2-2h14l2 2M5 8v11h14V8M9 13h6M9 16h6"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">인터넷</span>
+              <span class="drawer__item-sub">기가 인터넷 · TV 결합</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) T우주');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/><path d="M3 12h18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">T우주</span>
+              <span class="drawer__item-sub">구독 상품 · 혜택 패스</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) T로밍');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">T로밍</span>
+              <span class="drawer__item-sub">해외 데이터 · 통화</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- 요금제 변경 확인 모달 -->
+    <div class="modal-dim" id="planChangeDim" onclick="closePlanChangeConfirm()"></div>
+    <div class="modal" id="planChangeModal">
+      <div class="modal__title">요금제를 변경하시겠어요?</div>
+      <div class="modal__body">
+        <dl class="modal__summary">
+          <div class="modal__summary-row">
+            <dt>변경 전</dt>
+            <dd>0 청년 59 60GB업 · 월 66,000원</dd>
+          </div>
+          <div class="modal__summary-row">
+            <dt>변경 후</dt>
+            <dd><strong>0 청년 다이렉트 69(넷플릭스)</strong> · 월 69,000원</dd>
+          </div>
+          <div class="modal__summary-row">
+            <dt>적용 시점</dt>
+            <dd>다음 달 1일부터</dd>
+          </div>
+          <div class="modal__summary-row">
+            <dt>약정</dt>
+            <dd>24개월 (기존 약정 유지)</dd>
+          </div>
+        </dl>
+        <div class="modal__savings">
+          <span class="modal__savings-label">매월 실 납부 금액</span>
+          <span class="modal__savings-value">- 4,000원 절약</span>
+        </div>
+        <div class="modal__notice">
+          넷플릭스 결제 대행(월 7,000원)이 자동 해지되며, 요금제에 포함된 넷플릭스가 제공돼요. 통신료는 3,000원 증가하지만 실 납부 금액은 <strong>총 4,000원 줄어들어요.</strong>
+        </div>
+      </div>
+      <div class="modal__actions">
+        <button class="btn" style="flex: 1;" onclick="closePlanChangeConfirm()">취소</button>
+        <button class="btn btn--primary" style="flex: 1;" onclick="confirmPlanChange()">변경하기</button>
       </div>
     </div>
 
@@ -2310,7 +3676,7 @@ let currentGnbTab = 'my';
 
 const TASK_TEXTS = {
   1: '데이터가 매월 부족한 상황입니다. 내 사용량에 맞는 요금제로 바꿔보세요.',
-  2: '지난달 요금(3월분 63,200원)이 미납 상태입니다. 앱에서 납부를 완료해보세요.'
+  2: '지난달 요금(3월분 87,290원)이 미납 상태입니다. 앱에서 납부를 완료해보세요.'
 };
 
 /* Navigation */
@@ -2333,9 +3699,89 @@ function goBack() {
     goTo(prev, { noHistory: true });
   } else {
     if (currentScenario === 1) goTo('S1-A-01', { noHistory: true });
-    else if (currentScenario === 2) goTo('S2-A-01', { noHistory: true });
+    else if (currentScenario === 2) goTo('S1-A-01', { noHistory: true });
     else goTo('SCENARIO-SELECT', { noHistory: true });
   }
+}
+
+/* 공용 mini-landing */
+const MINI_LANDING_DATA = {
+  device: {
+    eyebrow: '단말기',
+    title: '갤럭시 S26 울트라',
+    desc: '매장 상담 정보를 불러왔어요',
+    highlight: '754,000원 · 42% 할인',
+    sub: 'T 안심보상가 최대 56만원 적용 가능',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>'
+  },
+  cart: {
+    eyebrow: '장바구니',
+    title: '담아두신 상품 3개',
+    desc: '최근 담은 상품을 확인해보세요',
+    highlight: '총 16,800원',
+    sub: '배달의민족 쿠폰팩 · 올리브영 상품권',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>'
+  },
+  familyCombine: {
+    eyebrow: '결합',
+    title: '가족 결합 4명',
+    desc: '매달 8,450원 할인 받고 계세요',
+    highlight: '월 절약액 8,450원',
+    sub: '결합 가족: 본인, 아내, 자녀 2명',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'
+  },
+  movieSalmok: {
+    eyebrow: '영화 예매',
+    title: '영화 \'살목지\'',
+    desc: 'VVIP 혜택으로 무료 관람 가능해요',
+    highlight: '평점 9.7 · 예매율 56.2%',
+    sub: '근처 청담 CGV · 오늘 14:30 좌석 2개',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 10l5 3-5 3z" fill="currentColor"/></svg>'
+  },
+  coupon: {
+    eyebrow: '쿠폰',
+    title: 'VIPS 50% 할인 쿠폰',
+    desc: '2일 뒤 만료 · 지금 사용해보세요',
+    highlight: '최대 15,000원 할인',
+    sub: '전 지점 사용 가능',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>'
+  },
+  nearStore: {
+    eyebrow: '위치 기반',
+    title: '근처 사용 가능 매장 3곳',
+    desc: '파리바게트 쿠폰을 지금 쓸 수 있어요',
+    highlight: '최대 2,500원 할인',
+    sub: '강남역점, 논현점, 신사점',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>'
+  },
+  dataGift: {
+    eyebrow: '그룹',
+    title: '동생의 데이터 선물 요청',
+    desc: '동생님이 1GB 선물을 요청했어요',
+    highlight: '1GB 선물하기',
+    sub: '가족 간 데이터 선물은 무료예요',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><path d="M12 8v13M20 12V8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v4M4 12h16v9H4z"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>'
+  },
+  agreement: {
+    eyebrow: '약정',
+    title: '재약정 D-84',
+    desc: '만료 전 재약정 시 추가 혜택이 있어요',
+    highlight: '월 31,419원 할인 중',
+    sub: '24개월 약정 · 만료까지 84일 남음',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>'
+  }
+};
+
+function openMiniLanding(key) {
+  const data = MINI_LANDING_DATA[key];
+  if (!data) return;
+  document.getElementById('miniLandingEyebrow').textContent = data.eyebrow;
+  document.getElementById('miniLandingTitle').textContent = data.title;
+  document.getElementById('miniLandingDesc').textContent = data.desc;
+  document.getElementById('miniLandingHighlight').textContent = data.highlight;
+  document.getElementById('miniLandingSub').textContent = data.sub;
+  document.getElementById('miniLandingIcon').innerHTML = data.icon;
+  goTo('MINI-LANDING');
 }
 
 function startScenario(num) {
@@ -2344,7 +3790,7 @@ function startScenario(num) {
   currentGnbTab = 'my';
   document.getElementById('utBannerText').textContent = TASK_TEXTS[num];
   // MY 홈부터 시작 (혜택+관리 통합)
-  goTo(num === 1 ? 'S1-A-01' : 'S2-A-01', { noHistory: true });
+  goTo(num === 1 ? 'S1-A-01' : 'S1-A-01', { noHistory: true });
 }
 
 function restartScenario() {
@@ -2373,11 +3819,30 @@ function closeUtPanel() {
 }
 
 /* GNB 전환 */
+function handleSearchEnter(event) {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  const query = (event.target.value || '').trim();
+  if (!query) return;
+  // 키워드 매칭 (우선순위: 구체 → 일반)
+  if (query.includes('미납') || query.includes('청구') || query.includes('납부')) {
+    goTo('SEARCH-RESULT-BILL');
+  } else if (query.includes('요금제')) {
+    goTo('SEARCH-RESULT-PLAN');
+  } else if (query.includes('요금')) {
+    goTo('SEARCH-RESULT-BILL');
+  } else if (query.includes('데이터')) {
+    goTo('SEARCH-RESULT-DATA');
+  } else {
+    alert('(프로토타입) "' + query + '" 검색 결과 준비 중이에요.\n현재는 "데이터", "요금제", "미납", "요금" 키워드로 검색해주세요.');
+  }
+}
+
 function gnbSwitch(tab) {
   currentGnbTab = tab;
   navigationHistory.length = 0;
   if (tab === 'my') {
-    if (currentScenario === 2) goTo('S2-A-01', { noHistory: true });
+    if (currentScenario === 2) goTo('S1-A-01', { noHistory: true });
     else goTo('S1-A-01', { noHistory: true });
   } else if (tab === 'search') {
     goTo('SEARCH-A', { noHistory: true });
@@ -2388,9 +3853,9 @@ function gnbSwitch(tab) {
 
 function updateGnbActive() {
   let tab = 'my';
-  if (currentScreen === 'SEARCH-A') tab = 'search';
-  else if (['SHOP-HOME-A','SHOP-PLAN-LIST','S1-A-04'].includes(currentScreen)) tab = 'shop';
-  else if (['S1-A-01','S1-A-02','S2-A-01'].includes(currentScreen)) tab = 'my';
+  if (['SEARCH-A','SEARCH-RESULT-DATA','SEARCH-RESULT-PLAN','SEARCH-RESULT-BILL'].includes(currentScreen)) tab = 'search';
+  else if (['SHOP-HOME-A','SHOP-PLAN-LIST','S1-A-04','S1-A-05'].includes(currentScreen)) tab = 'shop';
+  else if (['S1-A-01','S1-A-02','S2-A-02','S2-A-03','CURRENT-PLAN-DETAIL','POINT-DETAIL'].includes(currentScreen)) tab = 'my';
   currentGnbTab = tab;
   document.querySelectorAll('.bottom-nav__item').forEach(el => {
     el.classList.toggle('bottom-nav__item--active', el.dataset.tab === tab);
@@ -2399,7 +3864,7 @@ function updateGnbActive() {
 
 function updateGnbVisibility() {
   const nav = document.getElementById('bottomNav');
-  const hideOn = ['SCENARIO-SELECT','S1-A-04','S1-A-05','S2-A-02','S2-A-03'];
+  const hideOn = ['SCENARIO-SELECT'];
   if (hideOn.includes(currentScreen)) {
     nav.style.display = 'none';
   } else {
@@ -2447,13 +3912,13 @@ function askAgent(question) {
     let responseHtml = '';
     let actionBtn = null;
     if (question.includes('요금제')) {
-      responseHtml = '현재 사용 패턴을 보니 <strong>다이렉트 5G 76</strong>이 월 6,000원 절약돼요. 데이터도 80GB로 넉넉해져요.';
+      responseHtml = '현재 사용 패턴을 보니 <strong>0 청년 다이렉트 69(넷플릭스)</strong>는 넷플릭스가 포함되어 총 4,000원 절약되고, 데이터도 무제한으로 늘어나요.';
       actionBtn = { text: '요금제 자세히 보기', action: () => { closeAgentSheet(); goTo('S1-A-04'); } };
     } else if (question.includes('미납') || (question.includes('요금') && question.includes('내'))) {
-      responseHtml = '3월 요금 <strong>63,200원</strong>이 납부 대기 중이에요. T포인트 9,000원을 적용하면 54,200원만 내시면 돼요.';
+      responseHtml = '3월 요금 <strong>87,290원</strong>이 납부 대기 중이에요. T포인트 9,000원을 적용하면 78,290원만 내시면 돼요.';
       actionBtn = { text: '요금 안내서 보기', action: () => { closeAgentSheet(); goTo('S2-A-02'); } };
     } else if (question.includes('데이터') || question.includes('사용량') || question.includes('많이 나온')) {
-      responseHtml = '이번 달 데이터는 <strong>62GB / 50GB</strong>를 사용 중이에요. 콘텐츠/OTT에 31.3GB를 쓰고 계셔서 이번 달 요금이 조금 늘었어요.';
+      responseHtml = '이번 달 데이터를 <strong>76GB / 96GB</strong> 사용 중이에요. 넷플릭스에 52GB를 쓰고 계셔서 5일 뒤면 소진될 예정이에요.';
     } else {
       responseHtml = '죄송해요, 아직 준비하지 못한 답변이에요. 아래 추천 질문을 선택해보세요.';
     }
@@ -2484,6 +3949,10 @@ function closePaymentSheet() {
   document.getElementById('paymentSheet').classList.remove('open');
 }
 function completePayment() {
+  // 납부 금액 완료 화면에 반영
+  const paidAmount = pointApplied ? '78,290원 (T포인트 9,000원 할인)' : '87,290원';
+  const paidEl = document.getElementById('paidAmountSummary');
+  if (paidEl) paidEl.textContent = paidAmount;
   closePaymentSheet();
   setTimeout(() => goTo('S2-A-03'), 200);
 }
@@ -2491,9 +3960,48 @@ function completePayment() {
 function selectPayMethod(el, method) {
   document.querySelectorAll('.pay-option').forEach(o => o.setAttribute('data-selected', 'false'));
   el.setAttribute('data-selected', 'true');
-  const nameMap = { card: '신한카드 (1234)', point: 'T멤버십 포인트', bank: '계좌이체' };
+  const nameMap = { card: '신한카드 (1234)', bank: '계좌이체' };
   const summary = document.getElementById('payMethodSummary');
   if (summary) summary.textContent = nameMap[method];
+}
+
+let pointApplied = false;
+function togglePointApply(checked) {
+  pointApplied = checked;
+  const pointRow = document.getElementById('payPointRow');
+  const finalAmount = document.getElementById('payFinalAmount');
+  const ctaBtn = document.getElementById('payCtaBtn');
+  if (checked) {
+    pointRow.style.display = 'flex';
+    finalAmount.textContent = '78,290원';
+    ctaBtn.textContent = '78,290원 결제하기';
+  } else {
+    pointRow.style.display = 'none';
+    finalAmount.textContent = '87,290원';
+    ctaBtn.textContent = '87,290원 결제하기';
+  }
+}
+
+function openPlanChangeConfirm() {
+  document.getElementById('planChangeDim').classList.add('open');
+  document.getElementById('planChangeModal').classList.add('open');
+}
+function closePlanChangeConfirm() {
+  document.getElementById('planChangeDim').classList.remove('open');
+  document.getElementById('planChangeModal').classList.remove('open');
+}
+function confirmPlanChange() {
+  closePlanChangeConfirm();
+  setTimeout(() => goTo('S1-A-05'), 180);
+}
+
+function openMenuDrawer() {
+  document.getElementById('menuDrawerDim').classList.add('open');
+  document.getElementById('menuDrawer').classList.add('open');
+}
+function closeMenuDrawer() {
+  document.getElementById('menuDrawerDim').classList.remove('open');
+  document.getElementById('menuDrawer').classList.remove('open');
 }
 
 updateGnbVisibility();
