@@ -28,8 +28,8 @@
   --action-bg-weak: #EEF0FF;
   --action-bg-softer: #F5F6FF;
 
-  --alert: #C93E3E;
-  --alert-bg-weak: #FCEBEB;
+  --alert: #111111;  /* 무채색화 — alert 컬러 미사용 */
+  --alert-bg-weak: #EEEEEE;  /* 무채색화 */
 
   --ai: var(--action);
   --ai-bg: var(--action-bg-weak);
@@ -210,6 +210,237 @@ a { color: inherit; text-decoration: none; }
 .screen { display: none; }
 .screen.screen--active { display: block; }
 
+/* 하단 고정 CTA 구조 (B안 일관) */
+.screen.screen--with-fixed-cta.screen--active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.page-body--scrollable {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fixed-cta-bar {
+  flex-shrink: 0;
+  padding: 12px 16px 16px;
+  background: var(--bg-page);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Chat Bar 위로 올리기 */
+  margin-bottom: var(--chat-bar-height);
+}
+
+/* 요금 합계 표 */
+.bill-summary-table {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.bill-summary-table__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-default);
+  font-size: var(--fs-body);
+}
+.bill-summary-table__row:last-child { border-bottom: 0; }
+.bill-summary-table__label { color: var(--text-primary); }
+.bill-summary-table__value { font-weight: var(--fw-medium); color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.bill-summary-table__row--total {
+  background: var(--bg-surface-2);
+  border-top: 2px solid var(--text-primary);
+}
+.bill-summary-table__row--total .bill-summary-table__label,
+.bill-summary-table__row--total .bill-summary-table__value {
+  font-weight: var(--fw-medium);
+  font-size: 16px;
+}
+
+/* 비교 테이블 */
+.compare-table {
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.compare-table__header {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.1fr;
+  background: var(--bg-surface-2);
+  padding: 12px 0;
+}
+.compare-table__header .compare-table__cell { padding: 4px 10px; text-align: center; font-size: var(--fs-caption); }
+.compare-table__row {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.1fr;
+  border-top: 1px solid var(--border-default);
+  min-height: 52px;
+  align-items: center;
+}
+.compare-table__cell { padding: 10px 8px; font-size: var(--fs-body); text-align: center; line-height: 1.35; }
+.compare-table__cell--label {
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  font-size: var(--fs-caption);
+  text-align: left;
+  padding-left: 14px;
+  background: var(--bg-surface);
+}
+.compare-table__cell--recommend {
+  background: var(--bg-page);
+  border-left: 2px solid var(--text-primary);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+}
+.compare-table__col-label { font-size: 11px; color: var(--text-secondary); letter-spacing: 0.3px; margin-bottom: 2px; font-weight: var(--fw-regular); }
+.compare-table__col-sub { font-size: var(--fs-caption); color: var(--text-primary); font-weight: var(--fw-medium); line-height: 1.25; }
+.compare-table__row--highlight .compare-table__cell--recommend { background: var(--bg-surface-2); font-size: 16px; }
+.compare-table__row--highlight .compare-table__cell--recommend strong { font-size: 17px; color: var(--text-primary); font-weight: var(--fw-medium); }
+.compare-table__row--total { background: var(--bg-surface); border-top: 2px solid var(--border-default); }
+.compare-table__row--total .compare-table__cell { padding: 14px 8px; font-weight: var(--fw-medium); }
+
+/* 확인 모달 */
+.modal-dim {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 90; opacity: 0; pointer-events: none;
+  transition: opacity 160ms;
+}
+.modal-dim.open { opacity: 1; pointer-events: auto; }
+.modal {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  width: calc(100% - 40px); max-width: 335px;
+  background: var(--bg-page); border-radius: 14px;
+  padding: 24px 20px 16px; z-index: 100;
+  opacity: 0; pointer-events: none;
+  transition: opacity 160ms, transform 160ms;
+}
+.modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+.modal__title { font-size: 17px; font-weight: var(--fw-medium); text-align: center; margin-bottom: 16px; line-height: 1.35; }
+.modal__body { margin-bottom: 20px; }
+.modal__summary { background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 12px; }
+.modal__summary-row { display: flex; align-items: flex-start; padding: 6px 0; gap: 12px; line-height: 1.45; }
+.modal__summary-row dt { flex-shrink: 0; width: 70px; font-size: var(--fs-caption); color: var(--text-secondary); padding-top: 1px; }
+.modal__summary-row dd { flex: 1; font-size: var(--fs-body); }
+.modal__summary-row dd strong { font-weight: var(--fw-medium); }
+.modal__savings {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; margin-bottom: 12px;
+  background: var(--bg-surface-2); border-radius: var(--radius-md);
+  border: 2px solid var(--text-primary);
+}
+.modal__savings-label { font-size: var(--fs-caption); color: var(--text-secondary); font-weight: var(--fw-medium); }
+.modal__savings-value { font-size: 17px; color: var(--text-primary); font-weight: var(--fw-medium); }
+.modal__notice { font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.55; padding: 10px 14px; background: var(--bg-surface); border-radius: var(--radius-sm); }
+.modal__notice strong { color: var(--text-primary); font-weight: var(--fw-medium); }
+.modal__actions { display: flex; gap: 8px; }
+
+/* 드로어 */
+.drawer-dim {
+  position: absolute; inset: 0; background: rgba(0, 0, 0, 0.4);
+  z-index: 80; opacity: 0; pointer-events: none; transition: opacity 180ms;
+}
+.drawer-dim.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 82%; max-width: 300px;
+  background: var(--bg-page); z-index: 90;
+  transform: translateX(100%); transition: transform 220ms ease;
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 24px rgba(0,0,0,0.12);
+}
+.drawer.open { transform: translateX(0); }
+.drawer__head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
+.drawer__title { font-size: var(--fs-title); font-weight: var(--fw-medium); }
+.drawer__close { background: none; border: 0; font-size: 18px; color: var(--text-primary); cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.drawer__body { flex: 1; overflow-y: auto; padding: 16px 16px 24px; }
+.drawer__section-title { font-size: 11px; color: var(--text-secondary); font-weight: var(--fw-medium); letter-spacing: 0.3px; padding: 4px 4px 8px; text-transform: uppercase; }
+.drawer__list { display: flex; flex-direction: column; gap: 2px; }
+.drawer__item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 8px;
+  background: none; border: 0; border-radius: var(--radius-sm);
+  text-align: left; cursor: pointer; color: var(--text-primary);
+  transition: background 80ms;
+}
+.drawer__item:active { background: var(--bg-surface); }
+.drawer__item-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--bg-surface); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-primary); }
+.drawer__item-icon svg { width: 18px; height: 18px; }
+.drawer__item-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.drawer__item-title { font-size: var(--fs-body); font-weight: var(--fw-medium); color: var(--text-primary); }
+.drawer__item-sub { font-size: var(--fs-caption); color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drawer__item-arrow { color: var(--text-tertiary); font-size: 18px; flex-shrink: 0; }
+
+/* 결제 바텀시트 - 금액 박스, 포인트 체크박스 */
+.pay-amount-box { background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+.pay-amount-box__row { display: flex; justify-content: space-between; align-items: center; font-size: var(--fs-body); }
+.pay-amount-box__row--discount { color: var(--text-secondary); font-size: var(--fs-caption); }
+.pay-amount-box__row--total { padding-top: 10px; border-top: 1px solid var(--border-default); margin-top: 4px; }
+.pay-amount-box__row--total .pay-amount-box__label { font-size: var(--fs-caption); color: var(--text-secondary); }
+.pay-amount-box__row--total .pay-amount-box__value { font-size: var(--fs-title); font-weight: var(--fw-medium); color: var(--text-primary); }
+
+.pay-point-check {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border: 1px solid var(--border-default);
+  border-radius: var(--radius-md); margin-bottom: 20px;
+  background: var(--bg-page); cursor: pointer;
+}
+.pay-point-check__checkbox { position: relative; width: 22px; height: 22px; flex-shrink: 0; }
+.pay-point-check__checkbox input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+.pay-point-check__box-visual {
+  position: absolute; inset: 0;
+  border: 2px solid var(--border-strong); border-radius: 4px;
+  background: var(--bg-page); pointer-events: none;
+  transition: all 80ms;
+}
+.pay-point-check__checkbox input:checked + .pay-point-check__box-visual {
+  background: var(--action); border-color: var(--action);
+}
+.pay-point-check__checkbox input:checked + .pay-point-check__box-visual::after {
+  content: ''; position: absolute; left: 5px; top: 1px;
+  width: 6px; height: 11px;
+  border: solid #fff; border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+.pay-point-check__info { flex: 1; }
+.pay-point-check__title { font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 2px; }
+.pay-point-check__meta { font-size: var(--fs-caption); color: var(--text-secondary); }
+.pay-section-title { font-size: var(--fs-caption); color: var(--text-secondary); font-weight: var(--fw-medium); margin-bottom: 8px; padding: 0 2px; }
+
+/* pcard (B안 호환) */
+.pcard {
+  position: relative;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 18px 18px 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: background 80ms;
+  overflow: hidden;
+}
+.pcard:active { background: var(--bg-surface-2); }
+.pcard__visual {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg-page);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-primary);
+}
+.pcard__visual svg { width: 18px; height: 18px; }
+.pcard__eyebrow { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: var(--fw-medium); letter-spacing: 0.3px; text-transform: uppercase; }
+.pcard__title { font-size: 17px; line-height: 1.4; color: var(--text-primary); margin-bottom: 6px; padding-right: 48px; }
+.pcard__title strong { font-weight: var(--fw-medium); }
+.pcard__sub { font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; padding-right: 48px; }
+.pcard__cta { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--border-default); font-size: var(--fs-caption); color: var(--text-primary); font-weight: var(--fw-medium); }
+.pcard__cta span:last-child { color: var(--text-tertiary); font-size: 14px; }
+
 /* Top Bar */
 .top-bar {
   padding: 14px 62px 8px 16px;
@@ -278,7 +509,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg-surface-2);
   color: var(--text-secondary);
 }
-.tag--alert { background: var(--alert); color: #fff; }
+.tag--alert { background: var(--text-primary); color: #fff; }
 .tag--ai { background: var(--action-bg-weak); color: var(--action); }
 
 /* ============================================
@@ -344,6 +575,123 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
 }
 .agent-card:active { transform: scale(0.98); }
+
+/* 대화 유도 카드 (말풍선 아이콘) */
+.agent-card--chat .agent-card__chat-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.agent-card--chat .agent-card__chat-icon svg { width: 12px; height: 12px; }
+.agent-card--chat .agent-card__chat-icon--lg {
+  width: 28px;
+  height: 28px;
+  top: 12px;
+  right: 12px;
+}
+.agent-card--chat .agent-card__chat-icon--lg svg { width: 14px; height: 14px; }
+
+/* ============================================
+   C-Ambient Layer (일반 화면 랜딩 시 의사결정 지원)
+   이미지 5 참고: 좌측 ✦ AI 아이콘 / 중앙 메시지+툴팁 / 우측 CTA
+   ============================================ */
+.c-ambient-layer {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--chat-bar-height) + 12px);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 73, 223, 0.15);
+  border-radius: var(--radius-pill);
+  padding: 6px 6px 6px 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+}
+.c-ambient-layer__agent {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--action);
+  color: #fff;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 80ms;
+}
+.c-ambient-layer__agent:active { transform: scale(0.94); }
+.c-ambient-layer__agent svg { width: 18px; height: 18px; }
+
+.c-ambient-layer__message {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.c-ambient-layer__text {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.c-ambient-layer__tooltip {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 0;
+  font-size: 11px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+.c-ambient-layer__tooltip:active { background: var(--bg-surface-2); }
+
+.c-ambient-layer__cta {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  background: var(--text-primary);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background 80ms, transform 80ms;
+  white-space: nowrap;
+}
+.c-ambient-layer__cta:active {
+  transform: scale(0.96);
+  background: #000;
+}
 
 /* 작은 카드 (스택용) */
 .agent-card--sm {
@@ -456,9 +804,9 @@ a { color: inherit; text-decoration: none; }
   margin-top: 8px;
 }
 
-.agent-card--alert { border-color: rgba(201, 62, 62, 0.2); }
-.agent-card--alert .agent-card__badge { color: var(--alert); }
-.agent-card--alert .agent-card__badge-dot { background: var(--alert); box-shadow: 0 0 4px rgba(201,62,62,0.6); }
+.agent-card--alert { border-color: var(--border-mid); }
+.agent-card--alert .agent-card__badge { color: var(--text-primary); }
+.agent-card--alert .agent-card__badge-dot { background: var(--text-primary); }
 
 /* ============================================
    Chat Bar (C안 고유)
@@ -726,8 +1074,32 @@ a { color: inherit; text-decoration: none; }
   font-weight: var(--fw-medium);
   color: var(--action);
   transition: background 80ms;
+  cursor: pointer;
 }
 .chat-inline-chip:active { background: var(--action-bg-softer); }
+
+/* 날짜 선택 칩 (작은 원형) */
+.chat-inline-chip--date {
+  min-width: 44px;
+  padding: 8px 10px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+}
+.chat-inline-chip--active {
+  background: var(--action);
+  color: #fff;
+  border-color: var(--action);
+}
+
+/* primary 확정 칩 */
+.chat-inline-chip--primary {
+  background: var(--action);
+  color: #fff;
+  border-color: var(--action);
+}
+.chat-inline-chip--primary:active { background: var(--action-pressed); }
 
 /* ============================================
    일반 페이지 요소 (터치 탐색 경로용)
@@ -1075,14 +1447,48 @@ a { color: inherit; text-decoration: none; }
           <div class="scenario-card" onclick="startScenario(2)">
             <div class="scenario-card__num">시나리오 2</div>
             <div class="scenario-card__title">미납 요금 납부</div>
-            <div class="scenario-card__desc">지난 달 요금(3월분 63,200원)을 미납한 상태. 앱에서 납부를 완료하세요.</div>
+            <div class="scenario-card__desc">지난 달 요금(3월분 87,290원)을 미납한 상태. 앱에서 납부를 완료하세요.</div>
           </div>
         </div>
       </section>
 
-      <!-- ===== C-HOME: Agent 대화 홈 (시나리오 1) ===== -->
-      <section class="screen" data-screen="C-HOME-S1">
+      <!-- ===== MINI-LANDING: 추가 진입점용 공용 랜딩 ===== -->
+      <section class="screen" data-screen="MINI-LANDING">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 20px);">
+          <div style="padding: 24px 0 16px;">
+            <div id="miniLandingEyebrow" style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.3px; text-transform: uppercase;">카테고리</div>
+            <h1 class="page-headline" id="miniLandingTitle">제목</h1>
+            <div class="page-subline" id="miniLandingDesc">설명</div>
+          </div>
 
+          <div style="padding: 40px 20px; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <div id="miniLandingIcon" style="width: 72px; height: 72px; border-radius: 50%; background: var(--bg-page); display: flex; align-items: center; justify-content: center; color: var(--text-primary);"></div>
+            <div id="miniLandingHighlight" style="font-size: 17px; font-weight: var(--fw-medium); color: var(--text-primary); text-align: center; line-height: 1.4;">미리보기</div>
+            <div id="miniLandingSub" style="font-size: var(--fs-caption); color: var(--text-secondary); text-align: center; line-height: 1.5; max-width: 260px;">세부 정보가 여기에 표시됩니다</div>
+          </div>
+
+          <div style="padding: 14px 16px; background: var(--bg-surface); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+            💡 이 기능은 UT 테스트용 프로토타입입니다. 뒤의 시나리오는 구현되지 않았어요.
+          </div>
+
+          <button class="btn btn--primary btn--block" onclick="goBack()" style="height: 48px;">이전으로 돌아가기</button>
+        </div>
+      </section>
+
+      <!-- ===== C-HOME: Agent 대화 홈 (시나리오 통합) ===== -->
+      <section class="screen" data-screen="C-HOME">
         <div class="top-bar">
           <div class="top-bar__left"></div>
           <div class="top-bar__right">
@@ -1092,7 +1498,7 @@ a { color: inherit; text-decoration: none; }
             <div class="top-bar__icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
             </div>
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1104,248 +1510,132 @@ a { color: inherit; text-decoration: none; }
             <em>모아봤어요</em>
           </div>
 
-          <!-- 가로 스크롤 카드 영역 -->
+          <!-- 가로 스크롤 카드 영역 (1열/2열 믹스) -->
           <div class="c-card-row">
-            <!-- 좌측: 작은 카드 2개 스택 -->
+            <!-- 스택 1 (2열): 데이터 + 요금 내역 -->
             <div class="c-card-stack">
-              <!-- 핵심 카드: 데이터 부족 (시나리오 1 유도) -->
-              <div class="agent-card agent-card--sm" onclick="goTo('S1-C-CHAT'); setTimeout(()=>autoAsk('요금제 바꾸고 싶어'), 200);">
+              <!-- 1. 데이터 현황 — 대화 유도 (chat 아이콘) -->
+              <div class="agent-card agent-card--sm agent-card--alert agent-card--chat" onclick="goTo('S1-C-CHAT'); setTimeout(()=>autoAsk('데이터 사용량 알려줘'), 200);">
                 <div>
                   <div class="agent-card__badge">
                     <span class="agent-card__badge-dot"></span>
-                    <span>T Agent</span>
+                    <span>남은 데이터</span>
                   </div>
-                  <div class="agent-card__title">이번 달 데이터가<br>부족할 것 같아요</div>
-                  <div class="agent-card__desc">요금제 추천 받기 ›</div>
+                  <div class="agent-card__title">데이터가 부족할 것 같아요<br><strong>76GB / 96GB</strong></div>
+                  <div class="agent-card__desc">5일 뒤 소진 예정</div>
                 </div>
-                <div class="agent-card__visual-sm">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9" opacity="0.3"/><path d="M12 3 A9 9 0 0 1 19 17" stroke-linecap="round"/></svg>
+                <div class="agent-card__chat-icon" aria-label="대화로 자세히 보기">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H8l-4 4z"/></svg>
                 </div>
               </div>
-              <!-- 보조 카드 -->
-              <div class="agent-card agent-card--sm" onclick="alert('(프로토타입) 자녀 데이터 선물')">
+              <!-- 2. 요금 내역 — 대화 유도 (복합 업무) -->
+              <div class="agent-card agent-card--sm agent-card--alert agent-card--chat" onclick="goTo('S2-C-CHAT'); setTimeout(()=>autoAsk('미납 요금 확인해주고 납부일 변경해줘'), 200);">
                 <div>
                   <div class="agent-card__badge">
                     <span class="agent-card__badge-dot"></span>
-                    <span>할 일</span>
+                    <span>요금 안내</span>
                   </div>
-                  <div class="agent-card__title">자녀가 데이터 선물<br>요청을 보냈어요</div>
-                  <div class="agent-card__desc">0.3GB · 지금 선물하기</div>
+                  <div class="agent-card__title">3월 요금 미납<br><strong>87,290원</strong></div>
+                  <div class="agent-card__desc">납부일 변경도 이어서 ›</div>
                 </div>
-                <div class="agent-card__visual-sm" style="background: linear-gradient(135deg, #D8BEC0, #B88890);">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #fff;"><path d="M20 12v8H4v-8M2 8h20v4H2zM12 8V4M8 8a2 2 0 0 1-2-2 2 2 0 0 1 2-2c2 0 4 2 4 4M16 8a2 2 0 0 0 2-2 2 2 0 0 0-2-2c-2 0-4 2-4 4"/></svg>
+                <div class="agent-card__chat-icon" aria-label="대화로 자세히 보기">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H8l-4 4z"/></svg>
                 </div>
               </div>
             </div>
 
-            <!-- 우측: 큰 세로 카드 (일부 잘려 보여서 가로 스크롤 유도) -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 영화 예매')">
-              <div class="agent-card__visual-lg"></div>
+            <!-- 큰 카드 1 (1열): 요금제 추천 — 스태틱 화면 랜딩 (S1-C-DETAIL + Ambient Layer) -->
+            <div class="agent-card agent-card--lg" onclick="goTo('S1-C-DETAIL')">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #B8C0D8 0%, #6878A8 100%);"></div>
               <div>
                 <div class="agent-card__badge">
                   <span class="agent-card__badge-dot"></span>
-                  <span>추천</span>
+                  <span>요금제</span>
                 </div>
               </div>
               <div>
-                <div class="agent-card__title">지난달에 이어,<br>이번 달 무료 영화<br>'날씨의 아이' 어때요?</div>
+                <div class="agent-card__title">넷플릭스 포함,<br>더 저렴한<br>요금제 알려드릴까요?</div>
                 <div class="agent-card__cta">
-                  <span>영화 예매하기</span>
+                  <span>자세히 보기</span>
                   <span>›</span>
                 </div>
               </div>
             </div>
 
-            <!-- 더 있는 카드 -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 투썸플레이스 30% 할인')" style="width: 200px;">
+            <!-- 스택 2 (2열): 단말기 + 쇼핑 -->
+            <div class="c-card-stack">
+              <!-- 4. 단말기 — 일반 화면 랜딩 (Ambient Layer 지원) -->
+              <div class="agent-card agent-card--sm" onclick="goTo('C-DEVICE-DETAIL')">
+                <div>
+                  <div class="agent-card__badge">
+                    <span class="agent-card__badge-dot"></span>
+                    <span>단말기</span>
+                  </div>
+                  <div class="agent-card__title">매장에서 보신<br>갤럭시 S26 울트라</div>
+                  <div class="agent-card__desc">대리점 상담 정보 ›</div>
+                </div>
+                <div class="agent-card__visual-sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+                </div>
+              </div>
+              <!-- 5. 쇼핑 (장바구니) — 단순 이동 -->
+              <div class="agent-card agent-card--sm" onclick="openMiniLanding('cart')">
+                <div>
+                  <div class="agent-card__badge">
+                    <span class="agent-card__badge-dot"></span>
+                    <span>쇼핑</span>
+                  </div>
+                  <div class="agent-card__title">담아두신<br>'배달의민족 쿠폰팩'</div>
+                  <div class="agent-card__desc">장바구니 이동 ›</div>
+                </div>
+                <div class="agent-card__visual-sm" style="background: linear-gradient(135deg, #D8C8B8, #B09080);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #fff;"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- 큰 카드 2 (1열): 그룹 — 대화 유도 -->
+            <div class="agent-card agent-card--lg agent-card--chat" onclick="goTo('S1-C-CHAT'); setTimeout(()=>autoAsk('동생 데이터 선물 보내고 싶어'), 200);" style="width: 220px;">
               <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #C0B8A8 0%, #807868 100%);"></div>
               <div>
                 <div class="agent-card__badge">
                   <span class="agent-card__badge-dot"></span>
-                  <span>혜택</span>
+                  <span>그룹</span>
                 </div>
               </div>
               <div>
-                <div class="agent-card__title">'투썸플레이스<br>30% 할인'<br>지인과 나눠 쓸 수 있어요</div>
+                <div class="agent-card__title">동생님이<br>데이터 선물 1GB를<br>요청했어요</div>
                 <div class="agent-card__cta">
-                  <span>나누기</span>
+                  <span>대화로 결정하기</span>
                   <span>›</span>
                 </div>
               </div>
-            </div>
-
-            <!-- 추가 카드 3 -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 유튜브 프리미엄 공유')" style="width: 200px;">
-              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #B0B8C0 0%, #708090 100%);"></div>
-              <div>
-                <div class="agent-card__badge">
-                  <span class="agent-card__badge-dot"></span>
-                  <span>이어서 하기</span>
-                </div>
-              </div>
-              <div>
-                <div class="agent-card__title">'유튜브 프리미엄'<br>공유를 이어서<br>진행하세요</div>
-                <div class="agent-card__cta">
-                  <span>자녀에게 공유</span>
-                  <span>›</span>
-                </div>
+              <div class="agent-card__chat-icon agent-card__chat-icon--lg" aria-label="대화로 자세히 보기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H8l-4 4z"/></svg>
               </div>
             </div>
 
-            <!-- 추가 카드 4 -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) T Day 혜택')" style="width: 200px;">
-              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A0B0A0 0%, #506050 100%);"></div>
+            <!-- 큰 카드 3 (1열): 혜택 — 일반 화면 랜딩 (Ambient Layer 지원) -->
+            <div class="agent-card agent-card--lg" onclick="goTo('C-MOVIE-DETAIL')" style="width: 220px;">
+              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A8A8B8 0%, #505060 100%);"></div>
               <div>
                 <div class="agent-card__badge">
                   <span class="agent-card__badge-dot"></span>
-                  <span>T Day</span>
+                  <span>지훈님과 비슷한 고객님들</span>
                 </div>
               </div>
               <div>
-                <div class="agent-card__title">오늘만 CHAT GPT<br>월 3,900원에<br>구독할 수 있어요</div>
+                <div class="agent-card__title">영화 '살목지'<br>예매가 빠르게<br>늘고 있어요</div>
                 <div class="agent-card__cta">
-                  <span>혜택 보기</span>
+                  <span>무료 예매하기</span>
                   <span>›</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 추천 질문 힌트 -->
-          <!-- 추천 질문 영역 제거됨 -->
-        </div>
-      </section>
-
-      <!-- ===== C-HOME-S2: Agent 대화 홈 (시나리오 2 - 미납) ===== -->
-      <section class="screen" data-screen="C-HOME-S2">
-
-        <div class="top-bar">
-          <div class="top-bar__left"></div>
-          <div class="top-bar__right">
-            <div class="top-bar__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h12M4 12h10M4 18h8"/></svg>
-            </div>
-            <div class="top-bar__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
-            </div>
-            <div class="top-bar__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-            </div>
-          </div>
-        </div>
-
-        <div class="c-home-content">
-          <div class="c-home-greeting">
-            지훈님, 필요한 것만<br>
-            <em>모아봤어요</em>
-          </div>
-
-          <div class="c-card-row">
-            <!-- 좌측: 작은 카드 2개 스택 -->
-            <div class="c-card-stack">
-              <!-- 미납 카드 -->
-              <div class="agent-card agent-card--sm" onclick="goTo('S2-C-BILL')">
-                <div>
-                  <div class="agent-card__badge">
-                    <span class="agent-card__badge-dot"></span>
-                    <span>T Agent</span>
-                  </div>
-                  <div class="agent-card__title">3월 요금 납부가<br>남아있어요</div>
-                  <div class="agent-card__desc">T포인트로 할인 가능 ›</div>
-                </div>
-                <div class="agent-card__visual-sm">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-                </div>
-              </div>
-              <!-- 보조 카드 -->
-              <div class="agent-card agent-card--sm" onclick="alert('(프로토타입) 자녀 데이터 선물')">
-                <div>
-                  <div class="agent-card__badge">
-                    <span class="agent-card__badge-dot"></span>
-                    <span>할 일</span>
-                  </div>
-                  <div class="agent-card__title">자녀가 데이터 선물<br>요청을 보냈어요</div>
-                  <div class="agent-card__desc">0.3GB · 지금 선물하기</div>
-                </div>
-                <div class="agent-card__visual-sm" style="background: linear-gradient(135deg, #D8BEC0, #B88890);">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: #fff;"><path d="M20 12v8H4v-8M2 8h20v4H2zM12 8V4"/></svg>
-                </div>
-              </div>
-            </div>
-
-            <!-- 우측: 큰 카드 -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) VIPS 쿠폰')">
-              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A89090 0%, #604040 100%);"></div>
-              <div>
-                <div class="agent-card__badge">
-                  <span class="agent-card__badge-dot"></span>
-                  <span>만료 임박</span>
-                </div>
-              </div>
-              <div>
-                <div class="agent-card__title">다가오는 남편분 생일에<br>VIPS 50% 쿠폰<br>받으세요</div>
-                <div class="agent-card__cta">
-                  <span>혜택 자세히 보기</span>
-                  <span>›</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 유튜브 프리미엄 공유')" style="width: 200px;">
-              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #B0B8C0 0%, #708090 100%);"></div>
-              <div>
-                <div class="agent-card__badge">
-                  <span class="agent-card__badge-dot"></span>
-                  <span>이어서 하기</span>
-                </div>
-              </div>
-              <div>
-                <div class="agent-card__title">'유튜브 프리미엄'<br>이용권 공유를<br>이어서 진행하세요</div>
-                <div class="agent-card__cta">
-                  <span>공유하기</span>
-                  <span>›</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 추가 카드 3 -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) T Day 혜택')" style="width: 200px;">
-              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #A0B0A0 0%, #506050 100%);"></div>
-              <div>
-                <div class="agent-card__badge">
-                  <span class="agent-card__badge-dot"></span>
-                  <span>T Day</span>
-                </div>
-              </div>
-              <div>
-                <div class="agent-card__title">오늘만 CHAT GPT<br>월 3,900원에<br>구독할 수 있어요</div>
-                <div class="agent-card__cta">
-                  <span>혜택 보기</span>
-                  <span>›</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 추가 카드 4 -->
-            <div class="agent-card agent-card--lg" onclick="alert('(프로토타입) 투썸플레이스 30% 할인')" style="width: 200px;">
-              <div class="agent-card__visual-lg" style="background: linear-gradient(160deg, #C0B8A8 0%, #807868 100%);"></div>
-              <div>
-                <div class="agent-card__badge">
-                  <span class="agent-card__badge-dot"></span>
-                  <span>혜택</span>
-                </div>
-              </div>
-              <div>
-                <div class="agent-card__title">'투썸플레이스<br>30% 할인'<br>지인과 나눠 쓸 수 있어요</div>
-                <div class="agent-card__cta">
-                  <span>나누기</span>
-                  <span>›</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 추천 질문 영역 제거됨 -->
+          <!-- 추가 제안 칩 (대화 유도) -->
+          <div style="padding: 20px 16px 0; font-size: var(--fs-caption); color: var(--text-secondary);">💬 말풍선 아이콘 카드는 대화로 이어집니다</div>
         </div>
       </section>
 
@@ -1358,7 +1648,7 @@ a { color: inherit; text-decoration: none; }
             </button>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1379,7 +1669,7 @@ a { color: inherit; text-decoration: none; }
             </button>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1393,13 +1683,13 @@ a { color: inherit; text-decoration: none; }
       <section class="screen" data-screen="C-MANAGE">
         <div class="top-bar">
           <div class="top-bar__left">
-            <button class="back-btn" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1')">
+            <button class="back-btn" onclick="goTo('C-HOME')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">관리</div>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1412,8 +1702,8 @@ a { color: inherit; text-decoration: none; }
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
             </div>
             <div class="list-row__info">
-              <div class="list-row__label">실시간 잔여량 · 20GB 제공</div>
-              <div class="list-row__value">62 GB 사용 중</div>
+              <div class="list-row__label">실시간 잔여량 · 96GB 중</div>
+              <div class="list-row__value">76 GB 사용 중</div>
             </div>
             <span class="list-row__arrow">›</span>
           </div>
@@ -1424,14 +1714,14 @@ a { color: inherit; text-decoration: none; }
             </div>
             <div class="list-row__info">
               <div class="list-row__label">요금 안내서 · 3월분</div>
-              <div class="list-row__value">63,200 원</div>
+              <div class="list-row__value">87,290 원</div>
             </div>
             <span id="manageBillTag">
               <span class="list-row__arrow">›</span>
             </span>
           </div>
 
-          <div class="list-row" onclick="alert('(프로토타입) 결합가족')">
+          <div class="list-row" onclick="openMiniLanding('familyCombine')">
             <div class="icon-circle icon-circle--lg">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
             </div>
@@ -1442,7 +1732,7 @@ a { color: inherit; text-decoration: none; }
             <span class="list-row__arrow">›</span>
           </div>
 
-          <div class="list-row" onclick="alert('(프로토타입) 약정')">
+          <div class="list-row" onclick="openMiniLanding('agreement')">
             <div class="icon-circle icon-circle--lg">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
             </div>
@@ -1466,12 +1756,12 @@ a { color: inherit; text-decoration: none; }
 
           <div class="section-title">🎫 T멤버십</div>
 
-          <div class="list-row" onclick="alert('(프로토타입) 포인트')">
+          <div class="list-row" onclick="openMiniLanding('pointDetail')">
             <div class="icon-circle icon-circle--lg">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/></svg>
             </div>
             <div class="list-row__info">
-              <div class="list-row__label">T멤버십 포인트 · SILVER</div>
+              <div class="list-row__label">T멤버십 포인트 · GOLD</div>
               <div class="list-row__value">18,400 원</div>
             </div>
             <span class="list-row__arrow">›</span>
@@ -1494,13 +1784,13 @@ a { color: inherit; text-decoration: none; }
       <section class="screen" data-screen="C-BENEFIT">
         <div class="top-bar">
           <div class="top-bar__left">
-            <button class="back-btn" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1')">
+            <button class="back-btn" onclick="goTo('C-HOME')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">혜택</div>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1517,13 +1807,13 @@ a { color: inherit; text-decoration: none; }
       <section class="screen" data-screen="C-SHOP">
         <div class="top-bar">
           <div class="top-bar__left">
-            <button class="back-btn" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1')">
+            <button class="back-btn" onclick="goTo('C-HOME')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </button>
             <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">쇼핑</div>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1533,8 +1823,8 @@ a { color: inherit; text-decoration: none; }
 
           <div class="list-row" onclick="goTo('S1-C-DETAIL')">
             <div class="list-row__info">
-              <div style="font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px;">다이렉트 5G 76</div>
-              <div class="list-row__label">데이터 80GB · 월 48,500원</div>
+              <div style="font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 4px;">0 청년 다이렉트 69(넷플릭스)</div>
+              <div class="list-row__label">데이터 무제한 · 월 69,000원</div>
             </div>
             <span class="tag tag--ai">추천</span>
           </div>
@@ -1554,8 +1844,8 @@ a { color: inherit; text-decoration: none; }
         </div>
       </section>
 
-      <!-- ===== S1-C-DETAIL: 요금제 상세 ===== -->
-      <section class="screen" data-screen="S1-C-DETAIL">
+      <!-- ===== S1-C-DETAIL: 요금제 상세 (B안과 일관) ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="S1-C-DETAIL">
         <div class="top-bar">
           <div class="top-bar__left">
             <button class="back-btn" onclick="goBack()">
@@ -1563,35 +1853,91 @@ a { color: inherit; text-decoration: none; }
             </button>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 80px);">
+        <div class="page-body page-body--scrollable">
           <div class="detail-header">
-            <div class="detail-header__label"><span class="tag tag--ai">5G 요금제</span> <span class="tag">추천</span></div>
-            <div class="detail-header__title">다이렉트 5G 76</div>
+            <div class="detail-header__label"><span class="tag tag--ai">✨ 지훈님 맞춤 추천</span></div>
+            <div class="detail-header__title">0 청년 다이렉트 69(넷플릭스)</div>
             <div class="detail-header__price">
-              <span class="detail-header__price-main">월 48,500원</span>
-              <span class="detail-header__price-discount">42%</span>
+              <span class="detail-header__price-main">월 69,000원</span>
             </div>
-            <div class="detail-header__price-sub">선택약정 반영 시 24,700원</div>
+            <div class="detail-header__price-sub">현재 요금제 대비 총 <strong style="color: var(--text-primary);">4,000원 절약</strong></div>
           </div>
-          <dl class="detail-meta">
-            <div class="detail-meta__row"><dt>테더링/공유</dt><dd>80GB</dd></div>
-            <div class="detail-meta__row"><dt>집/이동전화</dt><dd>무제한 + 영상/부가통화 300분</dd></div>
-            <div class="detail-meta__row"><dt>문자메시지</dt><dd>기본제공</dd></div>
-          </dl>
-          <div class="detail-feature-list">
-            <div class="detail-feature-list__title">다이렉트 5G 76 혜택</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 데이터 / 공유 80GB</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 집 / 이동전화 무제한</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 영상 / 부가통화 300분</div>
-            <div class="detail-feature-list__item"><span class="icon-circle icon-circle--sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg></span> 문자 무제한</div>
+
+          <!-- 데이터 무제한 강조 배너 -->
+          <div style="margin: 8px 0 20px; padding: 22px 18px; background: var(--text-primary); color: #fff; border-radius: var(--radius-md); display: flex; align-items: center; gap: 16px;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 28px; height: 28px;"><path d="M12 2L2 12l10 10 10-10z" opacity="0.7"/><path d="M8 12h8M12 8v8"/></svg>
+            </div>
+            <div>
+              <div style="font-size: 12px; opacity: 0.75; margin-bottom: 4px; letter-spacing: 0.3px;">DATA</div>
+              <div style="font-size: 22px; font-weight: var(--fw-medium); line-height: 1.2; margin-bottom: 2px;">무제한</div>
+              <div style="font-size: var(--fs-caption); opacity: 0.85;">속도 제한 없이 마음껏 사용</div>
+            </div>
+          </div>
+
+          <!-- 현재 → 추천 비교 테이블 -->
+          <div class="section-title"><span>📊 현재 요금제와 비교</span></div>
+          <div class="compare-table">
+            <div class="compare-table__header">
+              <div class="compare-table__cell compare-table__cell--label"></div>
+              <div class="compare-table__cell">
+                <div class="compare-table__col-label">현재</div>
+                <div class="compare-table__col-sub">0 청년 59<br>60GB업</div>
+              </div>
+              <div class="compare-table__cell compare-table__cell--recommend">
+                <div class="compare-table__col-label">변경 후</div>
+                <div class="compare-table__col-sub">0 청년 다이렉트 69<br>(넷플릭스)</div>
+              </div>
+            </div>
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">월 요금</div>
+              <div class="compare-table__cell">66,000원</div>
+              <div class="compare-table__cell compare-table__cell--recommend">69,000원</div>
+            </div>
+            <div class="compare-table__row compare-table__row--highlight">
+              <div class="compare-table__cell compare-table__cell--label">데이터</div>
+              <div class="compare-table__cell">96GB</div>
+              <div class="compare-table__cell compare-table__cell--recommend"><strong>무제한</strong></div>
+            </div>
+            <div class="compare-table__row compare-table__row--highlight">
+              <div class="compare-table__cell compare-table__cell--label">넷플릭스</div>
+              <div class="compare-table__cell">별도 결제<br><span style="font-size: 11px; color: var(--text-secondary);">월 7,000원</span></div>
+              <div class="compare-table__cell compare-table__cell--recommend"><strong>포함</strong><br><span style="font-size: 11px; color: var(--text-secondary);">광고형 스탠다드</span></div>
+            </div>
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">멤버십</div>
+              <div class="compare-table__cell">일반 등급</div>
+              <div class="compare-table__cell compare-table__cell--recommend">VIP<br><span style="font-size: 11px; color: var(--text-secondary);">혜택 공유 가능</span></div>
+            </div>
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">공유 데이터</div>
+              <div class="compare-table__cell">36GB</div>
+              <div class="compare-table__cell compare-table__cell--recommend">100GB</div>
+            </div>
+            <div class="compare-table__row">
+              <div class="compare-table__cell compare-table__cell--label">스마트기기</div>
+              <div class="compare-table__cell">-</div>
+              <div class="compare-table__cell compare-table__cell--recommend">2회선 무료</div>
+            </div>
+            <div class="compare-table__row compare-table__row--total">
+              <div class="compare-table__cell compare-table__cell--label">실 월 부담</div>
+              <div class="compare-table__cell">73,000원<br><span style="font-size: 11px; color: var(--text-secondary);">+ 넷플릭스</span></div>
+              <div class="compare-table__cell compare-table__cell--recommend">69,000원<br><span style="font-size: 11px; color: var(--text-secondary);"><strong>4,000원 절약</strong></span></div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: center; margin: 24px 0 8px;">
+            <button style="background: none; border: none; font-size: var(--fs-caption); color: var(--text-secondary); padding: 10px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;" onclick="alert('(프로토타입) 전체 요금제 리스트')">다른 요금제 보기</button>
           </div>
         </div>
-        <button class="btn btn--primary btn--cta" onclick="goTo('S1-C-DONE')">요금제 선택하기</button>
+        <div class="fixed-cta-bar">
+          <button class="btn btn--primary" style="width: 100%;" onclick="openPlanChangeConfirm()">이 요금제로 바로 변경하기</button>
+        </div>
       </section>
 
       <!-- ===== S1-C-DONE: 변경 완료 (Agent 말풍선) ===== -->
@@ -1599,7 +1945,7 @@ a { color: inherit; text-decoration: none; }
         <div class="top-bar">
           <div class="top-bar__left"></div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1615,10 +1961,10 @@ a { color: inherit; text-decoration: none; }
             <div class="chat-card">
               <div class="chat-card__label">변경 내역</div>
               <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 4px;">변경 전</div>
-              <div style="font-size: var(--fs-body); margin-bottom: 10px;">T 프리미엄 · 월 54,500원</div>
+              <div style="font-size: var(--fs-body); margin-bottom: 10px;">0 청년 59 60GB업 · 월 66,000원</div>
               <div style="font-size: var(--fs-caption); color: var(--action); font-weight: var(--fw-medium); margin-bottom: 4px;">변경 후</div>
-              <div class="chat-card__highlight">다이렉트 5G 76</div>
-              <div class="chat-card__sub">월 48,500원 · 데이터 80GB</div>
+              <div class="chat-card__highlight">0 청년 다이렉트 69(넷플릭스)</div>
+              <div class="chat-card__sub">월 69,000원 · 데이터 무제한</div>
               <div style="font-size: var(--fs-caption); color: var(--text-secondary); padding-top: 10px; border-top: 1px solid var(--border-default);">다음 달 1일부터 적용돼요</div>
             </div>
             <div class="chat-bubble chat-bubble--ai">
@@ -1626,14 +1972,14 @@ a { color: inherit; text-decoration: none; }
             </div>
             <div class="chat-inline-actions">
               <button class="chat-inline-chip" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
-              <button class="chat-inline-chip" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1');">홈으로</button>
+              <button class="chat-inline-chip" onclick="goTo('C-HOME');">홈으로</button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ===== S2-C-BILL: 요금 안내서 상세 ===== -->
-      <section class="screen" data-screen="S2-C-BILL">
+      <!-- ===== S2-C-BILL: 요금 안내서 상세 (B안과 일관) ===== -->
+      <section class="screen screen--with-fixed-cta" data-screen="S2-C-BILL">
         <div class="top-bar">
           <div class="top-bar__left">
             <button class="back-btn" onclick="goBack()">
@@ -1641,12 +1987,12 @@ a { color: inherit; text-decoration: none; }
             </button>
           </div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 80px);">
+        <div class="page-body page-body--scrollable">
           <h1 class="page-headline">3월 요금 안내서</h1>
           <div class="page-subline">청구 기간 2026.03.01 ~ 03.31</div>
 
@@ -1661,42 +2007,61 @@ a { color: inherit; text-decoration: none; }
               <span class="tag tag--alert">미납</span>
             </div>
             <div style="display: flex; align-items: baseline; gap: 8px;">
-              <div style="font-size: 22px; font-weight: var(--fw-medium);">63,200 원</div>
-              <div style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 예정일 4월 25일</div>
+              <div style="font-size: 22px; font-weight: var(--fw-medium);">87,290 원</div>
+              <div style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 예정일 4월 1일 (20일 경과)</div>
             </div>
           </div>
 
-          <div class="section-title">📱 통신 서비스 요금</div>
-          <div class="bill-list">
-            <div class="bill-list__row"><span class="bill-list__label">이번 달 통신 요금</span><span class="bill-list__value">54,500원</span></div>
-            <div class="bill-list__row"><span class="bill-list__label">통신 요금 할인 <span class="tag" style="margin-left: 4px;">결합</span></span><span class="bill-list__value" style="color: var(--action);">-8,450원</span></div>
-            <div class="bill-list__row"><span class="bill-list__label">약정 할인</span><span class="bill-list__value" style="color: var(--action);">-4,100원</span></div>
-            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">41,950원</span></div>
+          <!-- T포인트 적용 강조 CTA -->
+          <div class="pcard" style="margin-top: 12px; cursor: pointer;" onclick="alert('(프로토타입) T포인트 상세')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 9h6a2 2 0 0 1 0 4H8"/></svg>
+            </div>
+            <div class="pcard__eyebrow">T멤버십 포인트</div>
+            <div class="pcard__title">지훈님 포인트 <strong>18,400원</strong>으로<br>요금을 <strong>9,000원 할인</strong>받을 수 있어요</div>
+            <div class="pcard__sub">적용 시 78,290원만 납부하시면 돼요</div>
+            <div class="pcard__cta"><span>포인트 적용하고 납부하기</span><span>›</span></div>
           </div>
 
-          <div class="section-title">📲 기기 구입비</div>
-          <div class="bill-list">
-            <div class="bill-list__row"><span class="bill-list__label">기기 분할상환금 (8/24회)</span><span class="bill-list__value">16,750원</span></div>
-            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">16,750원</span></div>
+          <!-- 요금 합계 표 -->
+          <div class="section-title"><span>💰 요금 상세 내역</span></div>
+          <div class="bill-summary-table">
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">통신 서비스 요금</span>
+              <span class="bill-summary-table__value">66,000원</span>
+            </div>
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">부가 서비스 요금</span>
+              <span class="bill-summary-table__value">9,100원</span>
+            </div>
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">결제 대행 요금</span>
+              <span class="bill-summary-table__value">7,000원</span>
+            </div>
+            <div class="bill-summary-table__row">
+              <span class="bill-summary-table__label">기기 구입비</span>
+              <span class="bill-summary-table__value">5,190원</span>
+            </div>
+            <div class="bill-summary-table__row bill-summary-table__row--total">
+              <span class="bill-summary-table__label">총 합계</span>
+              <span class="bill-summary-table__value">87,290원</span>
+            </div>
           </div>
 
-          <div class="section-title">📦 기타 요금</div>
-          <div class="bill-list">
-            <div class="bill-list__row"><span class="bill-list__label">구독 요금 (TVING)</span><span class="bill-list__value">3,900원</span></div>
-            <div class="bill-list__row"><span class="bill-list__label">콘텐츠 이용료</span><span class="bill-list__value">600원</span></div>
-            <div class="bill-list__row bill-list__row--sum"><span class="bill-list__label">소계</span><span class="bill-list__value">4,500원</span></div>
-          </div>
-
-          <div class="bill-total">
-            <span class="bill-total__label">총 청구 금액</span>
-            <span class="bill-total__value">63,200원</span>
-          </div>
-
-          <div style="margin-top: 16px; padding: 12px 14px; background: var(--action-bg-softer); border-radius: var(--radius-md); font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
-            💡 T멤버십 포인트 18,400원으로 일부 납부가 가능해요
+          <!-- 요금제 변경 제안 배너 -->
+          <div class="pcard" style="margin-top: 16px;" onclick="goTo('S1-C-DETAIL')">
+            <div class="pcard__visual">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+            </div>
+            <div class="pcard__eyebrow">요금 절약 제안</div>
+            <div class="pcard__title">매달 요금이 부담되시나요?<br><strong>넷플릭스 포함 요금제</strong>로 장기적으로 절약돼요</div>
+            <div class="pcard__sub">넷플릭스 결제 대행 7,000원 → 요금제 포함 / 총 4,000원 절약</div>
+            <div class="pcard__cta"><span>요금제 비교하기</span><span>›</span></div>
           </div>
         </div>
-        <button class="btn btn--primary btn--cta" onclick="openPaymentSheet()">납부하기</button>
+        <div class="fixed-cta-bar">
+          <button class="btn btn--primary" style="width: 100%;" onclick="openPaymentSheet()">지금 바로 납부하기</button>
+        </div>
       </section>
 
       <!-- ===== S2-C-DONE: 납부 완료 (Agent 말풍선) ===== -->
@@ -1704,7 +2069,7 @@ a { color: inherit; text-decoration: none; }
         <div class="top-bar">
           <div class="top-bar__left"></div>
           <div class="top-bar__right">
-            <div class="top-bar__icon">
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;" aria-label="전체 메뉴">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
           </div>
@@ -1719,7 +2084,7 @@ a { color: inherit; text-decoration: none; }
             </div>
             <div class="chat-card">
               <div class="chat-card__label">납부 내역</div>
-              <div class="chat-card__highlight">63,200 원</div>
+              <div class="chat-card__highlight" id="paidAmountSummary">87,290 원</div>
               <div class="chat-card__sub">3월 요금 · 방금 전</div>
               <div style="font-size: var(--fs-caption); color: var(--text-secondary); padding-top: 10px; border-top: 1px solid var(--border-default);">납부 수단: <span id="payMethodSummary">신한카드 (1234)</span></div>
               <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px;">영수증은 등록된 이메일로 발송됩니다</div>
@@ -1729,9 +2094,174 @@ a { color: inherit; text-decoration: none; }
             </div>
             <div class="chat-inline-actions">
               <button class="chat-inline-chip" onclick="goTo('SCENARIO-SELECT');">시나리오 선택으로</button>
-              <button class="chat-inline-chip" onclick="goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1');">홈으로</button>
+              <button class="chat-inline-chip" onclick="goTo('C-HOME');">홈으로</button>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- ===== C-DEVICE-DETAIL: 단말기 상세 (일반 화면 랜딩) ===== -->
+      <section class="screen" data-screen="C-DEVICE-DETAIL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 72px);">
+          <!-- 대형 플레이스홀더 이미지 -->
+          <div style="background: var(--bg-surface); height: 280px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <svg viewBox="0 0 120 200" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" style="width: 90px; height: 150px;"><rect x="10" y="10" width="100" height="180" rx="12"/><rect x="14" y="14" width="92" height="172" rx="9" fill="var(--bg-surface-2)" opacity="0.5"/><circle cx="60" cy="180" r="3" fill="currentColor"/></svg>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 4px;">삼성 · SM-S942NV</div>
+            <h1 class="page-headline" style="margin-bottom: 6px;">갤럭시 S26 256GB</h1>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+              <span style="font-size: 20px; font-weight: var(--fw-medium);">754,000원</span>
+              <span style="font-size: var(--fs-body); color: var(--text-secondary);">42%</span>
+              <span class="tag tag--outline" style="margin-left: auto;">T 안심보상가</span>
+            </div>
+            <div style="font-size: var(--fs-caption); color: var(--text-tertiary); text-decoration: line-through;">1,256,700원</div>
+          </div>
+
+          <!-- 색상 선택 -->
+          <div class="section-title"><span>색상</span></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <button class="btn" style="justify-content: flex-start; padding: 14px 16px; gap: 10px; border: 1.5px solid var(--text-primary);">
+              <span style="width: 20px; height: 20px; border-radius: 50%; background: #6878A8; display: inline-block;"></span>
+              <span>코발트 바이올렛</span>
+            </button>
+            <button class="btn" style="justify-content: flex-start; padding: 14px 16px; gap: 10px;">
+              <span style="width: 20px; height: 20px; border-radius: 50%; background: var(--text-primary); display: inline-block;"></span>
+              <span>블랙</span>
+            </button>
+            <button class="btn" style="justify-content: flex-start; padding: 14px 16px; gap: 10px;">
+              <span style="width: 20px; height: 20px; border-radius: 50%; background: #F5F5F5; border: 1px solid var(--border-default); display: inline-block;"></span>
+              <span>화이트</span>
+            </button>
+            <button class="btn" style="justify-content: flex-start; padding: 14px 16px; gap: 10px;">
+              <span style="width: 20px; height: 20px; border-radius: 50%; background: #A8C8D8; display: inline-block;"></span>
+              <span>스카이 블루</span>
+            </button>
+          </div>
+
+          <!-- 용량 선택 -->
+          <div class="section-title"><span>용량</span></div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+            <button class="btn" style="justify-content: space-between; padding: 14px 16px; border: 1.5px solid var(--text-primary);">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <span>256G</span>
+                <span class="tag tag--ai" style="font-size: 10px;">AI 추천</span>
+              </span>
+              <span style="font-weight: var(--fw-medium);">1,254,000원</span>
+            </button>
+            <button class="btn" style="justify-content: space-between; padding: 14px 16px;">
+              <span>512G</span>
+              <span>1,507,000원</span>
+            </button>
+          </div>
+
+          <!-- 배송 정보 -->
+          <div class="section-title"><span>배송 정보</span></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px;">
+            <button class="btn" style="flex-direction: column; align-items: flex-start; height: auto; padding: 12px 14px; border: 1.5px solid var(--text-primary);">
+              <span style="font-weight: var(--fw-medium); margin-bottom: 4px;">바로 도착</span>
+              <span style="font-size: 11px; color: var(--text-secondary);">평일 기준 18시 주문까지 가능</span>
+            </button>
+            <button class="btn" style="flex-direction: column; align-items: flex-start; height: auto; padding: 12px 14px;">
+              <span style="font-weight: var(--fw-medium); margin-bottom: 4px;">행복 배송</span>
+              <span style="font-size: 11px; color: var(--text-secondary);">평일 기준 15시 주문까지 가능</span>
+            </button>
+            <button class="btn" style="flex-direction: column; align-items: flex-start; height: auto; padding: 12px 14px;">
+              <span style="font-weight: var(--fw-medium); margin-bottom: 4px;">택배</span>
+              <span style="font-size: 11px; color: var(--text-secondary);">평일 기준 18시 주문까지 가능</span>
+            </button>
+            <button class="btn" style="flex-direction: column; align-items: flex-start; height: auto; padding: 12px 14px;">
+              <span style="font-weight: var(--fw-medium); margin-bottom: 4px;">바로 픽업</span>
+              <span style="font-size: 11px; color: var(--text-secondary);">평일 기준 15시 주문까지 가능</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ambient Layer (일반 화면 랜딩 의사결정 지원) -->
+        <div class="c-ambient-layer">
+          <button class="c-ambient-layer__agent" onclick="goTo('S1-C-CHAT'); setTimeout(()=>autoAsk('단말기 추천해줘'), 200);" aria-label="Agent 대화창 열기">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+          </button>
+          <div class="c-ambient-layer__message">
+            <span class="c-ambient-layer__text">56만원의 T 안심보상가 적용이 대기 중이에요</span>
+            <button class="c-ambient-layer__tooltip" onclick="alert('T 안심보상가: 분실·파손 시 새 기기로 교체 가능 (중고 반납 포함)')" aria-label="자세히">?</button>
+          </div>
+          <button class="c-ambient-layer__cta" onclick="alert('(프로토타입) 맞춤 옵션 선택 완료')">맞춤 옵션 선택</button>
+        </div>
+      </section>
+
+      <!-- ===== C-MOVIE-DETAIL: 영화 상세 (일반 화면 랜딩) ===== -->
+      <section class="screen" data-screen="C-MOVIE-DETAIL">
+        <div class="top-bar">
+          <div class="top-bar__left">
+            <button class="back-btn" onclick="goBack()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="top-bar__right">
+            <div class="top-bar__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/></svg>
+            </div>
+            <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 72px);">
+          <!-- 포스터 영역 -->
+          <div style="display: flex; justify-content: center; padding: 20px 0 24px;">
+            <div style="width: 200px; height: 280px; background: var(--bg-surface); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: var(--fs-caption);">
+              영화 포스터
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <span class="tag" style="margin-bottom: 8px; display: inline-block;">12세 이상 관람가</span>
+            <h1 class="page-headline" style="margin-bottom: 6px; margin-top: 8px;">살목지</h1>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 10px;">한국 2D · 사극 · 117분</div>
+            <div style="display: flex; gap: 8px;">
+              <span class="tag tag--outline">평점 9.7</span>
+              <span class="tag tag--outline">예매율 56.2%</span>
+            </div>
+          </div>
+
+          <!-- 시놉시스 -->
+          <div class="card">
+            <div style="font-size: var(--fs-body); font-weight: var(--fw-medium); margin-bottom: 10px;">시놉시스</div>
+            <div style="font-size: var(--fs-body); color: var(--text-secondary); line-height: 1.6;">
+              계유정난이 조선을 뒤흔들고<br>
+              어린 왕 이홍위는 왕위에서 쫓겨나 유배길에 오른다.
+              그의 모든 일상을 감시해야만 하는 호장은 기이한 왕 앞에서 갈등에 빠진다.
+            </div>
+          </div>
+        </div>
+
+        <!-- Ambient Layer -->
+        <div class="c-ambient-layer">
+          <button class="c-ambient-layer__agent" onclick="goTo('S1-C-CHAT'); setTimeout(()=>autoAsk('영화 예매 대신 해줘'), 200);" aria-label="Agent 대화창 열기">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>
+          </button>
+          <div class="c-ambient-layer__message">
+            <span class="c-ambient-layer__text">근처 청담 CGV에 14:30 2개 좌석 예매가 가능해요</span>
+            <button class="c-ambient-layer__tooltip" onclick="alert('VVIP 혜택으로 무료 관람 가능. 동반 1인 20% 할인')" aria-label="자세히">?</button>
+          </div>
+          <button class="c-ambient-layer__cta" onclick="alert('(프로토타입) 좌석 선택 완료')">좌석 선택</button>
         </div>
       </section>
 
@@ -1778,10 +2308,36 @@ a { color: inherit; text-decoration: none; }
         <button class="bottom-sheet__close" onclick="closePaymentSheet()">✕</button>
       </div>
       <div class="bottom-sheet__body">
-        <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: var(--fs-caption); color: var(--text-secondary);">납부 금액</span>
-          <span style="font-size: var(--fs-title); font-weight: var(--fw-medium);">63,200원</span>
+        <!-- 납부 금액 요약 (동적) -->
+        <div class="pay-amount-box" id="payAmountBox">
+          <div class="pay-amount-box__row">
+            <span class="pay-amount-box__label">청구 금액</span>
+            <span class="pay-amount-box__value">87,290원</span>
+          </div>
+          <div class="pay-amount-box__row pay-amount-box__row--discount" id="payPointRow" style="display: none;">
+            <span class="pay-amount-box__label">T포인트 할인</span>
+            <span class="pay-amount-box__value">- 9,000원</span>
+          </div>
+          <div class="pay-amount-box__row pay-amount-box__row--total">
+            <span class="pay-amount-box__label">최종 납부 금액</span>
+            <span class="pay-amount-box__value" id="payFinalAmount">87,290원</span>
+          </div>
         </div>
+
+        <!-- T포인트 추가 적용 체크박스 -->
+        <label class="pay-point-check">
+          <div class="pay-point-check__checkbox">
+            <input type="checkbox" id="payPointToggle" onchange="togglePointApply(this.checked)">
+            <span class="pay-point-check__box-visual"></span>
+          </div>
+          <div class="pay-point-check__info">
+            <div class="pay-point-check__title">T멤버십 포인트 추가 적용</div>
+            <div class="pay-point-check__meta">최대 9,000원 할인 · 보유 18,400P</div>
+          </div>
+        </label>
+
+        <!-- 결제 수단 -->
+        <div class="pay-section-title">결제 수단</div>
 
         <div class="pay-option" data-selected="true" onclick="selectPayMethod(this, 'card')">
           <span class="icon-circle icon-circle--lg">
@@ -1790,17 +2346,6 @@ a { color: inherit; text-decoration: none; }
           <div class="pay-option__info">
             <div class="pay-option__name">신한카드 (1234)</div>
             <div class="pay-option__meta">등록된 신용카드</div>
-          </div>
-          <div class="pay-option__radio"></div>
-        </div>
-
-        <div class="pay-option" data-selected="false" onclick="selectPayMethod(this, 'point')">
-          <span class="icon-circle icon-circle--lg">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10l3-3 3 3M9 15h6"/></svg>
-          </span>
-          <div class="pay-option__info">
-            <div class="pay-option__name">T멤버십 포인트</div>
-            <div class="pay-option__meta">보유 18,400원 · 일부 사용 가능</div>
           </div>
           <div class="pay-option__radio"></div>
         </div>
@@ -1816,7 +2361,152 @@ a { color: inherit; text-decoration: none; }
           <div class="pay-option__radio"></div>
         </div>
 
-        <button class="btn btn--primary btn--block" style="margin-top: 20px; height: 52px;" onclick="completePayment()">63,200원 결제하기</button>
+        <button class="btn btn--primary btn--block" style="margin-top: 20px; height: 52px;" onclick="completePayment()" id="payCtaBtn">87,290원 결제하기</button>
+      </div>
+    </div>
+
+    <!-- 전체 메뉴 드로어 -->
+    <div class="drawer-dim" id="menuDrawerDim" onclick="closeMenuDrawer()"></div>
+    <aside class="drawer" id="menuDrawer">
+      <div class="drawer__head">
+        <div class="drawer__title">전체 메뉴</div>
+        <button class="drawer__close" onclick="closeMenuDrawer()">✕</button>
+      </div>
+      <div class="drawer__body">
+        <div class="drawer__section-title">MY</div>
+        <nav class="drawer__list">
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('S1-C-DETAIL');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 요금제</span>
+              <span class="drawer__item-sub">0 청년 59 60GB업</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('C-MANAGE');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 데이터</span>
+              <span class="drawer__item-sub">76 GB / 96 GB · 5일 뒤 소진</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('S2-C-BILL');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 요금</span>
+              <span class="drawer__item-sub">3월 미납 87,290원</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) T포인트');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 9h6a2 2 0 0 1 0 4H8"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">나의 T포인트</span>
+              <span class="drawer__item-sub">18,400 P</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+        </nav>
+
+        <div class="drawer__section-title" style="margin-top: 16px;">쇼핑</div>
+        <nav class="drawer__list">
+          <button class="drawer__item" onclick="closeMenuDrawer(); goTo('S1-C-DETAIL');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">요금제</span>
+              <span class="drawer__item-sub">5G · LTE · 청년 요금제</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) 부가서비스');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">부가서비스</span>
+              <span class="drawer__item-sub">벨소리, 보험, 클라우드 등</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) 인터넷');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l2-2h14l2 2M5 8v11h14V8"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">인터넷</span>
+              <span class="drawer__item-sub">기가 인터넷 · TV 결합</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) T우주');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">T우주</span>
+              <span class="drawer__item-sub">구독 상품 · 혜택 패스</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+          <button class="drawer__item" onclick="closeMenuDrawer(); alert('(프로토타입) T로밍');">
+            <span class="drawer__item-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18"/></svg>
+            </span>
+            <span class="drawer__item-text">
+              <span class="drawer__item-title">T로밍</span>
+              <span class="drawer__item-sub">해외 데이터 · 통화</span>
+            </span>
+            <span class="drawer__item-arrow">›</span>
+          </button>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- 요금제 변경 확인 모달 -->
+    <div class="modal-dim" id="planChangeDim" onclick="closePlanChangeConfirm()"></div>
+    <div class="modal" id="planChangeModal">
+      <div class="modal__title">요금제를 변경하시겠어요?</div>
+      <div class="modal__body">
+        <dl class="modal__summary">
+          <div class="modal__summary-row">
+            <dt>변경 전</dt>
+            <dd>0 청년 59 60GB업 · 월 66,000원</dd>
+          </div>
+          <div class="modal__summary-row">
+            <dt>변경 후</dt>
+            <dd><strong>0 청년 다이렉트 69(넷플릭스)</strong> · 월 69,000원</dd>
+          </div>
+          <div class="modal__summary-row">
+            <dt>적용 시점</dt>
+            <dd>다음 달 1일부터</dd>
+          </div>
+          <div class="modal__summary-row">
+            <dt>약정</dt>
+            <dd>24개월 (기존 약정 유지)</dd>
+          </div>
+        </dl>
+        <div class="modal__savings">
+          <span class="modal__savings-label">매월 실 납부 금액</span>
+          <span class="modal__savings-value">- 4,000원 절약</span>
+        </div>
+        <div class="modal__notice">
+          넷플릭스 결제 대행(월 7,000원)이 자동 해지되며, 요금제에 포함된 넷플릭스가 제공돼요. 통신료는 3,000원 증가하지만 실 납부 금액은 <strong>총 4,000원 줄어들어요.</strong>
+        </div>
+      </div>
+      <div class="modal__actions">
+        <button class="btn" style="flex: 1;" onclick="closePlanChangeConfirm()">취소</button>
+        <button class="btn btn--primary" style="flex: 1;" onclick="confirmPlanChange()">변경하기</button>
       </div>
     </div>
 
@@ -1832,7 +2522,7 @@ let menuExpanded = false;
 
 const TASK_TEXTS = {
   1: '데이터가 매월 부족한 상황입니다. 내 사용량에 맞는 요금제로 바꿔보세요.',
-  2: '지난달 요금(3월분 63,200원)이 미납 상태입니다. 앱에서 납부를 완료해보세요.'
+  2: '지난달 요금(3월분 87,290원)이 미납 상태입니다. 앱에서 납부를 완료해보세요.'
 };
 
 /* Navigation */
@@ -1855,10 +2545,58 @@ function goBack() {
     const prev = navigationHistory.pop();
     goTo(prev, { noHistory: true });
   } else {
-    if (currentScenario === 2) goTo('C-HOME-S2', { noHistory: true });
-    else if (currentScenario === 1) goTo('C-HOME-S1', { noHistory: true });
+    if (currentScenario === 2) goTo('C-HOME', { noHistory: true });
+    else if (currentScenario === 1) goTo('C-HOME', { noHistory: true });
     else goTo('SCENARIO-SELECT', { noHistory: true });
   }
+}
+
+/* 공용 mini-landing */
+const MINI_LANDING_DATA = {
+  cart: {
+    eyebrow: '장바구니',
+    title: '담아두신 상품 3개',
+    desc: '최근 담은 상품을 확인해보세요',
+    highlight: '총 16,800원',
+    sub: '배달의민족 쿠폰팩 · 올리브영 상품권',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>'
+  },
+  familyCombine: {
+    eyebrow: '결합',
+    title: '가족 결합 4명',
+    desc: '매달 8,450원 할인 받고 계세요',
+    highlight: '월 절약액 8,450원',
+    sub: '결합 가족: 본인, 아내, 자녀 2명',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'
+  },
+  agreement: {
+    eyebrow: '약정',
+    title: '재약정 D-84',
+    desc: '만료 전 재약정 시 추가 혜택이 있어요',
+    highlight: '월 31,419원 할인 중',
+    sub: '24개월 약정 · 만료까지 84일 남음',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>'
+  },
+  pointDetail: {
+    eyebrow: 'T포인트',
+    title: 'T멤버십 포인트',
+    desc: '지훈님의 누적 포인트와 혜택',
+    highlight: '18,400 P',
+    sub: '요금 할인 · 구독 · 쇼핑에 사용 가능',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8 9h6a2 2 0 0 1 0 4H8"/></svg>'
+  }
+};
+
+function openMiniLanding(key) {
+  const data = MINI_LANDING_DATA[key];
+  if (!data) return;
+  document.getElementById('miniLandingEyebrow').textContent = data.eyebrow;
+  document.getElementById('miniLandingTitle').textContent = data.title;
+  document.getElementById('miniLandingDesc').textContent = data.desc;
+  document.getElementById('miniLandingHighlight').textContent = data.highlight;
+  document.getElementById('miniLandingSub').textContent = data.sub;
+  document.getElementById('miniLandingIcon').innerHTML = data.icon;
+  goTo('MINI-LANDING');
 }
 
 function startScenario(num) {
@@ -1873,7 +2611,7 @@ function startScenario(num) {
       '<span class="list-row__arrow">›</span>';
   }
   // 홈 진입
-  goTo(num === 1 ? 'C-HOME-S1' : 'C-HOME-S2', { noHistory: true });
+  goTo('C-HOME', { noHistory: true });
   // 대화 스레드 초기화
   resetChatThreads();
 }
@@ -1931,8 +2669,8 @@ function collapseMenu() {
 
 function updateActiveMenuBtn() {
   const map = {
-    'C-HOME-S1': 'home',
-    'C-HOME-S2': 'home',
+    'C-HOME': 'home',
+    'C-HOME': 'home',
     'C-SHOP': 'shop',
     'C-BENEFIT': 'benefit',
     'C-MANAGE': 'manage'
@@ -1946,7 +2684,7 @@ function updateActiveMenuBtn() {
 function selectMenu(menu) {
   collapseMenu();
   if (menu === 'home') {
-    goTo(currentScenario === 2 ? 'C-HOME-S2' : 'C-HOME-S1');
+    goTo('C-HOME');
   } else if (menu === 'shop') {
     goTo('C-SHOP');
   } else if (menu === 'benefit') {
@@ -2015,92 +2753,462 @@ function askInThread(threadId, question) {
   }, 400);
 }
 
+/* 단계별 응답 헬퍼 — 말풍선/카드/칩을 순차 출력 */
+function appendBubble(thread, html, delay = 0) {
+  const el = document.createElement('div');
+  el.className = 'chat-bubble chat-bubble--ai';
+  el.innerHTML = html;
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(4px)';
+  el.style.transition = 'opacity 200ms, transform 200ms';
+  setTimeout(() => {
+    thread.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+    const sa = document.getElementById('scrollArea');
+    if (sa) sa.scrollTop = sa.scrollHeight;
+  }, delay);
+  return el;
+}
+function appendCard(thread, cardHTML, delay = 0) {
+  const el = document.createElement('div');
+  el.className = 'chat-card';
+  el.innerHTML = cardHTML;
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(4px)';
+  el.style.transition = 'opacity 200ms, transform 200ms';
+  setTimeout(() => {
+    thread.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+    const sa = document.getElementById('scrollArea');
+    if (sa) sa.scrollTop = sa.scrollHeight;
+  }, delay);
+  return el;
+}
+function appendChips(thread, chipsHTML, delay = 0) {
+  const el = document.createElement('div');
+  el.className = 'chat-inline-actions';
+  el.innerHTML = chipsHTML;
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 200ms';
+  setTimeout(() => {
+    thread.appendChild(el);
+    requestAnimationFrame(() => { el.style.opacity = '1'; });
+    const sa = document.getElementById('scrollArea');
+    if (sa) sa.scrollTop = sa.scrollHeight;
+  }, delay);
+  return el;
+}
+
 function renderAiResponse(thread, question) {
-  if (question.includes('요금제')) {
-    // AI 응답
-    const aiBubble = document.createElement('div');
-    aiBubble.className = 'chat-bubble chat-bubble--ai';
-    aiBubble.innerHTML = '이번 달 데이터가 62GB나 쓰고 계세요. 사용 패턴을 보니 <strong>다이렉트 5G 76</strong>이 월 6,000원 절약되고 데이터도 넉넉해요.';
-    thread.appendChild(aiBubble);
+  const q = question;
 
-    // 카드
-    const card = document.createElement('div');
-    card.className = 'chat-card';
-    card.innerHTML = `
-      <div class="chat-card__label">추천 요금제</div>
-      <div class="chat-card__title">다이렉트 5G 76</div>
-      <div class="chat-card__meta">데이터 80GB · 선택약정 반영 시 24,700원</div>
-      <div class="chat-card__highlight">월 48,500원</div>
-      <div class="chat-card__sub">현재 대비 매달 6,000원 절약</div>
-      <div class="chat-card__actions">
-        <button class="chat-card__btn chat-card__btn--outline" onclick="goTo('S1-C-DETAIL')">자세히 보기</button>
-        <button class="chat-card__btn chat-card__btn--primary" onclick="goTo('S1-C-DONE')">바로 변경</button>
+  /* ==================================
+     시나리오 1: 요금제 변경 (풍부화)
+     ================================== */
+  if (q.includes('요금제') && (q.includes('바꾸') || q.includes('변경') || q.includes('추천'))) {
+    // 1. 현재 요금제 + 사용 패턴 인사이트
+    appendBubble(thread, '지훈님, 사용 패턴을 먼저 살펴볼게요.', 0);
+    appendCard(thread, `
+      <div class="chat-card__label">현재 요금제</div>
+      <div class="chat-card__title">0 청년 59 60GB업</div>
+      <div class="chat-card__meta">월 66,000원 · 데이터 96GB</div>
+      <div style="padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption); color: var(--text-secondary);">
+        <div style="display: flex; justify-content: space-between;"><span>이번 달 사용</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">76 GB / 96 GB</span></div>
+        <div style="display: flex; justify-content: space-between;"><span>지난 3개월 평균</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">매달 소진</span></div>
       </div>
-    `;
-    thread.appendChild(card);
-  } else if (question.includes('미납') || (question.includes('요금') && question.includes('내'))) {
-    const aiBubble = document.createElement('div');
-    aiBubble.className = 'chat-bubble chat-bubble--ai';
-    aiBubble.innerHTML = '3월 요금 <strong>63,200원</strong>이 납부 대기 중이에요. T포인트 9,000원을 적용하면 54,200원만 내시면 돼요.';
-    thread.appendChild(aiBubble);
-
-    const card = document.createElement('div');
-    card.className = 'chat-card';
-    card.innerHTML = `
-      <div class="chat-card__label">미납 요금</div>
-      <div class="chat-card__title">3월분 청구 금액</div>
-      <div class="chat-card__meta">납부 예정일 4월 25일</div>
-      <div class="chat-card__highlight">63,200 원</div>
-      <div class="chat-card__sub">T포인트 적용 시 54,200원</div>
+    `, 350);
+    // 2. 사용 용도 분석
+    appendBubble(thread, '데이터를 <strong>주로 넷플릭스</strong>에 쓰고 계세요. 매달 소진 뒤 1Mbps 속도로 사용하셨네요.', 900);
+    appendCard(thread, `
+      <div class="chat-card__label">주요 사용 용도</div>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: var(--fs-body);"><span>넷플릭스 / OTT</span><strong style="font-weight: var(--fw-medium);">52 GB</strong></div>
+          <div style="background: var(--bg-surface-2); height: 4px; border-radius: 2px;"><div style="background: var(--text-primary); height: 100%; width: 68%; border-radius: 2px;"></div></div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: var(--fs-body);"><span>SNS</span><strong style="font-weight: var(--fw-medium);">14 GB</strong></div>
+          <div style="background: var(--bg-surface-2); height: 4px; border-radius: 2px;"><div style="background: var(--text-primary); height: 100%; width: 18%; border-radius: 2px;"></div></div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: var(--fs-body);"><span>웹서핑 / 기타</span><strong style="font-weight: var(--fw-medium);">10 GB</strong></div>
+          <div style="background: var(--bg-surface-2); height: 4px; border-radius: 2px;"><div style="background: var(--text-primary); height: 100%; width: 13%; border-radius: 2px;"></div></div>
+        </div>
+      </div>
+    `, 1300);
+    // 3. 추천 제시
+    appendBubble(thread, '<strong>0 청년 다이렉트 69(넷플릭스)</strong>는 무제한 + 넷플릭스 포함이라 지금보다 총 4,000원 절약돼요.', 2000);
+    appendCard(thread, `
+      <div class="chat-card__label">✨ 추천 요금제</div>
+      <div class="chat-card__title">0 청년 다이렉트 69(넷플릭스)</div>
+      <div class="chat-card__meta">데이터 무제한 · 넷플릭스 포함</div>
+      <div class="chat-card__highlight">월 69,000원</div>
+      <div class="chat-card__sub">현재 대비 총 4,000원 절약</div>
       <div class="chat-card__actions">
-        <button class="chat-card__btn chat-card__btn--outline" onclick="goTo('S2-C-BILL')">내역 보기</button>
+        <button class="chat-card__btn chat-card__btn--outline" onclick="showPlanDetailInChat()">자세히 보기</button>
+        <button class="chat-card__btn chat-card__btn--primary" onclick="openPlanChangeConfirm()">바로 변경</button>
+      </div>
+    `, 2500);
+    // 4. 추가 옵션 칩
+    appendChips(thread, `
+      <button class="chat-inline-chip" onclick="autoAsk('다른 요금제도 보여줘')">다른 요금제도 보여줘</button>
+      <button class="chat-inline-chip" onclick="autoAsk('데이터 추가 구매로 해결할래')">데이터 추가 구매로 해결할래</button>
+    `, 3100);
+    return;
+  }
+
+  /* ==================================
+     데이터 상세 질의
+     ================================== */
+  if (q.includes('데이터 사용량') || (q.includes('데이터') && (q.includes('얼마') || q.includes('어디')))) {
+    appendBubble(thread, '지훈님의 데이터 사용 현황을 알려드릴게요.', 0);
+    appendCard(thread, `
+      <div class="chat-card__label">이번 달 데이터</div>
+      <div class="chat-card__highlight">76 GB / 96 GB</div>
+      <div class="chat-card__sub">80% 사용 · 5일 뒤 소진 예정</div>
+      <div style="padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption);">
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>넷플릭스 / OTT</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">52 GB</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>SNS</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">14 GB</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>웹서핑 / 기타</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">10 GB</span></div>
+      </div>
+    `, 400);
+    appendBubble(thread, '지난 3개월도 매달 소진하셨어요. 넷플릭스 보실 때 속도 제한이 불편하셨을 것 같아요.', 1100);
+    appendChips(thread, `
+      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 추천 받을게</button>
+      <button class="chat-inline-chip" onclick="autoAsk('데이터 추가 구매로 해결할래')">데이터 추가 구매할래</button>
+    `, 1700);
+    return;
+  }
+
+  /* ==================================
+     데이터 추가 구매 (대안 경로)
+     ================================== */
+  if (q.includes('데이터 추가')) {
+    appendBubble(thread, '데이터 1GB 추가 구매는 <strong>2,200원</strong>, 5GB는 <strong>6,600원</strong>이에요.', 0);
+    appendCard(thread, `
+      <div class="chat-card__label">💡 장기 비교</div>
+      <div style="font-size: var(--fs-body); line-height: 1.55; color: var(--text-primary); margin-bottom: 10px;">
+        매달 이렇게 추가 구매하시면 연간 약 <strong style="font-weight: var(--fw-medium);">78,000원</strong>,<br>
+        요금제 변경하면 연간 <strong style="font-weight: var(--fw-medium);">48,000원 절약</strong>이에요.
+      </div>
+      <div class="chat-card__sub" style="padding-top: 10px; border-top: 1px solid var(--border-default);">장기 관점에서는 요금제 변경을 추천드려요.</div>
+    `, 400);
+    appendChips(thread, `
+      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 추천 다시 볼게</button>
+      <button class="chat-inline-chip" onclick="alert('(프로토타입) 데이터 추가 구매')">그래도 추가 구매할래</button>
+    `, 1100);
+    return;
+  }
+
+  /* ==================================
+     다른 요금제 요청
+     ================================== */
+  if (q.includes('다른 요금제')) {
+    appendBubble(thread, '지훈님께 맞을 만한 다른 요금제도 보여드릴게요.', 0);
+    appendCard(thread, `
+      <div class="chat-card__label">대안 1</div>
+      <div class="chat-card__title">5GX 프라임</div>
+      <div class="chat-card__meta">데이터 무제한 · 웨이브 + 플로 포함</div>
+      <div class="chat-card__highlight">월 89,000원</div>
+      <div class="chat-card__sub">넷플릭스 미포함 (별도 7,000원)</div>
+    `, 400);
+    appendCard(thread, `
+      <div class="chat-card__label">대안 2</div>
+      <div class="chat-card__title">0 청년 다이렉트 50</div>
+      <div class="chat-card__meta">데이터 110GB · 넷플릭스 미포함</div>
+      <div class="chat-card__highlight">월 50,000원</div>
+      <div class="chat-card__sub">데이터 양은 늘지만 무제한은 아니에요</div>
+    `, 900);
+    appendBubble(thread, '처음 추천드린 <strong>0 청년 다이렉트 69(넷플릭스)</strong>가 지훈님 사용 패턴과 가장 맞아요.', 1500);
+    appendChips(thread, `
+      <button class="chat-inline-chip" onclick="showRecommendedPlanAgain()">추천 요금제 다시 보기</button>
+    `, 2100);
+    return;
+  }
+
+  /* ==================================
+     시나리오 2: 미납 요금 + 납부일 변경 (이미지 3 스타일)
+     ================================== */
+  if (q.includes('미납') && (q.includes('납부일') || q.includes('변경'))) {
+    // 복합 업무 처리 패턴
+    isCompoundBillTask = true;
+    appendBubble(thread, '3월에 미납된 요금이 있어요.', 0);
+    appendCard(thread, `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="chat-card__label" style="margin: 0;">3월 청구서</div>
+        <span class="tag tag--alert">미납 상태</span>
+      </div>
+      <div class="chat-card__highlight">87,290 원</div>
+      <div style="padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption);">
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>이용 기간</span><span style="color: var(--text-primary);">2026.03.01 ~ 03.31</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>납부일</span><span style="color: var(--text-primary);">매월 12일</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>결제 수단</span><span style="color: var(--text-primary);">신한카드 1234*</span></div>
+      </div>
+      <div class="chat-card__actions">
+        <button class="chat-card__btn chat-card__btn--primary" onclick="handleBillPay(this)">납부하기</button>
+      </div>
+    `, 400);
+    appendBubble(thread, '먼저 납부부터 진행한 뒤, 납부일 변경도 이어서 도와드릴게요.', 1100);
+    return;
+  }
+
+  if (q.includes('미납') || (q.includes('요금') && q.includes('내'))) {
+    // 단순 납부
+    isCompoundBillTask = false;
+    appendBubble(thread, '3월 요금이 <strong>20일째 미납</strong> 상태예요. 지금 바로 납부하시겠어요?', 0);
+    appendCard(thread, `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="chat-card__label" style="margin: 0;">3월 청구서</div>
+        <span class="tag tag--alert">미납</span>
+      </div>
+      <div class="chat-card__highlight">87,290 원</div>
+      <div class="chat-card__sub">T포인트 9,000원 적용 시 78,290원</div>
+      <div style="padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption);">
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>이용 기간</span><span style="color: var(--text-primary);">2026.03.01 ~ 03.31</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>납부 예정일</span><span style="color: var(--text-primary);">4월 1일 (20일 경과)</span></div>
+      </div>
+      <div class="chat-card__actions">
+        <button class="chat-card__btn chat-card__btn--outline" onclick="showBillDetailInChat()">내역 보기</button>
         <button class="chat-card__btn chat-card__btn--primary" onclick="openPaymentSheet()">바로 납부</button>
       </div>
-    `;
-    thread.appendChild(card);
-  } else if (question.includes('데이터') || question.includes('사용량') || question.includes('많이 나왔')) {
-    const aiBubble = document.createElement('div');
-    aiBubble.className = 'chat-bubble chat-bubble--ai';
-    aiBubble.innerHTML = '이번 달 데이터는 <strong>62GB / 50GB</strong>를 사용 중이에요. 콘텐츠/OTT에 31.3GB를 쓰고 계셔서 이번 달 요금이 조금 늘었어요.';
-    thread.appendChild(aiBubble);
-
-    // 사용량 카드
-    const card = document.createElement('div');
-    card.className = 'chat-card';
-    card.innerHTML = `
-      <div class="chat-card__label">데이터 사용 현황</div>
-      <div class="chat-card__highlight">62 GB</div>
-      <div class="chat-card__sub">기본 50GB 대비 124% 사용</div>
-      <div style="padding-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption); color: var(--text-secondary);">
-        <div style="display: flex; justify-content: space-between;"><span>콘텐츠 / OTT</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">31.3GB</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>SNS</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">10GB</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>웹서핑 / 기타</span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">20.7GB</span></div>
-      </div>
-    `;
-    thread.appendChild(card);
-
-    // 추가 액션 칩
-    const chips = document.createElement('div');
-    chips.className = 'chat-inline-actions';
-    chips.innerHTML = `
-      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 바꾸고 싶어</button>
-    `;
-    thread.appendChild(chips);
-  } else {
-    const aiBubble = document.createElement('div');
-    aiBubble.className = 'chat-bubble chat-bubble--ai';
-    aiBubble.textContent = '죄송해요, 아직 준비하지 못한 답변이에요. 아래에서 다른 질문을 선택해보세요.';
-    thread.appendChild(aiBubble);
-
-    const chips = document.createElement('div');
-    chips.className = 'chat-inline-actions';
-    chips.innerHTML = `
-      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 바꾸고 싶어</button>
-      <button class="chat-inline-chip" onclick="autoAsk('미납 요금 낼래')">미납 요금 낼래</button>
-      <button class="chat-inline-chip" onclick="autoAsk('데이터 사용량 알려줘')">데이터 사용량 알려줘</button>
-    `;
-    thread.appendChild(chips);
+    `, 500);
+    return;
   }
+
+  /* ==================================
+     요금 증가 원인 분석 (이미지 4 스타일)
+     ================================== */
+  if (q.includes('이번 달 요금') && (q.includes('많이') || q.includes('오른') || q.includes('이유'))) {
+    appendBubble(thread, '지훈님,<br>이번 달 요금이 갑자기 올라서<br>많이 당황스러우셨을 것 같아요.', 0);
+    appendCard(thread, `
+      <div class="chat-card__label">3월 청구서</div>
+      <div class="chat-card__highlight">87,290 원</div>
+      <div class="chat-card__sub" style="color: var(--text-primary);">넷플릭스 결제 대행이 <strong style="font-weight: var(--fw-medium);">7,000원</strong> 추가됐어요</div>
+      <div style="padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption);">
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>통신 서비스</span><span style="color: var(--text-primary);">66,000원</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>부가 서비스</span><span style="color: var(--text-primary);">9,100원</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>결제 대행 <span style="font-size: 10px;">(넷플릭스)</span></span><span style="color: var(--text-primary); font-weight: var(--fw-medium);">7,000원</span></div>
+        <div style="display: flex; justify-content: space-between; color: var(--text-secondary);"><span>기기 구입비</span><span style="color: var(--text-primary);">5,190원</span></div>
+      </div>
+    `, 500);
+    appendBubble(thread, '<strong>0 청년 다이렉트 69(넷플릭스)</strong>로 바꾸면 넷플릭스가 요금제에 포함돼서, 오히려 월 4,000원 절약돼요.', 1300);
+    appendChips(thread, `
+      <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 추천 받을게</button>
+      <button class="chat-inline-chip" onclick="autoAsk('미납 요금 낼래')">먼저 이번 달 요금 낼게</button>
+    `, 1900);
+    return;
+  }
+
+  /* ==================================
+     기본 fallback
+     ================================== */
+  appendBubble(thread, '죄송해요, 아직 준비하지 못한 답변이에요. 아래에서 다른 질문을 선택해보세요.', 0);
+  appendChips(thread, `
+    <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 바꾸고 싶어</button>
+    <button class="chat-inline-chip" onclick="autoAsk('이번 달 요금이 많이 나온 이유가 뭐야?')">이번 달 요금이 왜 많이 나왔어?</button>
+    <button class="chat-inline-chip" onclick="autoAsk('데이터 사용량 알려줘')">데이터 사용량 알려줘</button>
+    <button class="chat-inline-chip" onclick="autoAsk('미납 요금 확인해주고 납부일 변경해줘')">미납 납부 + 납부일 변경</button>
+  `, 400);
+}
+
+/* 청구서 납부 버튼 클릭 → 납부 완료 흐름 + 납부일 변경 이어가기 (시나리오 2 복합 업무) */
+function handleBillPay(btnEl) {
+  // 납부 바텀시트 오픈
+  openPaymentSheet();
+  // completePayment → 납부일 변경 이어가기는 completePayment 수정에서 처리
+}
+
+/* 대화 내 카드 재노출 헬퍼들 */
+function getCurrentChatThread() {
+  // 현재 보이는 chat 화면의 thread 반환
+  return currentScreen === 'S2-C-CHAT'
+    ? document.getElementById('s2ChatThread')
+    : document.getElementById('s1ChatThread');
+}
+
+function showPlanDetailInChat() {
+  const thread = getCurrentChatThread();
+  if (!thread) return;
+  appendBubble(thread, '더 자세한 스펙을 보여드릴게요.', 0);
+  appendCard(thread, `
+    <div class="chat-card__label">0 청년 다이렉트 69(넷플릭스) 스펙</div>
+    <div style="padding-top: 8px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">데이터</span>
+        <strong style="font-weight: var(--fw-medium);">무제한</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">집·이동전화</span>
+        <span>무제한 + 부가 300분</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">문자</span>
+        <span>기본제공</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">넷플릭스</span>
+        <strong style="font-weight: var(--fw-medium);">광고형 스탠다드 포함</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">멤버십</span>
+        <span>VIP</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">스마트기기</span>
+        <span>2회선 이용요금 무료</span>
+      </div>
+    </div>
+  `, 500);
+  appendBubble(thread, '현재 요금제와 비교하면 매달 <strong>4,000원 절약</strong>이에요.', 1200);
+  appendCard(thread, `
+    <div class="chat-card__label">현재 vs 변경 후</div>
+    <div style="padding-top: 8px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">통신료</span>
+        <span>66,000원 → <strong style="font-weight: var(--fw-medium);">69,000원</strong></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-default);">
+        <span style="font-size: var(--fs-caption); color: var(--text-secondary);">넷플릭스 결제</span>
+        <span>7,000원 → <strong style="font-weight: var(--fw-medium);">0원 (포함)</strong></span>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0; border-top: 2px solid var(--text-primary);">
+        <strong style="font-weight: var(--fw-medium);">실 월 부담</strong>
+        <strong style="font-weight: var(--fw-medium);">- 4,000원 절약</strong>
+      </div>
+    </div>
+  `, 1800);
+  appendChips(thread, `
+    <button class="chat-inline-chip chat-inline-chip--primary" onclick="openPlanChangeConfirm()">지금 바로 변경</button>
+    <button class="chat-inline-chip" onclick="autoAsk('다른 요금제도 보여줘')">다른 것도 볼래</button>
+  `, 2600);
+}
+
+function showRecommendedPlanAgain() {
+  const thread = getCurrentChatThread();
+  if (!thread) return;
+  appendBubble(thread, '다시 보여드릴게요.', 0);
+  appendCard(thread, `
+    <div class="chat-card__label">✨ 추천 요금제</div>
+    <div class="chat-card__title">0 청년 다이렉트 69(넷플릭스)</div>
+    <div class="chat-card__meta">데이터 무제한 · 넷플릭스 포함</div>
+    <div class="chat-card__highlight">월 69,000원</div>
+    <div class="chat-card__sub">현재 대비 총 4,000원 절약</div>
+    <div class="chat-card__actions">
+      <button class="chat-card__btn chat-card__btn--outline" onclick="showPlanDetailInChat()">자세히 보기</button>
+      <button class="chat-card__btn chat-card__btn--primary" onclick="openPlanChangeConfirm()">바로 변경</button>
+    </div>
+  `, 500);
+}
+
+function showBillDetailInChat() {
+  const thread = getCurrentChatThread();
+  if (!thread) return;
+  appendBubble(thread, '3월 요금 내역을 자세히 보여드릴게요.', 0);
+  appendCard(thread, `
+    <div class="chat-card__label">3월 요금 상세</div>
+    <div style="padding-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; justify-content: space-between; font-size: var(--fs-body);">
+        <span style="color: var(--text-secondary);">통신 서비스 요금</span>
+        <span>66,000원</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: var(--fs-body);">
+        <span style="color: var(--text-secondary);">부가 서비스 요금</span>
+        <span>9,100원</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: var(--fs-body);">
+        <span style="color: var(--text-secondary);">결제 대행 요금</span>
+        <span>7,000원</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: var(--fs-body);">
+        <span style="color: var(--text-secondary);">기기 구입비</span>
+        <span>5,190원</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding-top: 10px; margin-top: 4px; border-top: 2px solid var(--text-primary);">
+        <strong style="font-weight: var(--fw-medium);">총 합계</strong>
+        <strong style="font-weight: var(--fw-medium);">87,290원</strong>
+      </div>
+    </div>
+  `, 500);
+  appendBubble(thread, '<strong>결제 대행 7,000원</strong>은 넷플릭스 구독료예요. 요금제를 바꾸면 이 비용이 사라져요.', 1300);
+  appendChips(thread, `
+    <button class="chat-inline-chip chat-inline-chip--primary" onclick="openPaymentSheet()">지금 납부하기</button>
+    <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 변경 알아볼게</button>
+  `, 2000);
+}
+
+/* 납부일 변경 대화 플로우 (복합 업무 처리) */
+function continueBillDueChange() {
+  const threadId = 's2ChatThread';
+  const thread = document.getElementById(threadId);
+  if (!thread) return;
+
+  // 청구서 상태를 납부 완료로 업데이트 (가장 최근 추가된 card 찾아 상태 태그 변경)
+  const cards = thread.querySelectorAll('.chat-card');
+  if (cards.length > 0) {
+    const lastCard = cards[cards.length - 1];
+    const alertTag = lastCard.querySelector('.tag--alert');
+    if (alertTag) {
+      alertTag.textContent = '납부 완료';
+      alertTag.className = 'tag';
+      alertTag.style.background = 'var(--bg-surface-2)';
+      alertTag.style.color = 'var(--text-primary)';
+    }
+    // 납부 완료 체크 아이콘 우측 추가
+    const highlight = lastCard.querySelector('.chat-card__highlight');
+    if (highlight && !highlight.dataset.paidChecked) {
+      highlight.dataset.paidChecked = '1';
+      highlight.innerHTML += ' <span style="color: var(--text-primary); margin-left: 6px;">✓</span>';
+    }
+  }
+
+  appendBubble(thread, '미납된 요금 납부가 완료되었어요.', 300);
+  appendBubble(thread, '<strong>납부일 변경</strong>도 이어서 도와드릴게요.', 1100);
+  appendBubble(thread, '기존 납부일은 <strong>매월 12일</strong>이에요.<br>납부일을 언제로 바꿀까요?', 1900);
+  appendChips(thread, `
+    <button class="chat-inline-chip chat-inline-chip--date" onclick="selectBillDueDate(this, 12)">12일</button>
+    <button class="chat-inline-chip chat-inline-chip--date" onclick="selectBillDueDate(this, 13)">13일</button>
+    <button class="chat-inline-chip chat-inline-chip--date" onclick="selectBillDueDate(this, 14)">14일</button>
+    <button class="chat-inline-chip chat-inline-chip--date" onclick="selectBillDueDate(this, 15)">15일</button>
+    <button class="chat-inline-chip chat-inline-chip--date" onclick="selectBillDueDate(this, 16)">16일</button>
+  `, 2600);
+}
+
+function selectBillDueDate(btnEl, day) {
+  const thread = document.getElementById('s2ChatThread');
+  if (!thread) return;
+  // 날짜 칩 활성화
+  btnEl.parentElement.querySelectorAll('.chat-inline-chip--date').forEach(c => c.classList.remove('chat-inline-chip--active'));
+  btnEl.classList.add('chat-inline-chip--active');
+
+  // 확인 묻기
+  appendBubble(thread, `<strong>${day}일</strong>로 변경할까요?`, 400);
+  appendChips(thread, `
+    <button class="chat-inline-chip" onclick="autoAsk('다시 선택할래')">다시 선택할래</button>
+    <button class="chat-inline-chip chat-inline-chip--primary" onclick="confirmBillDueChange(${day})">응, ${day}일로 변경할게</button>
+  `, 900);
+}
+
+function confirmBillDueChange(day) {
+  const thread = document.getElementById('s2ChatThread');
+  if (!thread) return;
+  appendBubble(thread, `네, ${day}일로 변경할게요.`, 300);
+  appendCard(thread, `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="chat-card__label" style="margin-bottom: 4px;">납부일 변경 처리 완료</div>
+        <div style="font-size: var(--fs-body); color: var(--text-primary);">매월 <strong style="font-weight: var(--fw-medium);">${day}일</strong>로 변경되었어요</div>
+        <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px;">다음 달부터 적용됩니다</div>
+      </div>
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--text-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px;">✓</div>
+    </div>
+  `, 1100);
+  appendBubble(thread, '더 도와드릴 게 있을까요?', 1900);
+  appendChips(thread, `
+    <button class="chat-inline-chip" onclick="goTo('SCENARIO-SELECT'); hideAmbientLayer && hideAmbientLayer();">시나리오 선택으로</button>
+    <button class="chat-inline-chip" onclick="goTo('C-HOME');">홈으로</button>
+  `, 2500);
+  // 복합 업무 완료
+  isCompoundBillTask = false;
 }
 
 /* Payment Sheet */
@@ -2113,16 +3221,114 @@ function closePaymentSheet() {
   document.getElementById('paymentSheet').classList.remove('open');
 }
 function completePayment() {
+  const paidAmount = pointApplied ? '78,290원 (T포인트 9,000원 할인)' : '87,290원';
+  const paidEl = document.getElementById('paidAmountSummary');
+  if (paidEl) paidEl.textContent = paidAmount;
   closePaymentSheet();
-  setTimeout(() => goTo('S2-C-DONE'), 200);
+
+  // 대화 중이면 화면 이동 없이 대화 내 카드로 처리
+  if (currentScreen === 'S2-C-CHAT') {
+    if (isCompoundBillTask) {
+      // 복합 업무 (미납 + 납부일 변경) → 납부일 변경 플로우 이어가기
+      setTimeout(() => continueBillDueChange(), 300);
+    } else {
+      // 단순 납부 → 대화 내 완료 카드
+      setTimeout(() => showPaymentDoneInChat(paidAmount), 300);
+    }
+  } else {
+    // 스태틱 화면에서 납부하면 기존 완료 화면 이동
+    setTimeout(() => goTo('S2-C-DONE'), 200);
+  }
+}
+
+/* 복합 업무 플래그 (미납 + 납부일 변경 흐름 진행 중인지) */
+let isCompoundBillTask = false;
+
+/* 대화 중 단순 납부 완료 카드 */
+function showPaymentDoneInChat(paidAmount) {
+  const thread = getCurrentChatThread();
+  if (!thread) return;
+
+  // 기존 청구서 카드 상태 업데이트
+  const cards = thread.querySelectorAll('.chat-card');
+  if (cards.length > 0) {
+    const lastCard = cards[cards.length - 1];
+    const alertTag = lastCard.querySelector('.tag--alert');
+    if (alertTag) {
+      alertTag.textContent = '납부 완료';
+      alertTag.className = 'tag';
+      alertTag.style.background = 'var(--bg-surface-2)';
+      alertTag.style.color = 'var(--text-primary)';
+    }
+  }
+
+  appendBubble(thread, '납부가 완료됐어요.', 300);
+  appendCard(thread, `
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div class="chat-card__label" style="margin-bottom: 4px;">납부 완료</div>
+        <div style="font-size: var(--fs-body); color: var(--text-primary);">${paidAmount}</div>
+        <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 4px;">3월 요금 · 방금 전</div>
+      </div>
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--text-primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px;">✓</div>
+    </div>
+  `, 1100);
+  appendBubble(thread, '더 도와드릴 게 있을까요?', 1900);
+  appendChips(thread, `
+    <button class="chat-inline-chip" onclick="autoAsk('납부일도 바꾸고 싶어')">납부일 변경하기</button>
+    <button class="chat-inline-chip" onclick="autoAsk('요금제 바꾸고 싶어')">요금제 변경 알아볼래</button>
+    <button class="chat-inline-chip" onclick="goTo('C-HOME');">홈으로</button>
+  `, 2500);
 }
 
 function selectPayMethod(el, method) {
   document.querySelectorAll('.pay-option').forEach(o => o.setAttribute('data-selected', 'false'));
   el.setAttribute('data-selected', 'true');
-  const nameMap = { card: '신한카드 (1234)', point: 'T멤버십 포인트', bank: '계좌이체' };
+  const nameMap = { card: '신한카드 (1234)', bank: '계좌이체' };
   const summary = document.getElementById('payMethodSummary');
   if (summary) summary.textContent = nameMap[method];
+}
+
+/* T포인트 토글 */
+let pointApplied = false;
+function togglePointApply(checked) {
+  pointApplied = checked;
+  const pointRow = document.getElementById('payPointRow');
+  const finalAmount = document.getElementById('payFinalAmount');
+  const ctaBtn = document.getElementById('payCtaBtn');
+  if (checked) {
+    pointRow.style.display = 'flex';
+    finalAmount.textContent = '78,290원';
+    ctaBtn.textContent = '78,290원 결제하기';
+  } else {
+    pointRow.style.display = 'none';
+    finalAmount.textContent = '87,290원';
+    ctaBtn.textContent = '87,290원 결제하기';
+  }
+}
+
+/* 요금제 변경 확인 모달 */
+function openPlanChangeConfirm() {
+  document.getElementById('planChangeDim').classList.add('open');
+  document.getElementById('planChangeModal').classList.add('open');
+}
+function closePlanChangeConfirm() {
+  document.getElementById('planChangeDim').classList.remove('open');
+  document.getElementById('planChangeModal').classList.remove('open');
+}
+function confirmPlanChange() {
+  closePlanChangeConfirm();
+  setTimeout(() => goTo('S1-C-DONE'), 180);
+}
+
+/* 메뉴 드로어 */
+function openMenuDrawer() {
+  document.getElementById('menuDrawerDim').classList.add('open');
+  document.getElementById('menuDrawer').classList.add('open');
+}
+function closeMenuDrawer() {
+  document.getElementById('menuDrawerDim').classList.remove('open');
+  document.getElementById('menuDrawer').classList.remove('open');
 }
 
 /* PC 마우스 드래그 스크롤 (가로 스크롤 카드 영역) */
