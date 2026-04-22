@@ -12,18 +12,11 @@
   --bg-frame: #D9D9D9;
 
   --border-default: #DDDDDD;
-  --border-strong: #999999;
 
   --text-primary: #111111;
   --text-secondary: #666666;
-  --text-disabled: #AAAAAA;
-  --text-on-action: #FFFFFF;
 
   --action: #3B49DF;
-  --action-pressed: #2934B0;
-  --action-bg-weak: #EEF0FF;
-
-  --alert: #C93E3E;
 
   --font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
                  "Pretendard", "Noto Sans KR", system-ui, sans-serif;
@@ -35,19 +28,14 @@
   --fw-regular: 400;
   --fw-medium: 600;
 
-  --s-1: 4px;
   --s-2: 8px;
   --s-3: 12px;
   --s-4: 16px;
   --s-5: 20px;
   --s-6: 24px;
   --s-8: 32px;
-  --s-12: 48px;
 
-  --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-pill: 999px;
 }
 
 * {
@@ -66,29 +54,24 @@ html, body {
   line-height: 1.5;
 }
 
-button, a {
+a {
   font: inherit;
   cursor: pointer;
-  border: 0;
-  background: transparent;
   color: inherit;
   text-decoration: none;
 }
 
-/* ============ Layout ============ */
-
 .page {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: var(--s-6) var(--s-4);
-  background: var(--bg-frame);
 }
 
 .container {
   width: 100%;
-  max-width: 720px;
+  max-width: 480px;
   background: var(--bg-page);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
@@ -97,15 +80,19 @@ button, a {
 
 @media (max-width: 480px) {
   .page { padding: 0; }
-  .container { border: 0; border-radius: 0; padding: var(--s-6) var(--s-4); min-height: 100vh; }
+  .container {
+    border: 0;
+    border-radius: 0;
+    padding: var(--s-8) var(--s-4);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
 }
 
-/* ============ Header ============ */
-
 .header {
-  margin-bottom: var(--s-8);
-  padding-bottom: var(--s-5);
-  border-bottom: 1px solid var(--border-default);
+  margin-bottom: var(--s-6);
 }
 
 .header__eyebrow {
@@ -119,71 +106,25 @@ button, a {
   font-size: 22px;
   font-weight: var(--fw-medium);
   line-height: 1.3;
-  margin-bottom: var(--s-2);
 }
-
-.header__desc {
-  font-size: var(--fs-body);
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* ============ Moderator Note ============ */
-
-.note {
-  background: var(--bg-surface);
-  border-left: 3px solid var(--action);
-  padding: var(--s-3) var(--s-4);
-  margin-bottom: var(--s-6);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.note__label {
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-medium);
-  color: var(--action);
-  margin-bottom: var(--s-1);
-  letter-spacing: 0.04em;
-}
-
-.note__text {
-  font-size: var(--fs-caption);
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-/* ============ Section Title ============ */
-
-.section-title {
-  font-size: var(--fs-body);
-  font-weight: var(--fw-medium);
-  margin-bottom: var(--s-3);
-  color: var(--text-primary);
-}
-
-/* ============ Concept Grid ============ */
 
 .concepts {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--s-3);
-  margin-bottom: var(--s-8);
-}
-
-@media (min-width: 560px) {
-  .concepts { grid-template-columns: repeat(3, 1fr); }
 }
 
 .concept {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   padding: var(--s-5) var(--s-4);
   background: var(--bg-page);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
-  text-align: left;
-  transition: background 80ms, border-color 80ms;
-  min-height: 180px;
+  font-size: var(--fs-title);
+  font-weight: var(--fw-medium);
+  transition: background 80ms;
 }
 
 .concept:hover,
@@ -196,124 +137,9 @@ button, a {
   background: var(--bg-surface);
 }
 
-.concept__badge {
-  display: inline-block;
-  width: fit-content;
-  padding: 2px var(--s-2);
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-medium);
-  background: var(--action-bg-weak);
-  color: var(--action);
-  margin-bottom: var(--s-3);
-}
-
-.concept__title {
-  font-size: var(--fs-title);
-  font-weight: var(--fw-medium);
-  margin-bottom: var(--s-1);
-}
-
-.concept__strategy {
-  font-size: var(--fs-body);
-  color: var(--text-primary);
-  margin-bottom: var(--s-3);
-}
-
-.concept__desc {
-  font-size: var(--fs-caption);
+.concept__arrow {
   color: var(--text-secondary);
-  line-height: 1.6;
-  flex: 1;
-}
-
-.concept__cta {
-  margin-top: var(--s-4);
-  padding-top: var(--s-3);
-  border-top: 1px solid var(--border-default);
-  font-size: var(--fs-caption);
-  font-weight: var(--fw-medium);
-  color: var(--action);
-}
-
-/* ============ Info Section ============ */
-
-.info {
-  padding: var(--s-5);
-  background: var(--bg-surface);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--s-5);
-}
-
-.info__title {
-  font-size: var(--fs-body);
-  font-weight: var(--fw-medium);
-  margin-bottom: var(--s-3);
-}
-
-.info__list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-}
-
-.info__item {
-  display: flex;
-  font-size: var(--fs-caption);
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.info__key {
-  flex: 0 0 88px;
-  color: var(--text-primary);
-  font-weight: var(--fw-medium);
-}
-
-.info__val {
-  flex: 1;
-}
-
-/* ============ Direct Links ============ */
-
-.direct-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-2);
-  padding-top: var(--s-4);
-  border-top: 1px solid var(--border-default);
-  font-size: var(--fs-caption);
-  color: var(--text-secondary);
-  align-items: center;
-}
-
-.direct-links__label {
-  color: var(--text-disabled);
-  margin-right: var(--s-2);
-}
-
-.direct-links a {
-  padding: var(--s-1) var(--s-2);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-}
-
-.direct-links a:hover {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-}
-
-/* ============ Footer ============ */
-
-.footer {
-  margin-top: var(--s-8);
-  padding-top: var(--s-4);
-  border-top: 1px solid var(--border-default);
-  font-size: var(--fs-caption);
-  color: var(--text-disabled);
-  text-align: center;
+  font-weight: var(--fw-regular);
 }
 </style>
 </head>
@@ -324,94 +150,21 @@ button, a {
     <header class="header">
       <div class="header__eyebrow">SKT 통합 채널 · UT 프로토타입</div>
       <h1 class="header__title">컨셉 A/B/C 선택</h1>
-      <p class="header__desc">
-        시나리오 기반 Task 수행을 위한 3가지 UX 컨셉 프로토타입입니다.<br>
-        진행자는 피험자에게 한 번에 하나의 컨셉만 노출하고, 컨셉 제시 순서는 피험자별로 랜덤화합니다.
-      </p>
     </header>
 
-    <div class="note">
-      <div class="note__label">UT 진행자 메모</div>
-      <div class="note__text">
-        각 피험자에게는 서로 다른 순서로 컨셉을 제시하세요. 첫인상과 수행 경험을 분리 수집하기 위해,
-        최초 노출 직후 5초 스냅샷 인상을 먼저 받은 뒤 Task를 시작합니다.
-        각 프로토타입 상단의 "다른 컨셉으로" 드롭다운으로 언제든 전환 가능합니다.
-      </div>
-    </div>
-
-    <div class="section-title">컨셉 선택</div>
-
     <div class="concepts">
-
-      <a class="concept" href="a.html" role="button">
-        <span class="concept__badge">A안</span>
-        <div class="concept__title">Effortless Control</div>
-        <div class="concept__strategy">관리 중심 · 터치 기반</div>
-        <div class="concept__desc">
-          하단 GNB(MY·검색·쇼핑)로 안정적 탐색. 타일형 개인화 홈에서
-          명확성과 예측 가능성을 우선한다.
-        </div>
-        <div class="concept__cta">A안 프로토타입 열기 →</div>
+      <a class="concept" href="a.html">
+        <span>A안</span>
+        <span class="concept__arrow">→</span>
       </a>
-
-      <a class="concept" href="b.html" role="button">
-        <span class="concept__badge">B안</span>
-        <div class="concept__title">Effortless Value Discovery</div>
-        <div class="concept__strategy">혜택 중심 · AI Layer 오퍼링</div>
-        <div class="concept__desc">
-          GNB 대신 하단 AI Layer가 맥락에 맞춰 제안. 대형 카드 중심 구조로
-          선제적 가치 발견을 유도한다.
-        </div>
-        <div class="concept__cta">B안 프로토타입 열기 →</div>
+      <a class="concept" href="b.html">
+        <span>B안</span>
+        <span class="concept__arrow">→</span>
       </a>
-
-      <a class="concept" href="c.html" role="button">
-        <span class="concept__badge">C안</span>
-        <div class="concept__title">Effortless Flow</div>
-        <div class="concept__strategy">Agent 대화 · 제로 뎁스</div>
-        <div class="concept__desc">
-          하단 대화창이 상시 노출. 홈 버튼 탭 시 메뉴 펼침.
-          대화와 터치 두 경로로 즉시 실행을 지원한다.
-        </div>
-        <div class="concept__cta">C안 프로토타입 열기 →</div>
+      <a class="concept" href="c.html">
+        <span>C안</span>
+        <span class="concept__arrow">→</span>
       </a>
-
-    </div>
-
-    <div class="info">
-      <div class="info__title">공통 시나리오</div>
-      <ul class="info__list">
-        <li class="info__item">
-          <span class="info__key">시나리오 1</span>
-          <span class="info__val">요금제 변경 — 데이터가 매월 부족한 상황에서 내 사용량에 맞는 요금제로 변경</span>
-        </li>
-        <li class="info__item">
-          <span class="info__key">시나리오 2</span>
-          <span class="info__val">미납 요금 납부 — 3월분 63,200원 미납 상태에서 납부 완료</span>
-        </li>
-      </ul>
-    </div>
-
-    <div class="info">
-      <div class="info__title">공통 페르소나 · 프로토타입 데이터</div>
-      <ul class="info__list">
-        <li class="info__item"><span class="info__key">이름/등급</span><span class="info__val">지훈 · SILVER</span></li>
-        <li class="info__item"><span class="info__key">현재 요금제</span><span class="info__val">T 프리미엄 · 월 54,500원 · 50GB</span></li>
-        <li class="info__item"><span class="info__key">추천 요금제</span><span class="info__val">다이렉트 5G 76 · 월 48,500원(선택약정 24,700원) · 80GB</span></li>
-        <li class="info__item"><span class="info__key">실시간 잔여</span><span class="info__val">62GB</span></li>
-        <li class="info__item"><span class="info__key">미납 금액</span><span class="info__val">3월분 63,200원</span></li>
-      </ul>
-    </div>
-
-    <div class="direct-links">
-      <span class="direct-links__label">직접 열기</span>
-      <a href="a.html">a.html</a>
-      <a href="b.html">b.html</a>
-      <a href="c.html">c.html</a>
-    </div>
-
-    <div class="footer">
-      SKT 통합 채널 UT · 2026.04
     </div>
 
   </div>
