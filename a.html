@@ -719,9 +719,23 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; justify-content: center;
   color: var(--text-secondary);
   transition: background 80ms;
+  position: relative;
 }
 .top-bar__icon:active { background: var(--bg-surface-2); }
 .top-bar__icon svg { width: 18px; height: 18px; }
+
+/* 알림 뱃지 (빨간 점) */
+.top-bar__icon--badge::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #E04343;
+  border: 1.5px solid var(--bg-page);
+}
 
 /* 혜택/관리 토글 */
 .segmented { display: inline-flex; background: transparent; gap: 4px; }
@@ -2304,6 +2318,12 @@ a { color: inherit; text-decoration: none; }
             <div style="font-size: var(--fs-title); font-weight: var(--fw-medium);">MY</div>
           </div>
           <div class="top-bar__right">
+            <div class="top-bar__icon" aria-label="바코드">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><path d="M8 12h8"/></svg>
+            </div>
+            <div class="top-bar__icon top-bar__icon--badge" aria-label="쇼핑백" onclick="openMiniLanding('cart')" style="cursor: pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+            </div>
             <div class="top-bar__icon" onclick="openMenuDrawer()" style="cursor: pointer;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
             </div>
@@ -2318,9 +2338,9 @@ a { color: inherit; text-decoration: none; }
             <div class="pcard__visual">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>
             </div>
-            <div class="pcard__eyebrow">남은 데이터</div>
-            <div class="pcard__title">이번 달 데이터가 부족할 것 같아요<br><strong>남은 76GB / 96GB</strong></div>
-            <div class="pcard__sub">지금 속도면 5일 뒤 데이터가 소진돼요. 이후 10일은 1Mbps로 사용 가능해요</div>
+            <div class="pcard__eyebrow">사용한 데이터</div>
+            <div class="pcard__title">이번 달 데이터가 부족할 것 같아요<br><strong>76GB / 96GB 사용</strong></div>
+            <div class="pcard__sub">지금 속도면 4월 28일(화)에 데이터가 소진돼요. 이후 1Mbps로 사용 가능해요</div>
             <div class="pcard__cta"><span>데이터 사용량 살펴보기</span><span>›</span></div>
           </div>
 
@@ -2342,7 +2362,7 @@ a { color: inherit; text-decoration: none; }
             <div class="pcard__eyebrow">요금제</div>
             <div class="pcard__title">넷플릭스, 요금제에 포함해서<br>더 저렴하게 이용해보세요</div>
             <div class="pcard__sub">변경 시 데이터 무제한 + 넷플릭스 포함, 총 요금은 오히려 줄어들어요</div>
-            <div class="pcard__cta"><span>요금제 비교하기</span><span>›</span></div>
+            <div class="pcard__cta"><span>추천 요금제 확인하기</span><span>›</span></div>
           </div>
 
           <!-- 4. 단말기 -->
@@ -2510,9 +2530,21 @@ a { color: inherit; text-decoration: none; }
           <h1 class="page-headline">나의 데이터 사용 현황</h1>
           <div class="page-subline">지훈님의 데이터 사용을 분석했어요</div>
 
+          <!-- 0. 현재 요금제 정보 -->
+          <div onclick="openMiniLanding('currentPlan')" role="button" tabindex="0" style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 12px; cursor: pointer;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-page); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-primary);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M4 4h16v4H4zM4 10h16v10H4z"/><path d="M8 14h4M8 17h6"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">현재 요금제</div>
+              <div style="font-size: var(--fs-body); font-weight: var(--fw-medium);">0 청년 59 60GB업</div>
+            </div>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); text-align: right;">월 66,000원<br><span style="font-size: 11px;">데이터 96GB</span></div>
+          </div>
+
           <!-- 1. 남은 데이터 강조 -->
           <div style="margin: 8px 0 20px; padding: 24px 20px; background: var(--bg-surface); border-radius: var(--radius-md);">
-            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 10px;">남은 데이터</div>
+            <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 10px;">사용한 데이터</div>
             <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px;">
               <span style="font-size: 40px; font-weight: var(--fw-medium); line-height: 1; color: var(--text-primary);">76</span>
               <span style="font-size: 20px; font-weight: var(--fw-medium); color: var(--text-primary);">GB</span>
@@ -2523,8 +2555,8 @@ a { color: inherit; text-decoration: none; }
               <div style="background: var(--text-primary); height: 100%; width: 80%;"></div>
             </div>
             <div style="font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
-              지금 속도로 데이터 사용 시,<br>
-              <strong style="color: var(--text-primary);">5일 뒤 소진될 예정이에요</strong>
+              지금 20GB가 남아서, 지금 속도로 데이터 사용 시,<br>
+              오늘(4/23)로부터 <strong style="color: var(--text-primary);">5일 뒤인 4월 28일(화)에 소진될 예정이에요</strong>
             </div>
           </div>
 
@@ -2561,14 +2593,87 @@ a { color: inherit; text-decoration: none; }
           </div>
 
           <!-- 3. 맥락 안내 -->
-          <div style="margin: 24px 0; padding: 18px 18px; background: var(--bg-surface); border-radius: var(--radius-md); line-height: 1.6;">
+          <div style="margin: 24px 0 12px; padding: 18px 18px; background: var(--bg-surface); border-radius: var(--radius-md); line-height: 1.6;">
             <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 8px;">💭 사용 패턴 인사이트</div>
             <div style="font-size: var(--fs-body); color: var(--text-primary);">
-              지훈님은 <strong>지난 3개월 동안 매달 데이터를 모두 사용</strong>하고,
+              지훈님은 <strong>지난 3개월 동안 매달 데이터 할당량을 초과 사용</strong>하고,
               데이터 소진 이후엔 <strong>1Mbps 속도</strong>로 사용해왔어요.
             </div>
             <div style="font-size: var(--fs-caption); color: var(--text-secondary); margin-top: 10px; line-height: 1.6;">
               넷플릭스를 즐겨보시는데, 1Mbps 속도에선 480p 화질로 낮아지고 로딩 지연이 생겨 불편하셨을 것 같아요.
+            </div>
+          </div>
+
+          <!-- 3-1. 월별 데이터 사용량 그래프 (할당량 대비 초과) -->
+          <div class="section-title"><span>📈 최근 3개월 사용량</span></div>
+          <div style="padding: 20px 16px 14px; background: var(--bg-surface); border-radius: var(--radius-md); margin-bottom: 16px;">
+            <!-- 범례 -->
+            <div style="display: flex; justify-content: flex-end; gap: 14px; margin-bottom: 14px; font-size: 11px; color: var(--text-secondary);">
+              <span style="display: inline-flex; align-items: center; gap: 5px;">
+                <span style="width: 10px; height: 10px; background: var(--text-primary); border-radius: 2px;"></span>
+                사용량
+              </span>
+              <span style="display: inline-flex; align-items: center; gap: 5px;">
+                <span style="width: 14px; height: 0; border-top: 2px dashed var(--text-secondary);"></span>
+                요금제 96GB
+              </span>
+            </div>
+
+            <!-- 차트 영역 (SVG) -->
+            <div style="position: relative; height: 180px; padding: 0 8px;">
+              <svg viewBox="0 0 300 180" style="width: 100%; height: 100%;" preserveAspectRatio="none">
+                <!-- Y축 guideline: 할당량 96GB (y=180-96*0.6=122.4) 기준으로 max=220GB일 때 y=180-(96/220)*160=110 -->
+                <!-- 실제 계산: chart area height 160 (top 10, bottom 10), y축 최대 220GB -->
+                <!-- 96GB 라인 위치: y = 170 - (96/220)*160 = 170 - 69.8 = 100.2 -->
+
+                <!-- 할당량 96GB 점선 -->
+                <line x1="20" y1="100.2" x2="290" y2="100.2" stroke="#888" stroke-width="1.2" stroke-dasharray="5,4"/>
+                <text x="290" y="96" font-size="10" fill="#888" text-anchor="end">96GB 할당</text>
+
+                <!-- 막대: 1월 120GB / 2월 208GB / 3월 172GB -->
+                <!-- 3개 막대 x 위치: 50, 140, 230 (막대폭 50) -->
+
+                <!-- 1월 120GB → 높이 = (120/220)*160 = 87.3 / top = 170-87.3 = 82.7 -->
+                <rect x="48" y="82.7" width="50" height="87.3" fill="#111" rx="2"/>
+                <!-- 초과 부분 (120-96=24GB) 살짝 강조 -->
+                <rect x="48" y="82.7" width="50" height="17.5" fill="#555" rx="2"/>
+                <text x="73" y="76" font-size="11" fill="#111" text-anchor="middle" font-weight="600">120</text>
+                <text x="73" y="177" font-size="10" fill="#666" text-anchor="middle">1월</text>
+
+                <!-- 2월 208GB → 높이 = (208/220)*160 = 151.3 / top = 170-151.3 = 18.7 -->
+                <rect x="138" y="18.7" width="50" height="151.3" fill="#111" rx="2"/>
+                <!-- 초과 부분 (208-96=112GB) -->
+                <rect x="138" y="18.7" width="50" height="81.5" fill="#555" rx="2"/>
+                <text x="163" y="12" font-size="11" fill="#111" text-anchor="middle" font-weight="600">208</text>
+                <text x="163" y="177" font-size="10" fill="#666" text-anchor="middle">2월</text>
+
+                <!-- 3월 172GB → 높이 = (172/220)*160 = 125 / top = 170-125 = 45 -->
+                <rect x="228" y="45" width="50" height="125" fill="#111" rx="2"/>
+                <!-- 초과 부분 (172-96=76GB) -->
+                <rect x="228" y="45" width="50" height="55" fill="#555" rx="2"/>
+                <text x="253" y="38" font-size="11" fill="#111" text-anchor="middle" font-weight="600">172</text>
+                <text x="253" y="177" font-size="10" fill="#666" text-anchor="middle">3월</text>
+              </svg>
+            </div>
+
+            <!-- 초과 요약 -->
+            <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-caption);">
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span>1월 초과</span>
+                <span style="color: var(--text-primary);">+24 GB</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span>2월 초과</span>
+                <span style="color: var(--text-primary);">+112 GB</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                <span>3월 초과</span>
+                <span style="color: var(--text-primary);">+76 GB</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-top: 8px; margin-top: 4px; border-top: 1px solid var(--border-default); color: var(--text-primary);">
+                <strong style="font-weight: var(--fw-medium);">3개월 평균 초과량</strong>
+                <strong style="font-weight: var(--fw-medium);">+70.7 GB</strong>
+              </div>
             </div>
           </div>
 
@@ -3094,7 +3199,7 @@ a { color: inherit; text-decoration: none; }
             <div class="pcard__eyebrow">T멤버십 포인트</div>
             <div class="pcard__title">지훈님 포인트 <strong>18,400원</strong>으로<br>요금을 <strong>9,000원 할인</strong>받을 수 있어요</div>
             <div class="pcard__sub">적용 시 78,290원만 납부하시면 돼요</div>
-            <div class="pcard__cta"><span>포인트 적용하고 납부하기</span><span>›</span></div>
+            <div class="pcard__cta"><span>포인트 상세보기</span><span>›</span></div>
           </div>
 
           <!-- 요금 합계 표 (4개 항목 → 단일 테이블) -->
@@ -3123,14 +3228,14 @@ a { color: inherit; text-decoration: none; }
           </div>
 
           <!-- 요금제 변경 제안 배너 (장기적 관점) -->
-          <div class="pcard" style="margin-top: 16px;" onclick="goTo('SEARCH-RESULT-PLAN')">
+          <div class="pcard" style="margin-top: 16px;" onclick="goTo('S1-A-04')">
             <div class="pcard__visual">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
             </div>
             <div class="pcard__eyebrow">요금 절약 제안</div>
             <div class="pcard__title">매달 요금이 부담되시나요?<br><strong>넷플릭스 포함 요금제</strong>로 장기적으로 절약돼요</div>
             <div class="pcard__sub">넷플릭스 결제 대행 7,000원 → 요금제 포함 / 총 4,000원 절약</div>
-            <div class="pcard__cta"><span>요금제 비교하기</span><span>›</span></div>
+            <div class="pcard__cta"><span>추천 요금제 확인하기</span><span>›</span></div>
           </div>
         </div>
         <div class="fixed-cta-bar">
@@ -3395,7 +3500,7 @@ a { color: inherit; text-decoration: none; }
 
             <div class="chat-bubble chat-bubble--ai">
               이번 달 지훈님은 <strong>76GB / 96GB</strong>를 쓰고 계세요.
-              이 속도라면 <strong>5일 뒤에 데이터가 모두 소진</strong>될 것 같아요.
+              이 속도라면 <strong>4월 28일(화)에 데이터가 모두 소진</strong>될 것 같아요.
             </div>
 
             <div class="chat-bubble chat-bubble--ai">
@@ -3655,7 +3760,7 @@ a { color: inherit; text-decoration: none; }
               <div style="background: var(--text-primary); height: 100%; width: 80%;"></div>
             </div>
             <div style="font-size: var(--fs-caption); color: var(--text-secondary); line-height: 1.5;">
-              80% 사용 · 5일 뒤 데이터 소진 예정<br>
+              80% 사용 · 4월 28일(화) 소진 예정<br>
               이후 10일간 1Mbps 속도로 사용 가능
             </div>
           </div>
@@ -3819,7 +3924,7 @@ a { color: inherit; text-decoration: none; }
             </span>
             <span class="drawer__item-text">
               <span class="drawer__item-title">나의 데이터</span>
-              <span class="drawer__item-sub">76 GB / 96 GB · 5일 뒤 소진</span>
+              <span class="drawer__item-sub">76 GB / 96 GB · 4/28 소진 예정</span>
             </span>
             <span class="drawer__item-arrow">›</span>
           </button>
@@ -3980,6 +4085,14 @@ function goBack() {
 
 /* 공용 mini-landing + 메인 상세 페이지 라우팅 */
 const MINI_LANDING_DATA = {
+  currentPlan: {
+    eyebrow: '현재 요금제',
+    title: '0 청년 59 60GB업',
+    desc: '지훈님이 사용 중인 요금제입니다',
+    highlight: '월 66,000원 · 데이터 96GB',
+    sub: '2024.02.15 가입 · 선택약정 24개월 · 재약정 D-84',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:36px; height:36px;"><path d="M4 4h16v4H4zM4 10h16v10H4z"/><path d="M8 14h4M8 17h6"/></svg>'
+  },
   coupon: {
     eyebrow: '쿠폰',
     title: 'VIPS 50% 할인 쿠폰',
@@ -4182,7 +4295,8 @@ function askAgent(question) {
       responseHtml = '3월 요금 <strong>87,290원</strong>이 납부 대기 중이에요. T포인트 9,000원을 적용하면 78,290원만 내시면 돼요.';
       actionBtn = { text: '요금 안내서 보기', action: () => { closeAgentSheet(); goTo('S2-A-02'); } };
     } else if (question.includes('데이터') || question.includes('사용량') || question.includes('많이 나온')) {
-      responseHtml = '이번 달 데이터를 <strong>76GB / 96GB</strong> 사용 중이에요. 넷플릭스에 52GB를 쓰고 계셔서 5일 뒤면 소진될 예정이에요.';
+      responseHtml = '현재 요금제 <strong>0 청년 59 60GB업</strong>(96GB)을 76GB 사용 중이에요. 오늘(4/23) 기준 <strong>4월 28일(화)에 소진</strong>될 예정이에요.<br><br>지난 3개월 모두 할당량을 초과하셨어요 — 1월 +24GB, 2월 +112GB, 3월 +76GB.';
+      actionBtn = { text: '사용 현황 자세히 보기', action: () => { closeAgentSheet(); goTo('S1-A-02'); } };
     } else {
       responseHtml = '죄송해요, 아직 준비하지 못한 답변이에요. 아래 추천 질문을 선택해보세요.';
     }
