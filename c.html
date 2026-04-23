@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>SKT UT 프로토타입 - C안 (Effortless Flow)</title>
 <style>
 :root {
@@ -68,6 +68,7 @@ a { color: inherit; text-decoration: none; }
 /* App Frame + Status Bar */
 .app-frame {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-frame);
   display: flex;
   justify-content: center;
@@ -87,7 +88,7 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 420px) {
   .app-frame { padding: 0; }
-  .app-screen { width: 100%; min-height: 100vh; max-height: 100vh; border: 0; }
+  .app-screen { width: 100%; min-height: 100vh; min-height: 100dvh; max-height: 100vh; max-height: 100dvh; border: 0; }
 }
 
 .status-bar {
@@ -230,7 +231,7 @@ a { color: inherit; text-decoration: none; }
   flex-direction: column;
   gap: 8px;
   /* Chat Bar 위로 올리기 */
-  margin-bottom: var(--chat-bar-height);
+  margin-bottom: calc(var(--chat-bar-height) + env(safe-area-inset-bottom, 0px));
 }
 
 /* 요금 합계 표 */
@@ -478,7 +479,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Page Content */
-.page-body { padding: 8px 16px calc(var(--chat-bar-height) + 20px); }
+.page-body { padding: 8px 16px calc(var(--chat-bar-height) + 20px + env(safe-area-inset-bottom, 0px)); }
 .page-headline {
   font-size: var(--fs-title);
   font-weight: var(--fw-medium);
@@ -531,7 +532,7 @@ a { color: inherit; text-decoration: none; }
 .c-home-content {
   position: relative;
   z-index: 1;
-  padding: 8px 0 calc(var(--chat-bar-height) + 20px);
+  padding: 8px 0 calc(var(--chat-bar-height) + 20px + env(safe-area-inset-bottom, 0px));
 }
 .c-home-greeting {
   font-size: 22px;
@@ -621,7 +622,7 @@ a { color: inherit; text-decoration: none; }
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: calc(var(--chat-bar-height) + 12px);
+  bottom: calc(var(--chat-bar-height) + 12px + env(safe-area-inset-bottom, 0px));
   z-index: 5;
   display: flex;
   align-items: center;
@@ -827,11 +828,11 @@ a { color: inherit; text-decoration: none; }
 .chat-bar {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  height: var(--chat-bar-height);
+  min-height: var(--chat-bar-height);
   background: var(--bg-page);
   border-top: 1px solid var(--border-default);
   z-index: 30;
-  padding: 12px 14px;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
   display: flex;
   align-items: center;
   gap: 10px;
@@ -980,7 +981,7 @@ a { color: inherit; text-decoration: none; }
   min-height: 100%;
 }
 .chat-screen .page-body {
-  padding: 8px 16px calc(var(--chat-bar-height) + 20px);
+  padding: 8px 16px calc(var(--chat-bar-height) + 20px + env(safe-area-inset-bottom, 0px));
 }
 .chat-thread {
   display: flex;
@@ -1211,7 +1212,7 @@ a { color: inherit; text-decoration: none; }
   height: 52px;
   position: absolute;
   left: 16px; right: 16px;
-  bottom: calc(var(--chat-bar-height) + 16px);
+  bottom: calc(var(--chat-bar-height) + 16px + env(safe-area-inset-bottom, 0px));
   z-index: 5;
 }
 .btn--block { width: 100%; }
@@ -1362,7 +1363,7 @@ a { color: inherit; text-decoration: none; }
 
 /* 완료 화면 (Agent 말풍선 스타일) */
 .done-chat {
-  padding: 40px 16px calc(var(--chat-bar-height) + 20px);
+  padding: 40px 16px calc(var(--chat-bar-height) + 20px + env(safe-area-inset-bottom, 0px));
   min-height: 100%;
 }
 .done-check-inline {
@@ -1479,7 +1480,7 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 20px);">
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 20px + env(safe-area-inset-bottom, 0px));">
           <div style="padding: 24px 0 16px;">
             <div id="miniLandingEyebrow" style="font-size: var(--fs-caption); color: var(--text-secondary); margin-bottom: 8px; letter-spacing: 0.3px; text-transform: uppercase;">카테고리</div>
             <h1 class="page-headline" id="miniLandingTitle">제목</h1>
@@ -2130,7 +2131,7 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 72px);">
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 72px + env(safe-area-inset-bottom, 0px));">
           <!-- 대형 플레이스홀더 이미지 -->
           <div style="background: var(--bg-surface); height: 280px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
             <svg viewBox="0 0 120 200" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5" style="width: 90px; height: 150px;"><rect x="10" y="10" width="100" height="180" rx="12"/><rect x="14" y="14" width="92" height="172" rx="9" fill="var(--bg-surface-2)" opacity="0.5"/><circle cx="60" cy="180" r="3" fill="currentColor"/></svg>
@@ -2236,7 +2237,7 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 72px);">
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 72px + env(safe-area-inset-bottom, 0px));">
           <!-- 포스터 영역 -->
           <div style="display: flex; justify-content: center; padding: 20px 0 24px;">
             <div style="width: 200px; height: 280px; background: var(--bg-surface); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-tertiary); font-size: var(--fs-caption);">
@@ -2292,7 +2293,7 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 100px);">
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 100px + env(safe-area-inset-bottom, 0px));">
           <div style="padding: 8px 0 16px;">
             <h1 class="page-headline">장바구니</h1>
             <div class="page-subline">담아두신 상품 3개</div>
@@ -2376,7 +2377,7 @@ a { color: inherit; text-decoration: none; }
             </div>
           </div>
         </div>
-        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 100px);">
+        <div class="page-body" style="padding-bottom: calc(var(--chat-bar-height) + 100px + env(safe-area-inset-bottom, 0px));">
           <div style="padding: 8px 0 16px;">
             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
               <span class="tag tag--ai">T</span>
