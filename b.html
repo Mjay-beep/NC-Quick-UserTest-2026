@@ -502,8 +502,8 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg-page);
   z-index: 5;
 }
-.top-bar__left { display: flex; align-items: center; gap: 12px; }
-.top-bar__right { display: flex; align-items: center; gap: 6px; }
+.top-bar__left { display: flex; align-items: center; gap: 12px; min-width: 0; flex-shrink: 0; }
+.top-bar__right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .top-bar__icon {
   width: 38px;
   height: 38px;
@@ -568,32 +568,36 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
-/* 홈 필터 바 - 홈 타이틀 + 혜택/관리 칩 토글 */
+/* 홈 필터 바 - 홈 / 혜택 / 관리 3-way 토글 (이미지 기준 신규) */
 .home-filter-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-.home-filter-bar__title {
-  font-size: 18px;
-  font-weight: var(--fw-medium);
-  color: var(--text-primary);
+  gap: 2px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .home-filter-bar__chip {
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: var(--radius-pill);
   background: transparent;
-  border: 1px solid var(--border-default);
-  font-size: var(--fs-caption);
+  border: 0;
+  font-size: 14px;
+  font-weight: var(--fw-medium);
   color: var(--text-secondary);
   cursor: pointer;
-  transition: background 80ms, color 80ms, border-color 80ms;
+  transition: background 100ms, color 100ms;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-.home-filter-bar__chip:active { background: var(--bg-surface-2); }
+.home-filter-bar__chip:active { opacity: 0.7; }
 .home-filter-bar__chip--active {
   background: var(--text-primary);
   color: #fff;
-  border-color: var(--text-primary);
+}
+/* 사용 안 하는 title은 chip으로 통합 - 호환성 위해 남겨둠 */
+.home-filter-bar__title {
+  display: none;
 }
 
 /* 홈 필터 적용 시 카드 숨김 */
@@ -684,11 +688,11 @@ a { color: inherit; text-decoration: none; }
 .home-chip-row::-webkit-scrollbar { display: none; }
 .home-chip {
   flex-shrink: 0;
-  padding: 8px 14px;
+  padding: 12px 20px;
   background: var(--bg-surface);
   border: 0;
   border-radius: var(--radius-pill);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-primary);
   font-weight: var(--fw-regular);
   cursor: pointer;
@@ -705,14 +709,8 @@ a { color: inherit; text-decoration: none; }
   font-weight: var(--fw-medium);
 }
 .home-chip__dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.7;
+  display: none; /* 이미지 디자인에서는 dot 사용 안 함 */
 }
-.home-chip--active .home-chip__dot { background: #fff; }
 
 /* ============================================
    7. Page Content
@@ -2347,7 +2345,7 @@ a { color: inherit; text-decoration: none; }
         <div class="top-bar">
           <div class="top-bar__left">
             <div class="home-filter-bar" id="homeFilterToggle">
-              <span class="home-filter-bar__title">홈</span>
+              <button class="home-filter-bar__chip home-filter-bar__chip--active" data-filter="all" onclick="toggleHomeFilter('all')">홈</button>
               <button class="home-filter-bar__chip" data-filter="benefit" onclick="toggleHomeFilter('benefit')">혜택</button>
               <button class="home-filter-bar__chip" data-filter="manage" onclick="toggleHomeFilter('manage')">관리</button>
             </div>
@@ -2372,13 +2370,14 @@ a { color: inherit; text-decoration: none; }
             <div class="home-hero__sub" id="homeSubline">Galaxy S28 X T 패스 프로모션 <span>›</span></div>
           </div>
 
-          <!-- 칩 필터 (가로 스와이프) - 관리 카테고리 -->
+          <!-- 카테고리 칩 (가로 스와이프) -->
           <div class="home-chip-row">
-            <button class="home-chip home-chip--active" onclick="goTo('S1-B-02a')"><span class="home-chip__dot"></span>데이터 조회</button>
-            <button class="home-chip" onclick="goTo('S2-B-02')"><span class="home-chip__dot"></span>요금조회</button>
-            <button class="home-chip" onclick="goTo('PLAN-LIST')">요금제</button>
-            <button class="home-chip" onclick="alert('(프로토타입) 로밍')">로밍</button>
+            <button class="home-chip home-chip--active">MY</button>
+            <button class="home-chip" onclick="alert('(프로토타입) 가족 결합 현황')">가족 결합 현황</button>
+            <button class="home-chip" onclick="goTo('PLAN-LIST')">요금제 관리</button>
+            <button class="home-chip" onclick="alert('(프로토타입) 멤버십 혜택')">멤버십 혜택</button>
             <button class="home-chip" onclick="alert('(프로토타입) 부가서비스')">부가서비스</button>
+            <button class="home-chip" onclick="alert('(프로토타입) T로밍')">T로밍</button>
           </div>
 
           <!-- 1. 데이터 현황 -->
@@ -2547,9 +2546,9 @@ a { color: inherit; text-decoration: none; }
         <div class="top-bar">
           <div class="top-bar__left">
             <div class="home-filter-bar">
-              <span class="home-filter-bar__title" onclick="goTo('S1-B-01'); setTimeout(()=>applyHomeFilter('all'), 50);" style="cursor: pointer;">홈</span>
-              <button class="home-filter-bar__chip home-filter-bar__chip--active" data-filter="benefit" onclick="goTo('S1-B-01'); setTimeout(()=>applyHomeFilter('all'), 50);">혜택</button>
-              <button class="home-filter-bar__chip" data-filter="manage" onclick="goTo('S1-B-01'); setTimeout(()=>{ activeHomeFilter = null; toggleHomeFilter('manage'); }, 50);">관리</button>
+              <button class="home-filter-bar__chip" data-filter="all" onclick="goToHomeWithFilter('all')">홈</button>
+              <button class="home-filter-bar__chip home-filter-bar__chip--active" data-filter="benefit">혜택</button>
+              <button class="home-filter-bar__chip" data-filter="manage" onclick="goToHomeWithFilter('manage')">관리</button>
             </div>
           </div>
           <div class="top-bar__right">
@@ -4004,8 +4003,40 @@ function applyHomeFilter(filter) {
   }
 }
 
-/* 홈 필터 바 토글 (혜택/관리 칩) - 같은 칩 재클릭 시 해제 → 전체 표시 */
+/* BENEFIT-HOME ↔ S1-B-01 전환 시 깜빡임 없이 필터 동시 적용 */
+function goToHomeWithFilter(filter) {
+  // 1) 화면 전환 전에 미리 S1-B-01의 필터 상태 세팅 (DOM은 hidden 상태에서 바뀜)
+  const body = document.getElementById('s1b01Body');
+  const toggle = document.getElementById('homeFilterToggle');
+  const headline = document.getElementById('homeHeadline');
+  const subline = document.getElementById('homeSubline');
+
+  if (body && toggle) {
+    activeHomeFilter = (filter === 'all') ? null : filter;
+    // 칩 active 상태 즉시 갱신
+    toggle.querySelectorAll('.home-filter-bar__chip').forEach(el => {
+      el.classList.toggle('home-filter-bar__chip--active', el.dataset.filter === filter);
+    });
+    // 카드 필터 즉시 적용
+    body.setAttribute('data-home-filter', filter);
+    // 헤드라인도 즉시 갱신
+    if (headline && subline) {
+      if (filter === 'manage') {
+        headline.innerHTML = '지훈님을 위해<br>놓치지 말아야 할 것들을<br>모아봤어요';
+        subline.innerHTML = '데이터, 요금, 약정 현황 한눈에 보기 <span>›</span>';
+      } else {
+        headline.innerHTML = '지금 개통하고<br>\'테슬라 FSD\' 한 달 무료로<br>이용해보세요';
+        subline.innerHTML = 'Galaxy S28 X T 패스 프로모션 <span>›</span>';
+      }
+    }
+  }
+  // 2) 이제 화면 표시 - 사용자는 이미 필터가 적용된 화면을 즉시 보게 됨
+  goTo('S1-B-01');
+}
+
+/* 홈 필터 바 토글 - 홈(all) / 혜택 / 관리 */
 function toggleHomeFilter(filter) {
+  // 혜택 → 별도 BENEFIT-HOME 화면으로 이동
   if (filter === 'benefit') {
     goTo('BENEFIT-HOME');
     return;
@@ -4016,18 +4047,31 @@ function toggleHomeFilter(filter) {
   const subline = document.getElementById('homeSubline');
   if (!body || !toggle) return;
 
-  // 같은 필터 재클릭 → 해제
-  if (activeHomeFilter === filter) {
+  // 홈 칩(all) 클릭 → 전체 표시 + 활성칩을 홈으로
+  if (filter === 'all') {
     activeHomeFilter = null;
-    toggle.querySelectorAll('.home-filter-bar__chip').forEach(el => el.classList.remove('home-filter-bar__chip--active'));
+    toggle.querySelectorAll('.home-filter-bar__chip').forEach(el => {
+      el.classList.toggle('home-filter-bar__chip--active', el.dataset.filter === 'all');
+    });
     body.setAttribute('data-home-filter', 'all');
-    // 헤드라인 기본(전체) 상태
     if (headline) headline.innerHTML = '지금 개통하고<br>\'테슬라 FSD\' 한 달 무료로<br>이용해보세요';
     if (subline) subline.innerHTML = 'Galaxy S28 X T 패스 프로모션 <span>›</span>';
     return;
   }
 
-  // 필터 활성화
+  // 같은 필터(관리) 재클릭 → 홈으로 복귀
+  if (activeHomeFilter === filter) {
+    activeHomeFilter = null;
+    toggle.querySelectorAll('.home-filter-bar__chip').forEach(el => {
+      el.classList.toggle('home-filter-bar__chip--active', el.dataset.filter === 'all');
+    });
+    body.setAttribute('data-home-filter', 'all');
+    if (headline) headline.innerHTML = '지금 개통하고<br>\'테슬라 FSD\' 한 달 무료로<br>이용해보세요';
+    if (subline) subline.innerHTML = 'Galaxy S28 X T 패스 프로모션 <span>›</span>';
+    return;
+  }
+
+  // 관리 필터 활성화
   activeHomeFilter = filter;
   toggle.querySelectorAll('.home-filter-bar__chip').forEach(el => {
     el.classList.toggle('home-filter-bar__chip--active', el.dataset.filter === filter);
