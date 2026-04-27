@@ -6,11 +6,11 @@
 <title>SKT UT 프로토타입 - C안 (Effortless Flow)</title>
 <style>
 :root {
-  --bg-page: #FFFFFF;
-  --bg-surface: #F5F5F5;
-  --bg-surface-2: #EEEEEE;
-  --bg-surface-3: #E4E4E4;
-  --bg-frame: #D9D9D9;
+  --bg-page: #F4F4F6;
+  --bg-surface: #EBEBEE;
+  --bg-surface-2: #E0E0E4;
+  --bg-surface-3: #D4D4D9;
+  --bg-frame: #C9C9CD;
 
   --border-default: #E0E0E0;
   --border-mid: #CCCCCC;
@@ -537,7 +537,7 @@ a { color: inherit; text-decoration: none; }
 .c-home-greeting {
   font-size: 22px;
   font-weight: var(--fw-medium);
-  color: var(--action);
+  color: var(--text-primary);
   line-height: 1.35;
   margin: 20px 16px 28px;
 }
@@ -577,18 +577,16 @@ a { color: inherit; text-decoration: none; }
 
 /* 공통 Agent 카드 */
 .agent-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(59, 73, 223, 0.1);
-  border-radius: var(--radius-md);
-  padding: 14px;
+  background: var(--bg-surface);
+  border: 0;
+  border-radius: 18px;
+  padding: 18px 16px;
   cursor: pointer;
-  transition: transform 120ms;
+  transition: transform 120ms, background 80ms;
   position: relative;
   overflow: hidden;
 }
-.agent-card:active { transform: scale(0.98); }
+.agent-card:active { transform: scale(0.98); background: var(--bg-surface-2); }
 
 /* 대화 유도 카드 (말풍선 아이콘) */
 .agent-card--chat .agent-card__chat-icon {
@@ -830,7 +828,7 @@ a { color: inherit; text-decoration: none; }
   left: 0; right: 0; bottom: 0;
   min-height: var(--chat-bar-height);
   background: var(--bg-page);
-  border-top: 1px solid var(--border-default);
+  border-top: 0;
   z-index: 30;
   padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
   display: flex;
@@ -841,8 +839,8 @@ a { color: inherit; text-decoration: none; }
 .chat-bar__home {
   width: 44px; height: 44px;
   border-radius: 50%;
-  background: var(--bg-page);
-  border: 1px solid rgba(59, 73, 223, 0.15);
+  background: var(--bg-surface);
+  border: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -850,7 +848,7 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   z-index: 2;
   transition: all 160ms ease;
-  color: var(--action);
+  color: var(--text-secondary);
   font-weight: var(--fw-medium);
   font-size: 17px;
 }
@@ -863,8 +861,8 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 8px;
   height: 44px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(59, 73, 223, 0.12);
+  background: var(--bg-surface);
+  border: 0;
   border-radius: var(--radius-pill);
   padding: 0 8px 0 18px;
   position: relative;
@@ -1586,8 +1584,8 @@ a { color: inherit; text-decoration: none; }
 
         <div class="c-home-content">
           <div class="c-home-greeting">
-            지훈님, 필요한 것만<br>
-            <em>모아봤어요</em>
+            지훈님, 필요한<br>
+            것들만 모아봤어요.
           </div>
 
           <!-- 가로 스크롤 카드 영역 (1열/2열 믹스) -->
@@ -2518,11 +2516,13 @@ a { color: inherit; text-decoration: none; }
          ============================================ -->
     <div class="chat-bar" id="chatBar">
       <!-- 홈 버튼 (기본 상태) -->
-      <button class="chat-bar__home" id="chatBarHome" onclick="expandMenu()">T</button>
+      <button class="chat-bar__home" id="chatBarHome" onclick="expandMenu()" aria-label="홈 메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 22px; height: 22px;"><path d="M3 11l9-7 9 7v9a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/></svg>
+      </button>
 
       <!-- 입력 필드 (기본 상태) -->
       <div class="chat-bar__input" id="chatBarInput">
-        <input type="text" id="chatBarField" class="chat-bar__field" placeholder="필요하신게 있다면 말씀해 주세요" onkeydown="handleChatBarKey(event)" oninput="onChatBarInput(this.value)">
+        <input type="text" id="chatBarField" class="chat-bar__field" placeholder="T에 대해 무엇이든 물어보세요" onkeydown="handleChatBarKey(event)" oninput="onChatBarInput(this.value)">
         <button class="chat-bar__voice" aria-label="음성 입력">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v4M4 8v4M20 8v4M8 6v8M16 6v8M12 12v4"/></svg>
         </button>
